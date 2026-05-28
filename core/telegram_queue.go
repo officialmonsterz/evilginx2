@@ -2,6 +2,7 @@ package core
 
 import (
     "sync"
+    "github.com/kgretzky/evilginx2/log"
 )
 
 // TelegramJob represents a queued Telegram notification

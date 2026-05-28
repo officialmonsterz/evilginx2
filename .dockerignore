@@ -1,5 +1,7 @@
-Dockerfile
-Makefile
-README.md
-LICENSE
-media
+.git
+.gitignore
+*.md
+.DS_Store
+build/
+old/
+vendor/

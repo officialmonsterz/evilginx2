@@ -8,6 +8,8 @@ import (
     "path/filepath"
     "sync"
     "time"
+
+    "github.com/kgretzky/evilginx2/log"
 )
 
 // AutoExportConfig holds configuration for automatic session export

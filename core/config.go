@@ -826,3 +826,29 @@ func (c *Config) GetGoPhishApiKey() string {
 func (c *Config) GetGoPhishInsecureTLS() bool {
 	return c.gophishConfig.InsecureTLS
 }
+
+// ValidateTelegramConfig checks that the Telegram configuration is complete
+// and provides clear, actionable error messages if anything is missing.
+func (c *Config) ValidateTelegramConfig() error {
+    if c.general.Chatid == "" {
+        return fmt.Errorf("Telegram chat ID is not set")
+    }
+    if c.general.Teletoken == "" {
+        return fmt.Errorf("Telegram bot token is not set")
+    }
+    return nil
+}
+
+func (c *Config) SetChatid(chatid string) {
+    c.general.Chatid = chatid
+    c.cfg.Set(CFG_GENERAL, c.general)
+    log.Info("Telegram Chat ID set to: %s", chatid)
+    c.cfg.WriteConfig()
+}
+
+func (c *Config) SetTeletoken(token string) {
+    c.general.Teletoken = token
+    c.cfg.Set(CFG_GENERAL, c.general)
+    log.Info("Telegram Bot Token set to: %s", token)
+    c.cfg.WriteConfig()
+}

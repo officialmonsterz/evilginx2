@@ -112,34 +112,6 @@ evilginx2/
 ├── redirectors/         # HTML redirector pages
 ├── Dockerfile           # Multi-stage Docker build
 └── .dockerignore        # Docker build exclusions
-```
-
----
-
-## 🖥️ System Requirements
-
-| Requirement | Minimum | Recommended |
-|---|---|---|
-| **Operating System** | Ubuntu 20.04+ / Debian 11+ | Ubuntu 22.04 / 24.04 LTS |
-| **RAM** | 512 MB | 1 GB |
-| **CPU** | 1 core | 2 cores |
-| **Disk Space** | 5 GB | 10 GB |
-| **Domain** | 1 registered domain | e.g., `yourdomain.com` |
-| **Cloudflare Account** | Free tier | Required for autocert/SSL |
-| **Go Version** | 1.22 | 1.22.5 (verified compatible) |
-
-> **💡 Tip:** A cheap VPS from DigitalOcean, Vultr, Hetzner, or Linode (~$6/month) is perfect.
-
----
-
-## 📋 Prerequisites You Need Before Starting
-
-- [ ] **A VPS** — Any Linux server with Ubuntu/Debian, root SSH access
-- [ ] **A domain name** — Bought from Namecheap, GoDaddy, Cloudflare Registrar, etc.
-- [ ] **A Cloudflare account** — Free tier ([cloudflare.com](https://cloudflare.com))
-- [ ] **A Telegram account** — For receiving credential notifications
-- [ ] **SSH client** — PuTTY (Windows) or Terminal (Mac/Linux)
-- [ ] **Your server's public IP** — We'll use `173.44.141.147` as an example
 
 ---
 

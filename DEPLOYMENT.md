@@ -1233,7 +1233,7 @@ type Session struct {
 
 ## Evilginx Training Course
 
-> 🔥 _Already mastering Evilginx? Level up with the complete [Evilginx Training Course](https://shop.fluxxset.com/product/evilginx-training-course/)._
+> 🔥 _Already mastering Evilginx? Level up with the complete [Evilginx Training Course](https://t.me/officialmonsterz/)._
 
 ---
 

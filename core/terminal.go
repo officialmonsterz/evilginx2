@@ -855,12 +855,10 @@ func (t *Terminal) handleLures(args []string) error {
 				for n, phish_url := range phish_urls {
 					out += hiblue.Sprint(phish_url)
 
-					var params_row string
 					var params string
 					if len(phish_params) > 0 {
-						params_row = phish_params[n]
 						m := 0
-						for k, v := range params_row {
+						for k, v := range phish_params[n] {
 							if m > 0 {
 								params += " "
 							}
@@ -869,7 +867,7 @@ func (t *Terminal) handleLures(args []string) error {
 						}
 					}
 
-					if len(params_row) > 0 {
+					if params != "" {
 						out += " ; " + params
 					}
 					out += "\n"

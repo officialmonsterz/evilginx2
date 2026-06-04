@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/logo.png" alt="Evilginx2 Logo" width="180"/>
+</p>
+
+
 ---
 
 - [📋 Chapter 3: System Requirements](#-chapter-3-system-requirements)

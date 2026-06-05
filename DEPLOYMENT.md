@@ -1,36 +1,100 @@
-```markdown
 <!--
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                            ║
-║              🦊  E V I L G I N X 3   —   D E P L O Y M E N T             ║
+║                      🦊  E V I L G I N X 3                                ║
 ║                     T E L E G R A M   E D I T I O N                       ║
 ║                                                                            ║
-║        The Complete, No-Step-Skipped, Baby-Step Guide to Setting          ║
-║          Up Evilginx3 from Zero to Production-Ready Operation             ║
+║         Man-in-the-Middle Attack Framework with 2FA Bypass                ║
+║                  & Real-Time Telegram Alerts                               ║
 ║                                                                            ║
-║                  Created with ❤️ by @officialmonsterz                      ║
+║                  Created with ❤ by @officialmonsterz                      ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/logo.png" alt="Evilginx2 Logo" width="180"/>
+  <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/logo.png"
+       alt="Evilginx2 Logo"
+       width="180"
+       style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
 </p>
 
-<h1 align="center">🦊 Evilginx3 — Telegram Edition<br>Complete Deployment Guide</h1>
+<h1 align="center" style="font-family: 'Courier New', monospace; font-size: 2.5em; color: #ff6b35; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+  🦊 Evilginx3 — Telegram Edition
+</h1>
 
-<p align="center">
-  <strong>12 Phases • Every Step Explained in Plain English • No Steps Skipped</strong>
+<p align="center" style="font-size: 1.15em; font-weight: 500; color: #555;">
+  <strong>
+    The Advanced Man-in-the-Middle Attack Framework with 2FA Bypass<br>
+    & Real-Time Telegram Alerts — Supercharged for Red Teams
+  </strong>
 </p>
 
+<br>
+
 <p align="center">
-  <a href="https://github.com/officialmonsterz/evilginx2">
-    <img src="https://img.shields.io/badge/Repo-officialmonsterz/evilginx2-181717?style=for-the-badge&logo=github" alt="GitHub">
-  </a>
   <a href="https://t.me/officialmonsterz">
-    <img src="https://img.shields.io/badge/Support-@officialmonsterz-26A5E4?style=for-the-badge&logo=telegram" alt="Telegram Support">
+    <img src="https://img.shields.io/badge/Telegram-@officialmonsterz-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram">
+  </a>
+  <a href="mailto:shapads@tutamail.com">
+    <img src="https://img.shields.io/badge/Email-shapads@tutamail.com-red?style=for-the-badge&logo=mail.ru&logoColor=white" alt="Email">
+  </a>
+  <a href="https://github.com/officialmonsterz/evilginx2">
+    <img src="https://img.shields.io/badge/GitHub-officialmonsterz-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
   </a>
 </p>
+
+<p align="center">
+  <a href="https://github.com/officialmonsterz/evilginx2/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/License-BSD%203--Clause-blue?style=flat-square" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/Version-3.3.0-brightgreen?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/Go-1.22-00ADD8?style=flat-square&logo=go" alt="Go">
+  <img src="https://img.shields.io/badge/Database-BuntDB-orange?style=flat-square" alt="BuntDB">
+  <img src="https://img.shields.io/badge/Docker-~18MB-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Wildcard-DNS%20SSL%20Ready-brightgreen?style=flat-square" alt="Wildcard SSL">
+</p>
+
+<br>
+
+---
+
+<br>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/screen.png"
+       alt="Evilginx2 Console"
+       width="780"
+       style="border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
+</p>
+
+<br>
+
+---
+
+<br>
+
+# 📋 Table of Contents
+
+- [🧠 What Is Evilginx3? (The Simple Explanation)](#-what-is-evilginx3-the-simple-explanation)
+- [🎯 How It Works — The Big Picture](#-how-it-works--the-big-picture)
+- [⚡ Why This Fork? (What Makes It Special)](#-why-this-fork-what-makes-it-special)
+- [📊 Original Evilginx vs This Fork vs Other Verified Repos — Full Comparison](#-original-evilginx-vs-this-fork-vs-other-verified-repos--full-comparison)
+- [✨ New Features Deep Dive](#-new-features-deep-dive)
+  - [📱 1. Telegram Notifications — The Core Feature](#-1-telegram-notifications--the-core-feature)
+  - [📊 2. Web Dashboard](#-2-web-dashboard)
+  - [💾 3. BuntDB Embedded Database](#-3-buntdb-embedded-database)
+  - [🐳 4. Multi-Stage Docker Build (~18MB Alpine)](#-4-multi-stage-docker-build-18mb-alpine)
+  - [📁 5. Auto-Export System](#-5-auto-export-system)
+  - [🔒 6. Wildcard SSL Support (TLD Wildcard)](#-6-wildcard-ssl-support-tld-wildcard)
+- [🚀 Quick Start](#-quick-start)
+- [📱 Telegram Integration](#-telegram-integration)
+- [📊 Web Dashboard](#-web-dashboard)
+- [🐳 Docker Support](#-docker-support)
+- [🧬 Architecture & Data Flow](#-architecture--data-flow)
+- [📂 Repository File Structure](#-repository-file-structure)
+- [⚖️ Disclaimer](#%EF%B8%8F-disclaimer)
+- [👏 Credits & Support](#-credits--support)
 
 <br>
 

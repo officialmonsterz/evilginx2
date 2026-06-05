@@ -121,40 +121,28 @@ Everything Person A says to Person B, **you hear**. Everything Person B says bac
 
 It's a **man-in-the-middle (MITM) attack framework** used for authorized penetration testing and security assessments. It acts as a **reverse proxy** between a victim and a real website (like Office 365, Google, LinkedIn, Facebook, etc.).
 
-## The Simple Picture
+## ✨ Key Features (What Makes This the Best)
 
-┌──────────────────────────┐
-                    │      YOUR VICTIM         │
-                    │  (opens an email link)   │
-                    └─────────────┬────────────┘
-                                  │
-                                  ▼
-              ┌─────────────────────────────────────┐
-              │       YOUR EVILGINX SERVER          │
-              │                                     │
-              │   "Hello! Let me forward you to     │
-              │    the real login page..."          │
-              └──────┬──────────────────────┬───────┘
-                     │                      │
-                     ▼                      ▼
-          ┌────────────────────┐  ┌────────────────────┐
-          │  WHAT GETS STOLEN │  │  REAL WEBSITE      │
-          │                    │  │                    │
-          │  ✓ Email/Username │  │  (e.g., Office 365)│
-          │  ✓ Password       │  │                    │
-          │  ✓ Session Cookie │  │  Victim logs in    │
-          │    (bypasses 2FA) │  │  successfully      │
-          │  ✓ 2FA Code       │  └────────────────────┘
-          └────────┬──────────┘
-                   │
-                   ▼
-    ┌─────────────────────────────────────┐
-    │  YOU GET INSTANT NOTIFICATION:      │
-    │                                     │
-    │  📱 Telegram Message                │
-    │  📊 Web Dashboard                   │
-    │  💾 Saved to Database               │
-    └─────────────────────────────────────┘
+1. **📱 Telegram Edition**  
+   Instant alerts with credentials + downloadable `.txt` token file. Messages update automatically if more tokens arrive.
+
+2. **🛡️ Wildcard Certificate Protection**  
+   Only `*.yourdomain.com` appears in Certificate Transparency logs. No individual subdomains like `login.yourdomain.com`.
+
+3. **🔄 Dynamic unauth_url Spoofing**  
+   Scanners see real website content (Wikipedia/Google) under your domain instead of a suspicious redirect.
+
+4. **🕵️ Bot Protection**  
+   Blocks VirusTotal, URLScan.io, PhishTank, headless browsers, and scanners using multiple signals.
+
+5. **📝 JS Obfuscation**  
+   Injected JavaScript is base64-encoded and unreadable to security scanners.
+
+6. **🔗 URL Rewriting**  
+   Address bar shows clean relative paths instead of exposing the real target structure.
+
+7. **📊 Full Web Dashboard**  
+   View, search, filter, export CSV/JSON, and delete sessions from any browser.
 
 
 ## What This Means In Real Life (Step by Step)

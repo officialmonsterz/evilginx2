@@ -135,31 +135,28 @@ Imagine you want to test your company's security (this is an authorized penetrat
 
 <br>
 
-# 🎯 How It Works — The Big Picture
+# ✨ Key Features (What Makes This the Best)
 
-┌─────────────────────────────────────┐
-                  │         VICTIM'S BROWSER            │
-                  │  (thinks they're on the real site)  │
-                  └──────────────┬──────────────────────┘
-                                 │
-                                 ▼
-                  ┌─────────────────────────────────────┐
-                  │         EVILGINX3 PROXY             │
-                  │   (MITM Reverse Proxy Engine)        │
-                  └──────┬──────────────────┬───────────┘
-                         │                  │
-                         ▼                  ▼
-      ┌────────────────────────┐   ┌────────────────────────┐
-      │   CAPTURES & STORES    │   │   FORWARDS TO REAL    │
-      │                        │   │       WEBSITE         │
-      │  ✓ Username / Email    │   │                        │
-      │  ✓ Password            │   │  (login succeeds —    │
-      │  ✓ Session Cookies     │   │   victim sees no      │
-      │  ✓ 2FA / MFA Tokens    │   │   suspicious error)   │
-      │  ✓ OAuth Bearer Tokens │   └────────────────────────┘
-      └───────────┬────────────┘
-                  │
-                  ▼
+1. **📱 Telegram Edition**  
+   Instant alerts with credentials + downloadable `.txt` token file. Messages update automatically if more tokens arrive.
+
+2. **🛡️ Wildcard Certificate Protection**  
+   Only `*.yourdomain.com` appears in Certificate Transparency logs. No individual subdomains like `login.yourdomain.com`.
+
+3. **🔄 Dynamic unauth_url Spoofing**  
+   Scanners see real website content (Wikipedia/Google) under your domain instead of a suspicious redirect.
+
+4. **🕵️ Bot Protection**  
+   Blocks VirusTotal, URLScan.io, PhishTank, headless browsers, and scanners using multiple signals.
+
+5. **📝 JS Obfuscation**  
+   Injected JavaScript is base64-encoded and unreadable to security scanners.
+
+6. **🔗 URL Rewriting**  
+   Address bar shows clean relative paths instead of exposing the real target structure.
+
+7. **📊 Full Web Dashboard**  
+   View, search, filter, export CSV/JSON, and delete sessions from any browser.
 
 
 # Delivery Channels

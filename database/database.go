@@ -3,7 +3,6 @@ package database
 import (
 	"encoding/json"
 	"strconv"
-	"encoding/json"
 	"github.com/gorilla/websocket"
 	"time"
 

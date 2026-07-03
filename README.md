@@ -1,5 +1,3 @@
----
-
 # 🦊 EVILGINX3 — TELEGRAM EDITION
 
 **The Advanced Man-in-the-Middle Attack Framework with 2FA Bypass & Real-Time Telegram Alerts**

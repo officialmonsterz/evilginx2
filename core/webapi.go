@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/kgretzky/evilginx2/database"
-	gp_models "github.com/kgretzky/evilginx2/gophish/models"
 	"github.com/kgretzky/evilginx2/log"
 )
 
@@ -114,10 +113,6 @@ func (w *WebAPI) Start(port int) {
 	mux.HandleFunc("/api/lures/get-url", w.requireAuth(w.handleLureGetUrl))
 	mux.HandleFunc("/api/lures/create", w.requireOperator(w.handleLureCreate))
 	mux.HandleFunc("/api/lures/delete", w.requireOperator(w.handleLureDelete))
-
-	// GoPhish endpoints (read-only)
-	mux.HandleFunc("/api/gophish/campaigns", w.requireAuth(w.handleGophishCampaigns))
-	mux.HandleFunc("/api/gophish/campaigns/results", w.requireAuth(w.handleGophishCampaignResults))
 
 	// Audit log (read-only)
 	mux.HandleFunc("/api/audit", w.requireAuth(w.handleAudit))
@@ -1164,90 +1159,6 @@ func (w *WebAPI) handleLureDelete(rw http.ResponseWriter, req *http.Request) {
 
 	rw.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(rw).Encode(map[string]string{"message": "Lure deleted"})
-}
-
-// ---------- GoPhish ----------
-
-// gophishAdminUserId is the GoPhish user ID of the single admin account that
-// evilginx auto-provisions for its embedded GoPhish instance (the first and
-// only row inserted into the users table). The embedded integration is
-// single-tenant, so this is always 1.
-const gophishAdminUserId = 1
-
-func (w *WebAPI) handleGophishCampaigns(rw http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	summaries, err := gp_models.GetCampaignSummaries(gophishAdminUserId)
-	if err != nil {
-		writeJSON(rw, http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("failed to get campaigns: %v", err)})
-		return
-	}
-
-	// CampaignSummary omits URL — build a URL lookup map from the full campaign list.
-	urlMap := make(map[int64]string)
-	if campaigns, cerr := gp_models.GetCampaigns(gophishAdminUserId); cerr == nil {
-		for _, c := range campaigns {
-			urlMap[c.Id] = c.URL
-		}
-	}
-
-	type campaignRow struct {
-		Id          int64                   `json:"id"`
-		Name        string                  `json:"name"`
-		Status      string                  `json:"status"`
-		CreatedDate time.Time               `json:"created_date"`
-		URL         string                  `json:"url"`
-		Stats       gp_models.CampaignStats `json:"stats"`
-	}
-	rows := make([]campaignRow, len(summaries.Campaigns))
-	for i, cs := range summaries.Campaigns {
-		rows[i] = campaignRow{
-			Id:          cs.Id,
-			Name:        cs.Name,
-			Status:      cs.Status,
-			CreatedDate: cs.CreatedDate,
-			URL:         urlMap[cs.Id],
-			Stats:       cs.Stats,
-		}
-	}
-
-	writeJSON(rw, http.StatusOK, rows)
-}
-
-func (w *WebAPI) handleGophishCampaignResults(rw http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodGet {
-		http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := req.URL.Query().Get("id")
-	if idStr == "" {
-		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(map[string]string{"error": "id query parameter is required"})
-		return
-	}
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(rw).Encode(map[string]string{"error": "invalid id"})
-		return
-	}
-
-	results, err := gp_models.GetCampaignResults(id, gophishAdminUserId)
-	if err != nil {
-		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(rw).Encode(map[string]string{"error": fmt.Sprintf("failed to get campaign results: %v", err)})
-		return
-	}
-
-	rw.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(rw).Encode(results)
 }
 
 // ---------- Audit ----------

@@ -1,10 +1,3 @@
----
-
-## YOUR NEW BEAUTIFUL README.md
-
-Copy and paste this entire block into GitHub's editor for `README.md`, overwriting what's there:
-
-```markdown
 <p align="center">
   <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/logo.png" alt="Evilginx Logo" width="200">
 </p>

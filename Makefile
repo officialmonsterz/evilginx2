@@ -10,7 +10,7 @@ all: build
 
 build:
 	@mkdir -p ./build
-	@go build $(LDFLAGS) -o ./build/$(TARGET) -mod=vendor main.go
+	@go build $(LDFLAGS) -o ./build/$(TARGET) main.go
 
 test:
 	@go test ./...

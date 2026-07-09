@@ -110,12 +110,7 @@ matt.ns.cloudflare.com
 ### Step 2.1 — Choose a VPS Provider
 
 **Recommended (cheapest to most expensive):**
-| Provider | Cheapest Plan | Specs | Price |
-|:---------|:--------------|:------|:------|
-| **BuyVM** | Slice 512 | 512MB RAM, 10GB SSD | $3.50/mo |
-| **Hetzner** | CX22 | 2GB RAM, 40GB SSD | €4.35/mo (~$5) |
-| **DigitalOcean** | Basic | 1GB RAM, 25GB SSD | $6/mo |
-| **Vultr** | Cloud Compute | 1GB RAM, 25GB SSD | $6/mo |
+CONTACT ME
 
 **Choose:** Ubuntu 22.04 or 24.04 LTS
 

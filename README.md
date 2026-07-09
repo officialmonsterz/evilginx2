@@ -154,7 +154,7 @@ This isn't just another Evilginx fork. It's a **complete red-team platform** bui
 | **Systemd Service Auto-Start** | ✅ | ❌ |
 | **Audit Trail with IP Attribution** | ✅ | ❌ |
 | **Open Source (BSD-3)** | ✅ | ❌ Proprietary |
-| **Cost** | **Free** | $200+/month |
+| **Cost** | **Contact Owner** | $2000+/month |
 
 ---
 
@@ -174,7 +174,7 @@ This isn't just another Evilginx fork. It's a **complete red-team platform** bui
 ## 🚀 QUICK START
 
 ### Prerequisites
-- Ubuntu 20.04+ VPS (Hetzner $5/mo, DigitalOcean $6/mo)
+- Ubuntu 20.04+ VPS
 - Domain via Cloudflare (free tier, DNS Only)
 - Telegram account (for notifications)
 

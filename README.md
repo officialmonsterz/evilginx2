@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/kgretzky/evilginx2/master/media/img/logo.png" alt="Evilginx Logo" width="200">
 </p>
 
-<h1 align="center">🦊 EVILGINX3 PRO — TELEGRAM EDITION</h1>
+<h1 align="center">🦊 EVILGINX3 PRO — CONTACT OWNER FOR FULL SCRIPTS MISSING</h1>
 
 <p align="center">
   <strong>The Next-Generation Man-in-the-Middle Attack Framework with 2FA Bypass, Real-Time Alerts & Enterprise-Grade Anti-Detection</strong>

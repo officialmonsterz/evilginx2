@@ -68,7 +68,7 @@ The original Evilginx2 was last touched years ago. There are forks, spin-offs, a
 
 | Capability | Original Evilginx2 | Evilginx Pro | **This Fork** |
 |:-----------|:------------------:|:------------:|:-------------:|
-| Price | Free | 💰 Paid subscription | **Free, forever** |
+| Price | Free | 💰 Paid subscription | **One Time Payment** |
 | Source code you can audit | ✅ | ❌ Closed binary | ✅ Full source |
 | 📱 Telegram delivery of cookies + creds | ❌ | ❌ | ✅ Async queue, cookie files attached |
 | 👀 Instant visitor-arrival alerts | ❌ | ❌ | ✅ IP + UA + landing URL the second they land |

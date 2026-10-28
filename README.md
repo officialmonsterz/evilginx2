@@ -1,4 +1,4 @@
-# 🔥 EVILGINX2 — PRO-PARITY EDITION
+# 🔥 EVILGINX2 — PRO-PARITY EDITION (THIS IS NOT A FREE REPO - CONTACT OWNER FOR FULL FILES AND USAGE)
 
 ## Adversary-in-the-Middle · Session Hijacking · 2FA Bypass · Telegram-Native · One-Command Docker
 

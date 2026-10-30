@@ -189,7 +189,7 @@ docker run --rm hello-world
 
 ```bash
 cd ~
-git clone https://github.com/trustwomanaturownrisk/evilginx2.git
+git clone https://github.com/officialmonsterz/evilginx2.git
 cd evilginx2
 git checkout master
 chmod +x entrypoint.sh telegram-watch.sh 2>/dev/null
@@ -199,8 +199,8 @@ git remote -v
 ✅ Folder created; remote shows your repo
 
 ```bash
-git config --global user.name "trustwomanaturownrisk"
-git config --global user.email "trustwomanaturownrisk@users.noreply.github.com"
+git config --global user.name "officialmonsterz"
+git config --global user.email "officialmonsterz@users.noreply.github.com"
 git config --global credential.helper store
 git config --global init.defaultBranch master
 ```

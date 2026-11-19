@@ -724,7 +724,7 @@ Both user-agent strings must say **Chrome/156** — the engine in the image is 1
 # ============================================================
 # TIMEZONE + TELEGRAM
 # ============================================================
-TZ=Africa/Lagos
+TZ=America/New_York
 TG_BOT_TOKEN=<PASTE_BOT_TOKEN_HERE>
 TG_CHAT_ID=<PASTE_CHAT_ID_HERE>
 

